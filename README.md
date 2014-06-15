@@ -2,11 +2,13 @@ Thunk v0.1.0 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=
 ====
 Thunk! A magical async flow control.
 
-### thunk?
+## thunk?
 
-**`thunk`** 这一概念，我最初见于 **TJ Holowaychuk** 的 [co](https://github.com/visionmedia/co)。**`thunk`** 是一个被封装了同步或异步任务的函数，这个函数有唯一一个参数 `callback`。运行 **`thunk`**后，当其封装的任务执行完毕时，任务结果会输入 `callback` 执行。`callback` 的第一个参数是 `error`，没有发生 `error` 则为 `null`。
+**`thunk`** 是一个被封装了同步或异步任务的函数，这个函数有唯一一个参数 `callback`。运行 **`thunk`**后，当其封装的任务执行完毕时，任务结果会输入 `callback` 执行。`callback` 的第一个参数是 `error`，没有发生 `error` 则为 `null`。
 
-### Async chain? YES!
+**`thunk`** 运行后返回一个新的 **`thunk`**，从而形成链式调用！
+
+## Async chain? YES!
 
     Thunk(function (callback) {
       // ...
@@ -16,7 +18,7 @@ Thunk! A magical async flow control.
       // ...
     })
 
-### Demo
+## Demo
 
     'use strict';
     /*global module, process*/
@@ -58,3 +60,18 @@ Thunk! A magical async flow control.
     });
 
 
+## API
+
+    var Thunk = require('./thunk.js');
+
+### Thunk(start)
+
+主构造函数，返回一个新的 `thunk` 函数。
+
+其中 `start` 可以是：
+
+1. `thunk` 函数，执行该函数，结果进入新的 `thunk` 函数
+
+2. function (callback) {}，执行该函数，callback收集结果进入新的 `thunk` 函数
+
+3. 其它值，当作有效结果进入新的 `thunk` 函数
