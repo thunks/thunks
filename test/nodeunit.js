@@ -63,7 +63,20 @@ exports.thunk = function (test) {
     return Thunk(Thunk(value * 2));
   })(function (error, value) {
     test.strictEqual(value, 16);
+    return Thunk.all([
+      0,
+      Thunk(1),
+      Thunk(Thunk(2)),
+      Thunk(function (callback) {
+        setImmediate(function () { callback(null, 3); });
+      }),
+      Thunk(Thunk(function (callback) {
+        setImmediate(function () { callback(null, 4); });
+      })),
+      [5]
+    ]);
+  })(function (error, value) {
+    test.deepEqual(value, [0, 1, 2, 3, 4, [5]]);
     test.done();
   });
-
 };
