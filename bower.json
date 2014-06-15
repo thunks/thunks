@@ -1,0 +1,27 @@
+{
+  "name": "thunk",
+  "description": "Thunk! A magical async flow control.",
+  "main": "thunk.js",
+  "version": "0.0.1",
+  "homepage": "https://github.com/teambition/thunk",
+  "authors": [
+    "Yan Qing <admin@zensh.com>"
+  ],
+  "description": "Thunk!",
+  "keywords": [
+    "async",
+    "thunk",
+    "Promise",
+    "flow"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "docs",
+    "benchmark",
+    "test",
+    "tests"
+  ]
+}
