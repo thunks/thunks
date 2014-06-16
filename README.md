@@ -49,22 +49,24 @@ Thunk! A magical async flow control.
 
 1. `thunk` 函数，执行该函数，结果进入新的 `thunk` 函数
 
-    var thunk1 = Thunk(1);
-    var thunk2 = Thunk(thunk1); // thunk2 等效于 thunk1;
+        var thunk1 = Thunk(1);
+        var thunk2 = Thunk(thunk1); // thunk2 等效于 thunk1;
+
 
 2. function (callback) {}，执行该函数，callback收集结果进入新的 `thunk` 函数
 
-    Thunk(function (callback) {
-      callback(null, 1)
-    })(function (error, value) {
-      console.log(error, value); // null, 1
-    });
+        Thunk(function (callback) {
+          callback(null, 1)
+        })(function (error, value) {
+          console.log(error, value); // null, 1
+        });
 
 3. 其它值，当作有效结果进入新的 `thunk` 函数
 
-    Thunk(1)(function (error, value) {
-      console.log(error, value); // null, 1
-    })
+        Thunk(1)(function (error, value) {
+          console.log(error, value); // null, 1
+        })
+
 
 ### Thunk.all(array)
 
