@@ -1,8 +1,9 @@
 'use strict';
 /*global console*/
 
-var Thunk = require('../thunk.js');
+var Thunkjs = require('../thunk.js');
 var fs = require('fs');
+var Thunk = Thunkjs(function (error) { console.error('Thunk error:', error); });
 
 Thunk.
   all(['examples/demo.js', 'thunk.js', '.gitignore'].map(function (path) {
@@ -11,5 +12,5 @@ Thunk.
     console.log('Success: ', result);
     return Thunk(function (callback) { fs.stat('none.js', callback); });
   })(function (error, result) {
-    console.error('Error: ', error);
+    console.error('This should not run!', error);
   });

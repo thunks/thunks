@@ -1,4 +1,4 @@
-// v0.2.1
+// v0.3.0
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -35,111 +35,128 @@
     return ret;
   }
 
-  // ## **Thunk** 主函数
-  function Thunk(start) {
-    var current = {};
+  return function (options) {
+    var scope = {};
 
-    if (isFunction(start)) {
-      start._isThunk = true;
-      continuation({
-        next: current,
-        result: [],
-        callback: function () {return start;}
-      });
-    } else {
-      current.result = [null, start];
+    if (isFunction(options)) scope.onerror = options;
+    else if (options) {
+      scope.debug = isFunction(options.debug) ? options.debug : null;
+      scope.onerror = isFunction(options.onerror) ? options.onerror : null;
     }
 
-    return thunkFactory(current);
-  }
+    function continuation(parent) {
+      var onerror, result, args = parent.result, current = parent.next;
 
-  function thunkFactory(parent) {
-    function thunk(callback) {
+      function callback() {
+        if (current.result === false) return;
+        current.result = arguments;
+        if (current.callback) continuation(current);
+      }
+
+      onerror = scope.onerror || callback;
+      parent.result = false;
+      // 如果开启 debug
+      if (scope.debug) scope.debug.apply(null, args);
+      // 当存在 `error` 时，截除其它结果
+      if (args[0] != null) {
+        args = [args[0]];
+        if (scope.onerror) return onerror(args[0]);
+      }
+      try {
+        result = parent.callback.apply(null, args);
+      } catch (error) {
+        return onerror(error);
+      }
+
+      if (result == null) return callback(null);
+      if (!(isFunction(result) && result._isThunk)) return callback(null, result);
+      try {
+        result(callback);
+      } catch (error) {
+        return onerror(error);
+      }
+    }
+
+    // ## **thunk** 主函数
+    function thunk(start) {
       var current = {};
 
-      if (parent.result === false) return;
-      if (!isFunction(callback)) throw new Error('Not Function!!');
-      parent.callback = callback;
-      parent.next = current;
-      if (parent.result) continuation(parent);
+      if (isFunction(start)) {
+        start._isThunk = true;
+        continuation({
+          next: current,
+          result: [],
+          callback: function () {return start;}
+        });
+      } else {
+        current.result = start == null ? [null] : [null, start];
+      }
+
       return thunkFactory(current);
     }
-    thunk._isThunk = true;
-    return thunk;
-  }
 
-  function continuation(parent) {
-    var result, args = parent.result, current = parent.next;
+    function thunkFactory(parent) {
+      function _thunk(callback) {
+        var current = {};
 
-    function callback() {
-      if (current.result === false) return;
-      current.result = arguments;
-      if (current.callback) continuation(current);
+        if (parent.result === false) return;
+        if (!isFunction(callback)) throw new Error('Not Function!!');
+        parent.callback = callback;
+        parent.next = current;
+        if (parent.result) continuation(parent);
+        return thunkFactory(current);
+      }
+      _thunk._isThunk = true;
+      return _thunk;
     }
 
-    parent.result = false;
-    // 当存在 `error` 时，截除其它结果
-    if (args[0] != null) args = [args[0]];
-    try {
-      result = parent.callback.apply(null, args);
-    } catch (error) {
-      return callback(error);
-    }
+    thunk.all = function (array) {
+      var current = {}, pending = array.length;
 
-    if (!(isFunction(result) && result._isThunk)) return callback(null, result);
-    try {
-      result(callback);
-    } catch (error) {
-      callback(error);
-    }
-  }
-
-  Thunk.all = function (array) {
-    var current = {}, pending = array.length;
-
-    function callback(error, result) {
-      pending = 0;
-      continuation({
-        next: current,
-        result: [],
-        callback: function () {
-          if (error) throw error;
-          return result;
-        }
-      });
-    }
-
-    function done(thunks) {
-      var result = [];
-
-      function run(fn, index) {
-        if (!(isFunction(fn) && fn._isThunk)) {
-          result[index] = fn;
-          return --pending || callback(null, result);
-        }
-        fn(function (error, res) {
-          if (!pending) return;
-          if (error) return callback(error);
-          result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
-          return --pending || callback(null, result);
+      function callback(error, result) {
+        pending = 0;
+        continuation({
+          next: current,
+          result: [],
+          callback: function () {
+            if (error) throw error;
+            return result;
+          }
         });
       }
 
-      for (var i = pending - 1; i >= 0; i--) {
-        run(thunks[i], i);
+      function done(thunks) {
+        var result = [];
+
+        function run(fn, index) {
+          if (!(isFunction(fn) && fn._isThunk)) {
+            result[index] = fn;
+            return --pending || callback(null, result);
+          }
+          fn(function (error, res) {
+            if (!pending) return;
+            if (error) return callback(error);
+            result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
+            return --pending || callback(null, result);
+          });
+        }
+
+        for (var i = pending - 1; i >= 0; i--) {
+          run(thunks[i], i);
+        }
       }
-    }
 
-    if (!isArray(array)) throw new Error('Not Array!!');
-    if (!pending) callback(null, []);
-    try {
-      done(array);
-    } catch (error) {
-      callback(error);
-    }
+      if (!isArray(array)) throw new Error('Not Array!!');
+      if (!pending) callback(null, []);
+      try {
+        done(array);
+      } catch (error) {
+        callback(error);
+      }
 
-    return thunkFactory(current);
+      return thunkFactory(current);
+    };
+
+    return thunk;
   };
-
-  return Thunk;
 }));

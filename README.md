@@ -1,4 +1,4 @@
-Thunk v0.2.1 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
+Thunk v0.3.0 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
 ====
 Thunk! A magical async flow control.
 
@@ -8,7 +8,7 @@ Thunk! A magical async flow control.
 
 **`thunk`** 运行后返回一个新的 **`thunk`**，从而形成链式调用！
 
-## Async chain? YES!
+## Async Chain
 
     Thunk(function (callback) {
       // ...
@@ -16,15 +16,15 @@ Thunk! A magical async flow control.
       // ...
     })(function(error, value){
       // ...
+    })(function(error, value){
+      // ...
     })
 
-## Demo
+## Demo1
 
-    'use strict';
-    /*global console*/
-
-    var Thunk = require('../thunk.js');
+    var Thunkjs = require('../thunk.js');
     var fs = require('fs');
+    var Thunk = Thunkjs(function (error) { console.error('Thunk error:', error); });
 
     Thunk.
       all(['examples/demo.js', 'thunk.js', '.gitignore'].map(function (path) {
@@ -33,13 +33,52 @@ Thunk! A magical async flow control.
         console.log('Success: ', result);
         return Thunk(function (callback) { fs.stat('none.js', callback); });
       })(function (error, result) {
-        console.error('Error: ', error);
+        console.error('This should not run!', error);
       });
 
+## Demo2
+
+    var Thunk = require('../thunk.js')();
+    var thunk = Thunk(0);
+
+    function callback(error, value) {
+      return ++value;
+    }
+
+    console.time('Thunk_series');
+    for (var i = 0; i < 1000000; i++) {
+      thunk = thunk(callback);
+    }
+
+    thunk(function (error, value) {
+      console.log(error, value); // null, 1000000
+      console.timeEnd('Thunk_series'); // ~1468ms
+    });
 
 ## API
 
-    var Thunk = require('./thunk.js');
+    var Thunkjs = require('./thunk.js');
+
+### Thunkjs([options])
+
+`Thunk` 生成器函数，生成一个带作用域的 `Thunk` 主函数，作用域是指该 `Thunk` 直接或间接生成的所有 `thunk` 函数的内部运行环境。
+
+生成基本形式的 `Thunk`，任何异常会输入到下一个 `thunk` 函数：
+
+    var Thunk = Thunkjs();
+
+生成有 `onerror` 监听的 `Thunk`，该 `Thunk` 作用域内的任何异常都可被 `onerror` 捕捉，而不会进入下一个 `thunk` 函数：
+
+    var Thunk = Thunkjs(function (error) { console.error(error); });
+
+生成有 `onerror` 监听和 `debug` 监听的 `Thunk`，`onerror` 同上，该 `Thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个 `thunk` 函数：
+
+    var Thunk = Thunkjs({
+      onerror: function (error) { console.error(error); },
+      debug: function () { console.log.apply(console, arguments); }
+    });
+
+拥有不同作用域的多个 `Thunk` 主函数组合成复杂逻辑体时，各自的作用域仍然相互隔离，也就是说 `onerror` 监听和 `debug` 监听不会在其它作用域运行。
 
 ### Thunk(start)
 
@@ -65,7 +104,7 @@ Thunk! A magical async flow control.
 
         Thunk(1)(function (error, value) {
           console.log(error, value); // null, 1
-        })
+        });
 
 
 ### Thunk.all(array)
@@ -81,4 +120,4 @@ Thunk! A magical async flow control.
       Thunk(function (callback) { callback(null, [3]); })
     ])(function (error, value) {
       console.log(error, value); // null, [0, 1, 2, [3]]
-    })
+    });

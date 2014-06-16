@@ -1,7 +1,12 @@
 'use strict';
 /*global module, process*/
 
-var Thunk = require('../thunk.js');
+var Thunkjs = require('../thunk.js');
+
+// 生成 带有onerror 监听的 thunk 主函数。
+var Thunk = Thunkjs(function (error) {
+  console.log('Thunk Error:', error);
+});
 
 Thunk(function (callback) {
   callback(null, 1, 2, 3);
@@ -34,6 +39,8 @@ Thunk(function (callback) {
     Thunk(Thunk(Thunk(999)))(function (error, value) {
       console.log(error, value); // null, 999
     });
+  })(function () {
+    throw new Error('some error!!!!');
   });
 });
 
