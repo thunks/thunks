@@ -1,4 +1,4 @@
-// v0.2.0
+// v0.2.1
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -76,23 +76,21 @@
       current.result = arguments;
       if (current.callback) continuation(current);
     }
+
+    parent.result = false;
     // 当存在 `error` 时，截除其它结果
     if (args[0] != null) args = [args[0]];
-    parent.result = false;
     try {
       result = parent.callback.apply(null, args);
     } catch (error) {
       return callback(error);
     }
 
-    if (isFunction(result) && result._isThunk) {
-      try {
-        result(callback);
-      } catch (error) {
-        callback(error);
-      }
-    } else {
-      callback(null, result);
+    if (!(isFunction(result) && result._isThunk)) return callback(null, result);
+    try {
+      result(callback);
+    } catch (error) {
+      callback(error);
     }
   }
 
@@ -100,6 +98,7 @@
     var current = {}, pending = array.length;
 
     function callback(error, result) {
+      pending = 0;
       continuation({
         next: current,
         result: [],
@@ -120,12 +119,9 @@
         }
         fn(function (error, res) {
           if (!pending) return;
-          if (error) {
-            pending = 0;
-            return callback(error);
-          }
+          if (error) return callback(error);
           result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
-          if (!--pending) return callback(null, result);
+          return --pending || callback(null, result);
         });
       }
 
@@ -139,7 +135,6 @@
     try {
       done(array);
     } catch (error) {
-      pending = 0;
       callback(error);
     }
 

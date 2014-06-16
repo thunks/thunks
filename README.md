@@ -1,4 +1,4 @@
-Thunk v0.2.0 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
+Thunk v0.2.1 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
 ====
 Thunk! A magical async flow control.
 
