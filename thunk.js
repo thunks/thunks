@@ -1,4 +1,4 @@
-// v0.3.1
+// v0.3.2
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -27,7 +27,7 @@
     return typeof fn === 'function';
   }
 
-  // 将 `arguments` 转成数组，效率比 `[].slice.call` 高很多
+  // fast slice for `arguments`.
   function slice(args, start) {
     var ret = [], len = args.length;
     start = start || 0;
@@ -45,7 +45,7 @@
     }
 
     function continuation(parent) {
-      var onerror, result, args = parent.result, current = parent.next;
+      var result, args = parent.result, current = parent.next, onerror = scope.onerror || callback;
 
       function callback() {
         if (current.result === false) return;
@@ -53,14 +53,13 @@
         if (current.callback) continuation(current);
       }
 
-      onerror = scope.onerror || callback;
       parent.result = false;
-      // 如果开启 debug
+      // debug in scope
       if (scope.debug) scope.debug.apply(null, args);
-      // 当存在 `error` 时，截除其它结果
+      // onerror in scope.
       if (args[0] != null) {
-        args = [args[0]];
         if (scope.onerror) return onerror(args[0]);
+        args = [args[0]];
       }
       try {
         switch (args.length) {
@@ -82,7 +81,7 @@
       }
     }
 
-    // ## **thunk** 主函数
+    // main fucntion **thunk**
     function thunk(start) {
       var current = {};
 
@@ -90,8 +89,8 @@
         start._isThunk = true;
         continuation({
           next: current,
-          result: [],
-          callback: function () {return start;}
+          result: [null],
+          callback: function () { return start; }
         });
       } else {
         current.result = start == null ? [null] : [null, start];
@@ -115,13 +114,13 @@
     }
 
     thunk.all = function (array) {
-      var current = {}, pending = array.length;
+      var current = {}, result = [], pending = array.length;
 
       function callback(error, result) {
         pending = 0;
         continuation({
           next: current,
-          result: [],
+          result: [null],
           callback: function () {
             if (error) throw error;
             return result;
@@ -129,31 +128,29 @@
         });
       }
 
-      function done(thunks) {
-        var result = [];
-
-        function run(fn, index) {
-          if (!(isFunction(fn) && fn._isThunk)) {
-            result[index] = fn;
-            return --pending || callback(null, result);
-          }
-          fn(function (error, res) {
-            if (!pending) return;
-            if (error) return callback(error);
-            result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
-            return --pending || callback(null, result);
-          });
+      function run(fn, index) {
+        if (!(isFunction(fn) && fn._isThunk)) {
+          result[index] = fn;
+          return --pending || callback(null, result);
         }
+        fn(function (error, res) {
+          if (!pending) return;
+          if (error) return callback(error);
+          result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
+          return --pending || callback(null, result);
+        });
+      }
 
+      function exec(thunks) {
         for (var i = pending - 1; i >= 0; i--) {
           run(thunks[i], i);
         }
       }
 
       if (!isArray(array)) callback(new Error('Not Array!!'));
-      if (!pending) callback(null, []);
+      if (!pending) callback(null, result);
       try {
-        done(array);
+        exec(array);
       } catch (error) {
         callback(error);
       }
