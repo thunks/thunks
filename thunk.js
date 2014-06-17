@@ -1,4 +1,4 @@
-// v0.3.0
+// v0.3.1
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -63,7 +63,12 @@
         if (scope.onerror) return onerror(args[0]);
       }
       try {
-        result = parent.callback.apply(null, args);
+        switch (args.length) {
+          case 1: result = parent.callback(args[0]); break;
+          case 2: result = parent.callback(args[0], args[1]); break;
+          case 3: result = parent.callback(args[0], args[1], args[2]); break;
+          default: result = parent.callback.apply(null, args);
+        }
       } catch (error) {
         return onerror(error);
       }
@@ -100,7 +105,6 @@
         var current = {};
 
         if (parent.result === false) return;
-        if (!isFunction(callback)) throw new Error('Not Function!!');
         parent.callback = callback;
         parent.next = current;
         if (parent.result) continuation(parent);
@@ -146,7 +150,7 @@
         }
       }
 
-      if (!isArray(array)) throw new Error('Not Array!!');
+      if (!isArray(array)) callback(new Error('Not Array!!'));
       if (!pending) callback(null, []);
       try {
         done(array);
