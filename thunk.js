@@ -82,7 +82,7 @@
     }
 
     // main fucntion **thunk**
-    function thunk(start) {
+    function Thunk(start) {
       var current = {};
 
       if (isFunction(start)) {
@@ -100,7 +100,7 @@
     }
 
     function thunkFactory(parent) {
-      function _thunk(callback) {
+      function thunk(callback) {
         var current = {};
 
         if (parent.result === false) return;
@@ -109,11 +109,11 @@
         if (parent.result) continuation(parent);
         return thunkFactory(current);
       }
-      _thunk._isThunk = true;
-      return _thunk;
+      thunk._isThunk = true;
+      return thunk;
     }
 
-    thunk.all = function (array) {
+    Thunk.all = function (array) {
       var current = {}, result = [], pending = array.length;
 
       function callback(error, result) {
@@ -158,6 +158,6 @@
       return thunkFactory(current);
     };
 
-    return thunk;
+    return Thunk;
   };
 }));
