@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      build: ['thunk.js', 'Gruntfile.js', 'test/*.js', 'examples/*.js'],
+      build: ['thunk.js', 'Gruntfile.js', 'test/*.js', 'examples/*.js', '!examples/*co.js'],
       test: ['benchmark/*.js']
     },
 

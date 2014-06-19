@@ -1,4 +1,4 @@
-// v0.3.2
+// v0.3.3
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -27,6 +27,10 @@
     return typeof fn === 'function';
   }
 
+  function isThunk(fn) {
+    return isFunction(fn) && fn._isThunk;
+  }
+
   // fast slice for `arguments`.
   function slice(args, start) {
     var ret = [], len = args.length;
@@ -44,14 +48,55 @@
       scope.onerror = isFunction(options.onerror) ? options.onerror : null;
     }
 
+    // main fucntion **thunk**
+    function Thunk(start) {
+      var current = {};
+
+      if (isFunction(start)) {
+        start._isThunk = true;
+        continuation({
+          next: current,
+          result: [null],
+          callback: function () { return start; }
+        });
+      } else {
+        current.result = start == null ? [null] : [null, start];
+      }
+      return thunkFactory(current);
+    }
+
+    Thunk.all = function (array) {
+      var current = {};
+
+      execObject(array, function (error, result) {
+        continuation({
+          next: current,
+          result: [null],
+          callback: function () {
+            if (error) throw error;
+            return result;
+          }
+        });
+      });
+      return thunkFactory(current);
+    };
+
+    function thunkFactory(parent) {
+      function thunk(callback) {
+        var current = {};
+
+        if (parent.result === false) return;
+        parent.callback = callback;
+        parent.next = current;
+        if (parent.result) continuation(parent);
+        return thunkFactory(current);
+      }
+      thunk._isThunk = true;
+      return thunk;
+    }
+
     function continuation(parent) {
       var result, args = parent.result, current = parent.next, onerror = scope.onerror || callback;
-
-      function callback() {
-        if (current.result === false) return;
-        current.result = arguments;
-        if (current.callback) continuation(current);
-      }
 
       parent.result = false;
       // debug in scope
@@ -73,72 +118,29 @@
       }
 
       if (result == null) return callback(null);
-      if (!(isFunction(result) && result._isThunk)) return callback(null, result);
+      if (!isThunk(result)) return callback(null, result);
       try {
         result(callback);
       } catch (error) {
         return onerror(error);
       }
+
+      function callback() {
+        if (current.result === false) return;
+        current.result = arguments;
+        if (current.callback) continuation(current);
+      }
     }
 
-    // main fucntion **thunk**
-    function Thunk(start) {
-      var current = {};
+    function execObject(array, callback) {
+      var result = [], pending = array.length;
 
-      if (isFunction(start)) {
-        start._isThunk = true;
-        continuation({
-          next: current,
-          result: [null],
-          callback: function () { return start; }
-        });
-      } else {
-        current.result = start == null ? [null] : [null, start];
-      }
-
-      return thunkFactory(current);
-    }
-
-    function thunkFactory(parent) {
-      function thunk(callback) {
-        var current = {};
-
-        if (parent.result === false) return;
-        parent.callback = callback;
-        parent.next = current;
-        if (parent.result) continuation(parent);
-        return thunkFactory(current);
-      }
-      thunk._isThunk = true;
-      return thunk;
-    }
-
-    Thunk.all = function (array) {
-      var current = {}, result = [], pending = array.length;
-
-      function callback(error, result) {
-        pending = 0;
-        continuation({
-          next: current,
-          result: [null],
-          callback: function () {
-            if (error) throw error;
-            return result;
-          }
-        });
-      }
-
-      function run(fn, index) {
-        if (!(isFunction(fn) && fn._isThunk)) {
-          result[index] = fn;
-          return --pending || callback(null, result);
-        }
-        fn(function (error, res) {
-          if (!pending) return;
-          if (error) return callback(error);
-          result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
-          return --pending || callback(null, result);
-        });
+      if (!isArray(array)) callback(new Error('Not Array!!'));
+      if (!pending) callback(null, result);
+      try {
+        exec(array);
+      } catch (error) {
+        return pending = 0, callback(error);
       }
 
       function exec(thunks) {
@@ -147,16 +149,19 @@
         }
       }
 
-      if (!isArray(array)) callback(new Error('Not Array!!'));
-      if (!pending) callback(null, result);
-      try {
-        exec(array);
-      } catch (error) {
-        callback(error);
+      function run(fn, index) {
+        if (!isThunk(fn)) {
+          result[index] = fn;
+          return --pending || callback(null, result);
+        }
+        fn(function (error, res) {
+          if (!pending) return;
+          if (error) return pending = 0, callback(error);
+          result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
+          return --pending || callback(null, result);
+        });
       }
-
-      return thunkFactory(current);
-    };
+    }
 
     return Thunk;
   };
