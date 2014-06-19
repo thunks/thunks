@@ -8,8 +8,9 @@ console.time('Thunk_series');
 [1, 2, 3, 4, 5].reduce(function (thunk, index) {
   return thunk(function (error, value) {
     result.push(value);
-    console.log(value);
-    return Thunk(function (callback) { setTimeout(function () { callback(null, value * 2); }, 1000); });
+    return Thunk(function (callback) {
+      setTimeout(function () { callback(null, value * 2); }, 1000);
+    });
   });
 }, Thunk(1))(function (error) {
   console.log(error, result); // null, [1, 2, 4, 8, 16]
