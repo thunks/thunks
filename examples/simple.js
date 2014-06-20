@@ -7,7 +7,7 @@ var thunk = Thunk(0);
 function callback(error, value) {
   return ++value;
 }
-// No `Maximum call stack size exceeded` error in sync series
+// No `Maximum call stack size exceeded` error in 1000000 sync series
 console.time('Thunk_series');
 for (var i = 0; i < 1000000; i++) {
   thunk = thunk(callback);
