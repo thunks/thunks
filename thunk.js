@@ -1,4 +1,4 @@
-// v0.3.4
+// v0.4.0
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -56,13 +56,8 @@
     function Thunk(start) {
       var current = {};
 
-      if (start) {
-        if (isFunction(start.thunk)) start = start.thunk;
-        else if (isFunction(start.then)) start = promiseToThunk(start);
-      }
-
-      if (isFunction(start)) {
-        start._isThunk = true;
+      start = toThunk(start);
+      if (isThunk(start)) {
         continuation({
           next: current,
           result: [null],
@@ -71,26 +66,12 @@
       } else {
         current.result = start == null ? [null] : [null, start];
       }
-      return thunkFactory(current);
+      return childThunk(current);
     }
 
     Thunk.all = function (array) {
       return Thunk(objectToThunk(array));
     };
-
-    function thunkFactory(parent) {
-      function thunk(callback) {
-        var current = {};
-
-        if (parent.result === false) return;
-        parent.callback = callback;
-        parent.next = current;
-        if (parent.result) continuation(parent);
-        return thunkFactory(current);
-      }
-      thunk._isThunk = true;
-      return thunk;
-    }
 
     function continuation(parent) {
       var result, args = parent.result, current = parent.next, onerror = scope.onerror || callback;
@@ -115,6 +96,7 @@
       }
 
       if (result == null) return callback(null);
+      result = toThunk(result);
       if (!isThunk(result)) return callback(null, result);
       try {
         result(callback);
@@ -127,6 +109,31 @@
         current.result = arguments;
         if (current.callback) continuation(current);
       }
+    }
+
+    function toThunk(obj) {
+      if (!obj) return obj;
+      if (isFunction(obj)) obj = thunkFactory(obj);
+      else if (isFunction(obj.thunk)) obj = thunkFactory(obj.thunk);
+      else if (isFunction(obj.then)) obj = thunkFactory(promiseToThunk(obj));
+      return obj;
+    }
+
+    function thunkFactory(thunk) {
+      thunk._isThunk = true;
+      return thunk;
+    }
+
+    function childThunk(parent) {
+      return thunkFactory(function (callback) {
+        var current = {};
+
+        if (parent.result === false) return;
+        parent.callback = callback;
+        parent.next = current;
+        if (parent.result) continuation(parent);
+        return childThunk(current);
+      });
     }
 
     function objectToThunk(obj) {
@@ -159,6 +166,7 @@
 
         function run(fn, index) {
           if (finished) return;
+          fn = toThunk(fn);
           if (!isThunk(fn)) {
             result[index] = fn;
             return --pending || callback(null, result);

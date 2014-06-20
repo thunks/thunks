@@ -116,7 +116,7 @@ exports.thunk1 = function (test) {
     return Thunk.all({
       a: 1,
       b: Thunk(2),
-      c: Thunk(Thunk(3)),
+      c:  typeof Promise === 'function'? Promise.resolve(3) : 3,
       d: Thunk(function (callback) {
         setImmediate(function () { callback(null, 4); });
       }),
@@ -149,7 +149,7 @@ exports.thunk1 = function (test) {
         var promise = new Promise(function (resolve, rejecct) {
           setImmediate(function () { resolve(x); });
         });
-        return Thunk(promise);
+        return promise;
       })(function (error, value) {
         test.strictEqual(value, x);
         return 'TEST SUCCESS!';

@@ -11,11 +11,11 @@ var jsbench = new JSBench();
 console.log((syncMode ? 'Sync' : 'Async') + ' Benchmark...');
 
 // 如果支持 Promise，则加入 Promise 测试
-if (typeof Promise === 'function') {
-  jsbench.add('Promise', require('./promise.js')(len, syncMode));
-} else {
-  console.log('Not support Promise!');
-}
+// if (typeof Promise === 'function') {
+//   jsbench.add('Promise', require('./promise.js')(len, syncMode));
+// } else {
+//   console.log('Not support Promise!');
+// }
 
 jsbench.
   add('thunk', require('./thunk.js')(len, syncMode)).

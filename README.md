@@ -1,4 +1,4 @@
-Thunk v0.3.4 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
+Thunk v0.4.0 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
 ====
 Thunk! A magical async flow control.
 
@@ -145,7 +145,7 @@ Thunk! A magical async flow control.
 
 返回一个新的 `thunk` 函数。
 
-`obj` 是一个包含多个 `thunk` 函数的数组或对象，并发执行各个 `thunk` 函数，全部执行完毕后其结果形成一个新数组（顺序与原数组对应）或对象，输入到返回的新`thunk` 函数。
+`obj` 是一个包含多个 `thunk` 函数或 promise 的数组或对象，并发执行各个 `thunk` 函数，全部执行完毕后其结果形成一个新数组（顺序与原数组对应）或对象，输入到返回的新`thunk` 函数。
 
     Thunk.all([
       Thunk(0),
