@@ -1,4 +1,4 @@
-Thunk v0.4.1 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
+Thunk v0.4.2 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
 ====
 Thunk! A magical async flow control.
 
@@ -140,6 +140,15 @@ Thunk! A magical async flow control.
           console.log(error, value); // null [1, 2, 3]
         });
 
+还可以这样运行：
+
+    Thunk.call({x: 123}, 456)(function (error, value) {
+      console.log(error, this.x, value); // null 123 456
+      return 'thunk!';
+    })(function (error, value) {
+      console.log(error, this.x, value); // null 123 'thunk!'
+    });
+
 
 ### Thunk.all(obj)
 
@@ -163,4 +172,13 @@ Thunk! A magical async flow control.
       d: Thunk(function (callback) { callback(null, [3]); })
     })(function (error, value) {
       console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
+    });
+
+还可以这样运行：
+
+    Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
+      console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
+      return 'thunk!';
+    })(function (error, value) {
+      console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
     });

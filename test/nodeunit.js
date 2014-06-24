@@ -97,12 +97,10 @@ exports.thunk1 = function (test) {
       }),
       [5]
     ])(function (error, value) {
-      console.error(error);
       test.strictEqual(error instanceof Error, true);
       test.strictEqual(value, undefined);
       return Thunk.all(1);
     })(function (error, value) {
-      console.error(error);
       test.strictEqual(error instanceof Error, true);
       test.strictEqual(value, undefined);
       return Thunk.all(x);
@@ -133,7 +131,6 @@ exports.thunk1 = function (test) {
       }),
       e: [5]
     })(function (error, value) {
-      console.error(error);
       test.strictEqual(error instanceof Error, true);
       test.strictEqual(value, undefined);
     });
@@ -159,6 +156,37 @@ exports.thunk1 = function (test) {
     }
   })(function (error, value) {
     test.strictEqual(value, 'TEST SUCCESS!');
+    return Thunk.call({x: x})(function (error, value) {
+      test.strictEqual(error, null);
+      test.strictEqual(value, undefined);
+      test.strictEqual(this.x, x);
+      return this.x;
+    })(function (error, value) {
+      test.strictEqual(error, null);
+      test.strictEqual(value, x);
+      test.strictEqual(this.x, x);
+      return Thunk(1)(function (error, value) {
+        test.strictEqual(error, null);
+        test.strictEqual(value, 1);
+        test.strictEqual(this, null);
+        return x;
+      });
+    });
+  })(function (error, value) {
+    test.strictEqual(value, x);
+    return Thunk.all.call({x: x}, [1, 2, 3, 4, 5])(function (error, value) {
+      test.strictEqual(error, null);
+      test.deepEqual(value, [1, 2, 3, 4, 5]);
+      test.strictEqual(this.x, x);
+      return Thunk(x)(function (error, value) {
+        test.strictEqual(error, null);
+        test.strictEqual(value, x);
+        test.strictEqual(this, null);
+        return x;
+      });
+    });
+  })(function (error, value) {
+    test.strictEqual(value, x);
     test.done();
   });
 };

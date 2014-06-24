@@ -1,4 +1,4 @@
-// v0.4.1
+// v0.4.2
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -120,7 +120,7 @@
 
     // main function **thunk**
     function Thunk(start) {
-      var current = {};
+      var current = {ctx: this || null};
 
       start = toThunk(start);
       if (isThunk(start)) {
@@ -136,7 +136,7 @@
     }
 
     Thunk.all = function (array) {
-      return Thunk(objectToThunk(array));
+      return Thunk.call(this, objectToThunk(array));
     };
 
     function continuation(parent) {
@@ -152,10 +152,10 @@
       }
       try {
         switch (args.length) {
-          case 1: result = parent.callback(args[0]); break;
-          case 2: result = parent.callback(args[0], args[1]); break;
-          case 3: result = parent.callback(args[0], args[1], args[2]); break;
-          default: result = parent.callback.apply(null, args);
+          case 1: result = parent.callback.call(parent.ctx, args[0]); break;
+          case 2: result = parent.callback.call(parent.ctx, args[0], args[1]); break;
+          case 3: result = parent.callback.call(parent.ctx, args[0], args[1], args[2]); break;
+          default: result = parent.callback.apply(parent.ctx, args);
         }
       } catch (error) {
         return onerror(error);
@@ -179,7 +179,7 @@
 
     function childThunk(parent) {
       return thunkFactory(function (callback) {
-        var current = {};
+        var current = {ctx: parent.ctx};
 
         if (parent.result === false) return;
         parent.callback = callback;
