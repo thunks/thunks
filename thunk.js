@@ -1,4 +1,4 @@
-// v0.4.0
+// v0.4.1
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -43,6 +43,72 @@
     return ret;
   }
 
+  function toThunk(obj) {
+    if (!obj) return obj;
+    if (isFunction(obj)) obj = thunkFactory(obj);
+    else if (isFunction(obj.thunk)) obj = thunkFactory(obj.thunk);
+    else if (isFunction(obj.then)) obj = thunkFactory(promiseToThunk(obj));
+    return obj;
+  }
+
+  function thunkFactory(thunk) {
+    thunk._isThunk = true;
+    return thunk;
+  }
+
+  function objectToThunk(obj) {
+    return function (callback) {
+      var pending, finished, result = new obj.constructor();
+
+      try {
+        exec();
+      } catch (error) {
+        finished = true;
+        callback(error);
+      }
+
+      function exec() {
+        if (isArray(obj)) {
+          pending = obj.length;
+          for (var i = pending - 1; i >= 0; i--) {
+            run(obj[i], i);
+          }
+        } else if (isObject(obj)) {
+          pending = 1;
+          for (var key in obj) {
+            pending += 1;
+            run(obj[key], key);
+          }
+          pending -= 1;
+        } else throw new Error('Not array or object');
+        if (!(pending || finished)) callback(null, result);
+      }
+
+      function run(fn, index) {
+        if (finished) return;
+        fn = toThunk(fn);
+        if (!isThunk(fn)) {
+          result[index] = fn;
+          return --pending || callback(null, result);
+        }
+        fn(function (error, res) {
+          if (finished) return;
+          if (error != null) return finished = true, callback(error);
+          result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
+          return --pending || callback(null, result);
+        });
+      }
+    };
+  }
+
+  function promiseToThunk(promise) {
+    return function (callback) {
+      promise.then(function (res) {
+        callback(null, res);
+      }, callback);
+    };
+  }
+
   return function (options) {
     var scope = {};
 
@@ -52,7 +118,7 @@
       scope.onerror = isFunction(options.onerror) ? options.onerror : null;
     }
 
-    // main fucntion **thunk**
+    // main function **thunk**
     function Thunk(start) {
       var current = {};
 
@@ -99,7 +165,7 @@
       result = toThunk(result);
       if (!isThunk(result)) return callback(null, result);
       try {
-        result(callback);
+        return result(callback);
       } catch (error) {
         return onerror(error);
       }
@@ -107,21 +173,8 @@
       function callback() {
         if (current.result === false) return;
         current.result = arguments;
-        if (current.callback) continuation(current);
+        if (current.callback) return continuation(current);
       }
-    }
-
-    function toThunk(obj) {
-      if (!obj) return obj;
-      if (isFunction(obj)) obj = thunkFactory(obj);
-      else if (isFunction(obj.thunk)) obj = thunkFactory(obj.thunk);
-      else if (isFunction(obj.then)) obj = thunkFactory(promiseToThunk(obj));
-      return obj;
-    }
-
-    function thunkFactory(thunk) {
-      thunk._isThunk = true;
-      return thunk;
     }
 
     function childThunk(parent) {
@@ -134,59 +187,6 @@
         if (parent.result) continuation(parent);
         return childThunk(current);
       });
-    }
-
-    function objectToThunk(obj) {
-      return function (callback) {
-        var pending, finished, result = new obj.constructor();
-
-        try {
-          exec();
-        } catch (error) {
-          finished = true;
-          callback(error);
-        }
-
-        function exec() {
-          if (isArray(obj)) {
-            pending = obj.length;
-            for (var i = pending - 1; i >= 0; i--) {
-              run(obj[i], i);
-            }
-          } else if (isObject(obj)) {
-            pending = 1;
-            for (var key in obj) {
-              pending += 1;
-              run(obj[key], key);
-            }
-            pending -= 1;
-          } else throw new Error('Not array or object');
-          if (!(pending || finished)) callback(null, result);
-        }
-
-        function run(fn, index) {
-          if (finished) return;
-          fn = toThunk(fn);
-          if (!isThunk(fn)) {
-            result[index] = fn;
-            return --pending || callback(null, result);
-          }
-          fn(function (error, res) {
-            if (finished) return;
-            if (error != null) return finished = true, callback(error);
-            result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
-            return --pending || callback(null, result);
-          });
-        }
-      };
-    }
-
-    function promiseToThunk(promise) {
-      return function (callback) {
-        promise.then(function (res) {
-          callback(null, res);
-        }, callback);
-      };
     }
 
     return Thunk;
