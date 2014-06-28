@@ -1,4 +1,4 @@
-// thunks v0.5.0
+// thunks v0.5.1
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -46,7 +46,7 @@
   function toThunk(obj) {
     if (!obj) return obj;
     if (isFunction(obj)) obj = thunkFactory(obj);
-    else if (isFunction(obj.thunk)) obj = thunkFactory(obj.thunk);
+    else if (isFunction(obj.toThunk)) obj = thunkFactory(obj.toThunk());
     else if (isFunction(obj.then)) obj = thunkFactory(promiseToThunk(obj));
     return obj;
   }
@@ -70,9 +70,7 @@
       function exec() {
         if (isArray(obj)) {
           pending = obj.length;
-          for (var i = pending - 1; i >= 0; i--) {
-            run(obj[i], i);
-          }
+          for (var i = pending - 1; i >= 0; i--) run(obj[i], i);
         } else if (isObject(obj)) {
           pending = 1;
           for (var key in obj) {
@@ -109,7 +107,7 @@
     };
   }
 
-  return function thunks(options) {
+  function thunks(options) {
     var scope = {};
 
     if (isFunction(options)) scope.onerror = options;
@@ -125,6 +123,8 @@
       start = toThunk(start);
       if (isThunk(start)) {
         continuation({
+          start: true,
+          ctx: current.ctx,
           next: current,
           result: [null],
           callback: function () { return start; }
@@ -144,7 +144,7 @@
 
       parent.result = false;
       // debug in scope
-      if (scope.debug) scope.debug.apply(null, args);
+      if (scope.debug && !parent.start) scope.debug.apply(null, args);
       // onerror in scope.
       if (args[0] != null) {
         if (scope.onerror) return onerror(args[0]);
@@ -165,14 +165,14 @@
       result = toThunk(result);
       if (!isThunk(result)) return callback(null, result);
       try {
-        return result(callback);
+        return result.call(parent.ctx, callback);
       } catch (error) {
         return onerror(error);
       }
 
       function callback() {
         if (current.result === false) return;
-        current.result = arguments;
+        current.result = arguments.length ? arguments: [null];
         if (current.callback) return continuation(current);
       }
     }
@@ -193,5 +193,7 @@
     }
 
     return Thunk;
-  };
+  }
+
+  return thunks;
 }));

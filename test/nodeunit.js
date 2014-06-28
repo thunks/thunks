@@ -156,7 +156,10 @@ exports.thunk1 = function (test) {
     }
   })(function (error, value) {
     test.strictEqual(value, 'TEST SUCCESS!');
-    return Thunk.call({x: x})(function (error, value) {
+    return Thunk.call({x: x}, function (callback) {
+      test.strictEqual(this.x, x);
+      callback();
+    })(function (error, value) {
       test.strictEqual(error, null);
       test.strictEqual(value, undefined);
       test.strictEqual(this.x, x);
