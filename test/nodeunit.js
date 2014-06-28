@@ -1,12 +1,12 @@
 'use strict';
 /*global module, process, Promise, noneFn*/
 
-var Thunkjs = require('../thunk.js'),
+var thunks = require('../thunks.js'),
   x = {};
 
 exports.thunk1 = function (test) {
   // 测试 thunk 组合
-  var Thunk = Thunkjs();
+  var Thunk = thunks();
   var thunk1 = Thunk(1);
   test.strictEqual(thunk1._isThunk, true);
   var thunk2 = thunk1(function (error, value) {
@@ -192,11 +192,11 @@ exports.thunk1 = function (test) {
 };
 exports.thunk2 = function (test) {
   // 测试 thunk 作用域内的 debug 模式和异常处理
-  test.notStrictEqual(Thunkjs(), Thunkjs());
-  var Thunk = Thunkjs();
+  test.notStrictEqual(thunks(), thunks());
+  var Thunk = thunks();
   Thunk()(function (error) {
     var _error, e = {};
-    var thunk1 = Thunkjs(function (error) {
+    var thunk1 = thunks(function (error) {
       _error = error;
     });
     thunk1(function (callback) {
@@ -210,7 +210,7 @@ exports.thunk2 = function (test) {
     test.strictEqual(error, null);
     test.strictEqual(arguments.length, 1);
     var _error, _debug, e = {};
-    var thunk1 = Thunkjs({
+    var thunk1 = thunks({
       onerror: function (error) {
         _error = error;
       },

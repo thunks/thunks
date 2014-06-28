@@ -13,13 +13,13 @@ module.exports = function(grunt) {
             ' * <%= pkg.homepage %>\n' +
             ' */\n',
     // Task configuration.
-    clean: ["thunk.min.js"],
+    clean: ["thunks.min.js"],
 
     jshint: {
       options: {
         jshintrc: '.jshintrc'
       },
-      build: ['thunk.js', 'Gruntfile.js', 'test/*.js', 'examples/*.js', '!examples/*co.js'],
+      build: ['thunks.js', 'Gruntfile.js', 'test/*.js', 'examples/*.js', '!examples/*co.js'],
       test: ['benchmark/*.js']
     },
 
@@ -27,9 +27,9 @@ module.exports = function(grunt) {
       options: {
         banner: '<%= banner %>'
       },
-      thunk: {
-        dest: 'thunk.min.js',
-        src: 'thunk.js'
+      thunks: {
+        dest: 'thunks.min.js',
+        src: 'thunks.js'
       }
     },
 

@@ -1,7 +1,7 @@
 'use strict';
 /*global console*/
 
-var Thunk = require('../thunk.js')();
+var Thunk = require('../thunks.js')();
 var result = [], thunk = Thunk(1);
 
 function callback(error, value) {

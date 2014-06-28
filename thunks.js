@@ -1,4 +1,4 @@
-// v0.4.3
+// thunks v0.5.0
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -13,7 +13,7 @@
   } else if (typeof define === 'function' && define.amd) {
     define([], factory);
   } else {
-    root.thunk = root.Thunk = factory();
+    root.thunks = factory();
   }
 }(this, function () {
   'use strict';
@@ -109,7 +109,7 @@
     };
   }
 
-  return function (options) {
+  return function thunks(options) {
     var scope = {};
 
     if (isFunction(options)) scope.onerror = options;

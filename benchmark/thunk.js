@@ -1,7 +1,7 @@
 'use strict';
 /*global Promise */
 
-var Thunk = require('../thunk.js')();
+var Thunk = require('../thunks.js')();
 
 module.exports = function (len, syncMode) {
   var task, list = [], tasks = [];

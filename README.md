@@ -1,6 +1,6 @@
-Thunk v0.4.3 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
+thunks v0.5.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
-Thunk! A magical async flow control.
+Thunks! A magical async flow control.
 
 ## Thunk?
 
@@ -57,12 +57,12 @@ Thunk! A magical async flow control.
 
 ## Demo
 
-    var Thunkjs = require('../thunk.js');
+    var thunks = require('../thunks.js');
     var fs = require('fs');
-    var Thunk = Thunkjs(function (error) { console.error('Thunk error:', error); });
+    var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
 
     Thunk.
-      all(['examples/demo.js', 'thunk.js', '.gitignore'].map(function (path) {
+      all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
         return Thunk(function (callback) { fs.stat(path, callback); });
       }))(function (error, result) {
         console.log('Success: ', result);
@@ -73,7 +73,7 @@ Thunk! A magical async flow control.
 
 // No `Maximum call stack size exceeded` error in 1000000 sync series
 
-    var Thunk = require('../thunk.js')();
+    var Thunk = require('../thunks.js')();
     var thunk = Thunk(0);
 
     function callback(error, value) {
@@ -90,25 +90,39 @@ Thunk! A magical async flow control.
       console.timeEnd('Thunk_series'); // ~1468ms
     });
 
+## Install
+
+**Node.js:**
+
+    npm install thunks
+
+**bower:**
+
+    bower install thunks
+
+**Browser:**
+
+    <script src="/pathTo/thunks.js"></script>
+
 ## API
 
-    var Thunkjs = require('./thunk.js');
+    var thunks = require('./thunks.js');
 
-### Thunkjs([options])
+### thunks([options])
 
 `Thunk` 生成器函数，生成一个带作用域的 `Thunk` 主函数，作用域是指该 `Thunk` 直接或间接生成的所有 `thunk` 函数的内部运行环境。
 
 1. 生成基本形式的 `Thunk`，任何异常会输入到下一个 `thunk` 函数：
 
-        var Thunk = Thunkjs();
+        var Thunk = thunks();
 
 2. 生成有 `onerror` 监听的 `Thunk`，该 `Thunk` 作用域内的任何异常都可被 `onerror` 捕捉，而不会进入下一个 `thunk` 函数：
 
-        var Thunk = Thunkjs(function (error) { console.error(error); });
+        var Thunk = thunks(function (error) { console.error(error); });
 
 3. 生成有 `onerror` 监听和 `debug` 监听的 `Thunk`，`onerror` 同上，该 `Thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个 `thunk` 函数：
 
-        var Thunk = Thunkjs({
+        var Thunk = thunks({
           onerror: function (error) { console.error(error); },
           debug: function () { console.log.apply(console, arguments); }
         });

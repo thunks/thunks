@@ -1,7 +1,7 @@
 'use strict';
 /*global module, process*/
 
-var Thunk = require('../thunk.js')();
+var Thunk = require('../thunks.js')();
 var thunk = Thunk(0);
 
 function callback(error, value) {

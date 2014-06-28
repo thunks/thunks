@@ -1,19 +1,20 @@
 {
-  "name": "thunk",
-  "description": "Thunk! A magical async flow control.",
+  "name": "thunks",
+  "description": "Thunks! A magical async flow control.",
   "author": {
     "name": "zensh"
   },
-  "version": "0.4.3",
-  "main": "thunk.js",
+  "version": "0.5.0",
+  "main": "thunks.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:teambition/thunk.git"
+    "url": "git@github.com:teambition/thunks.git"
   },
-  "homepage": "https://github.com/teambition/thunk",
+  "homepage": "https://github.com/teambition/thunks",
   "keywords": [
     "async",
     "thunk",
+    "thunks",
     "Promise",
     "flow"
   ],

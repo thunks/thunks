@@ -1,7 +1,7 @@
 'use strict';
 /*global console*/
 
-var Thunk = require('../thunk.js')();
+var Thunk = require('../thunks.js')();
 
 Thunk.call({x: 123}, 456)(function (error, value) {
   console.log(error, this.x, value); // null 123 456

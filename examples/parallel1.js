@@ -1,7 +1,7 @@
 'use strict';
 /*global console*/
 
-var Thunk = require('../thunk.js')();
+var Thunk = require('../thunks.js')();
 
 console.time('Thunk_parallel');
 Thunk.

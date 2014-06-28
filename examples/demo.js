@@ -1,10 +1,10 @@
 'use strict';
 /*global module, process*/
 
-var Thunkjs = require('../thunk.js');
+var thunks = require('../thunks.js');
 
 // 生成 带有onerror 监听的 thunk 主函数。
-var Thunk = Thunkjs(function (error) {
+var Thunk = thunks(function (error) {
   console.log('Thunk Error:', error);
 });
 
