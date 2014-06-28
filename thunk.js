@@ -1,4 +1,4 @@
-// v0.4.2
+// v0.4.3
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -179,14 +179,17 @@
 
     function childThunk(parent) {
       return thunkFactory(function (callback) {
-        var current = {ctx: parent.ctx};
-
-        if (parent.result === false) return;
-        parent.callback = callback;
-        parent.next = current;
-        if (parent.result) continuation(parent);
-        return childThunk(current);
+        return child(parent, callback);
       });
+    }
+
+    function child(parent, callback) {
+      var current = {ctx: parent.ctx};
+      if (parent.result === false) return;
+      parent.callback = callback;
+      parent.next = current;
+      if (parent.result) continuation(parent);
+      return childThunk(current);
     }
 
     return Thunk;

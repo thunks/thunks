@@ -29,7 +29,7 @@ module.exports = function (len, syncMode) {
           task(1, function (error, value) {
             if (error) return reject(error);
             resolve(value);
-          })
+          });
         });
       })).
       then(function () { // 串行 tasks 队列
@@ -39,7 +39,7 @@ module.exports = function (len, syncMode) {
               task(1, function (error, value) {
                 if (error) return reject(error);
                 resolve(value);
-              })
+              });
             });
           });
         }, Promise.resolve(null));

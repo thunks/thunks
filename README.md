@@ -1,4 +1,4 @@
-Thunk v0.4.2 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
+Thunk v0.4.3 [![Build Status](https://travis-ci.org/teambition/thunk.png?branch=master)](https://travis-ci.org/teambition/thunk)
 ====
 Thunk! A magical async flow control.
 
@@ -33,6 +33,27 @@ Thunk! A magical async flow control.
     })(function(error, value){
       // ...
     })
+
+##Benchmark
+
+`node benchmark/index.js`，centos 虚拟机中测试结果：
+
+    [root@centos thunk]# node benchmark/index
+    Sync Benchmark...
+
+    JSBench Start (100 cycles, async mode):
+    Test Promise...
+    Test thunk...
+
+    JSBench Results:
+    Promise: 100 cycles, 406.61 ms/cycle, 2.459 ops/sec
+    thunk: 100 cycles, 94.57 ms/cycle, 10.574 ops/sec
+
+    Promise: 100%; thunk: 429.96%;
+
+    JSBench Completed!
+
+  **完全相同的测试逻辑，thunk 比原生 Promise 快 4 倍**
 
 ## Demo
 

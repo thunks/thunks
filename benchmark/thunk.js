@@ -29,7 +29,7 @@ module.exports = function (len, syncMode) {
       all(tasks.map(function (task) { // 并行 tasks 队列
         return Thunk(function (callback) {
           task(1, callback);
-        })
+        });
       }))(function () { // 串行 tasks 队列
         return tasks.reduce(function (thunk, task) {
           return thunk(function (error, value) {
