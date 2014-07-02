@@ -1,4 +1,4 @@
-// thunks v0.5.1
+// thunks v0.6.0
 //
 // **Github:** https://github.com/teambition/thunk
 //
@@ -137,6 +137,13 @@
 
     Thunk.all = function (array) {
       return Thunk.call(this, objectToThunk(array));
+    };
+
+    Thunk.digest = function () {
+      var args = arguments;
+      return Thunk.call(this, function (callback) {
+        callback.apply(null, args);
+      });
     };
 
     function continuation(parent) {

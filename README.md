@@ -1,4 +1,4 @@
-thunks v0.5.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v0.6.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 Thunks! A magical async flow control.
 
@@ -216,4 +216,34 @@ Thunks! A magical async flow control.
       return 'thunk!';
     })(function (error, value) {
       console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
+    });
+
+### Thunk.digest(error, val1, val2, ...)
+
+返回一个新的 `thunk` 函数。
+
+创建 `thunk` 函数，其结果值为 `(error, val1, val2, ...)`，即直接将 `digest` 的参数传入到新的 `thunk` 函数，相当于：
+
+    Thunk(function (callback) {
+      callback(error, val1, val2, ...);
+    })
+
+使用场景：
+
+    Thunk(function (callback) {
+      //...
+      callback(error, result);
+    })(function (error, value) {
+      //...
+      return Thunk.digest(error, value);
+    })(function (error, value) {
+      //...
+    });
+
+
+还可以这样运行：
+
+    var a = {x: 1};
+    Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
+      console.log(this, error, value1, value2) // { x: 1 } null 1 2
     });

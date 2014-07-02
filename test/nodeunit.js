@@ -190,6 +190,24 @@ exports.thunk1 = function (test) {
     });
   })(function (error, value) {
     test.strictEqual(value, x);
+    return Thunk.digest(1, 2);
+  })(function (error, value) {
+    test.strictEqual(error, 1);
+    test.strictEqual(value, undefined);
+    return Thunk.digest(null, 1, 2, 3);
+  })(function (error, value1, value2, value3) {
+    test.strictEqual(error, null);
+    test.strictEqual(value1, 1);
+    test.strictEqual(value2, 2);
+    test.strictEqual(value3, 3);
+    return Thunk.digest.call({x: x}, null, x)(function (error, value) {
+      test.strictEqual(error, null);
+      test.strictEqual(value, x);
+      test.strictEqual(this.x, x);
+      return x;
+    });
+  })(function (error, value) {
+    test.strictEqual(value, x);
     test.done();
   });
 };

@@ -2,12 +2,11 @@
   "name": "thunks",
   "description": "Thunks! A magical async flow control.",
   "main": "thunks.js",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "homepage": "https://github.com/teambition/thunks",
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "description": "Thunk!",
   "keywords": [
     "async",
     "thunk",

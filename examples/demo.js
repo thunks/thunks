@@ -9,16 +9,23 @@ var Thunk = thunks(function (error) {
 });
 
 Thunk(function (callback) {
+
   callback(null, 1, 2, 3);
+
 })(function (error, value1, value2, value3) {
+
   console.log(error, value1, value2, value3); // null, 1, 2, 3
   return Thunk(function (callback) {
     setImmediate(function () {callback(null, 4, 5, 6);});
   });
+
 })(function (error, value1, value2, value3) {
+
   console.log(error, value1, value2, value3); // null, 4, 5, 6
   return [7, 8, 9];
+
 })(function (error, value) {
+
   console.log(error, value); // null, [7, 8, 9]
 
   var thunk1 = Thunk(1);
@@ -40,7 +47,12 @@ Thunk(function (callback) {
       console.log(error, value); // null, 999
     });
   })(function () {
-    throw new Error('some error!!!!');
+    var a = {x: 1};
+    return Thunk.digest.call(a, null, 1, 2)(function (error, value, value2) {
+      console.log(this, error, value, value2); // { x: 1 } null 1 2
+
+      throw new Error('some error!!!!');
+    });
   });
 });
 
