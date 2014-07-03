@@ -1,10 +1,8 @@
-// thunks v0.6.0
-//
-// **Github:** https://github.com/teambition/thunk
+// **Github:** https://github.com/teambition/thunks
 //
 // **License:** MIT
 
-/* global module, define, setImmediate, console */
+/* global module, define */
 ;(function (root, factory) {
   'use strict';
 
@@ -18,7 +16,8 @@
 }(this, function () {
   'use strict';
 
-  var toString = Object.prototype.toString,
+  var TRUE = {},
+    toString = Object.prototype.toString,
     isArray = Array.isArray || function (obj) {
       return toString.call(obj) === '[object Array]';
     };
@@ -32,7 +31,7 @@
   }
 
   function isThunk(fn) {
-    return isFunction(fn) && fn._isThunk;
+    return isFunction(fn) && fn._isThunk === TRUE;
   }
 
   // fast slice for `arguments`.
@@ -52,7 +51,7 @@
   }
 
   function thunkFactory(thunk) {
-    thunk._isThunk = true;
+    thunk._isThunk = TRUE;
     return thunk;
   }
 
@@ -201,6 +200,8 @@
 
     return Thunk;
   }
+  thunks.NAME = 'thunks';
+  thunks.VERSION = '0.6.1';
 
   return thunks;
 }));

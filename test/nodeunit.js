@@ -8,13 +8,11 @@ exports.thunk1 = function (test) {
   // 测试 thunk 组合
   var Thunk = thunks();
   var thunk1 = Thunk(1);
-  test.strictEqual(thunk1._isThunk, true);
   var thunk2 = thunk1(function (error, value) {
     test.strictEqual(error, null);
     test.strictEqual(value, 1);
     return 2;
   });
-  test.strictEqual(thunk2._isThunk, true);
   var thunk3 = thunk2(function (error, value) {
     test.strictEqual(error, null);
     test.strictEqual(value, 2);
@@ -24,7 +22,6 @@ exports.thunk1 = function (test) {
       });
     });
   });
-  test.strictEqual(thunk3._isThunk, true);
   thunk3(function (error, value) {
     test.strictEqual(error, null);
     test.strictEqual(value, x);
