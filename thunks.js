@@ -27,7 +27,7 @@
   }
 
   function isObject(obj) {
-    return obj && Object === obj.constructor;
+    return toString.call(obj) === '[object Object]';
   }
 
   function isThunk(fn) {
@@ -201,7 +201,7 @@
     return Thunk;
   }
   thunks.NAME = 'thunks';
-  thunks.VERSION = '0.6.1';
+  thunks.VERSION = '0.6.2';
 
   return thunks;
 }));
