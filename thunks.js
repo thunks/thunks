@@ -57,9 +57,10 @@
 
   function objectToThunk(obj) {
     return function (callback) {
-      var pending, finished, result = new obj.constructor();
+      var pending, finished, result;
 
       try {
+        result = new obj.constructor();
         exec();
       } catch (error) {
         finished = true;
@@ -115,36 +116,6 @@
       scope.onerror = isFunction(options.onerror) ? options.onerror : null;
     }
 
-    // main function **thunk**
-    function Thunk(start) {
-      var current = {ctx: this || null};
-
-      start = toThunk(start);
-      if (isThunk(start)) {
-        continuation({
-          start: true,
-          ctx: current.ctx,
-          next: current,
-          result: [null],
-          callback: function () { return start; }
-        });
-      } else {
-        current.result = start == null ? [null] : [null, start];
-      }
-      return childThunk(current);
-    }
-
-    Thunk.all = function (array) {
-      return Thunk.call(this, objectToThunk(array));
-    };
-
-    Thunk.digest = function () {
-      var args = arguments;
-      return Thunk.call(this, function (callback) {
-        callback.apply(null, args);
-      });
-    };
-
     function continuation(parent) {
       var result, args = parent.result, current = parent.next, onerror = scope.onerror || callback;
 
@@ -198,10 +169,40 @@
       return childThunk(current);
     }
 
+    // main function **thunk**
+    function Thunk(start) {
+      var current = {ctx: this || null};
+
+      start = toThunk(start);
+      if (isThunk(start)) {
+        continuation({
+          start: true,
+          ctx: current.ctx,
+          next: current,
+          result: [null],
+          callback: function () { return start; }
+        });
+      } else {
+        current.result = start == null ? [null] : [null, start];
+      }
+      return childThunk(current);
+    }
+
+    Thunk.all = function (array) {
+      return Thunk.call(this, objectToThunk(array));
+    };
+
+    Thunk.digest = function () {
+      var args = arguments;
+      return Thunk.call(this, function (callback) {
+        callback.apply(null, args);
+      });
+    };
+
     return Thunk;
   }
-  thunks.NAME = 'thunks';
-  thunks.VERSION = '0.6.2';
 
+  thunks.NAME = 'thunks';
+  thunks.VERSION = '0.6.3';
   return thunks;
 }));
