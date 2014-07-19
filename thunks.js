@@ -199,10 +199,20 @@
       });
     };
 
+    Thunk.thunkify = function (fn) {
+      return function () {
+        var args = slice(arguments);
+        return Thunk.call(this, function (callback) {
+          args.push(callback);
+          fn.apply(this, args);
+        });
+      };
+    };
+
     return Thunk;
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = '0.6.3';
+  thunks.VERSION = '0.7.0';
   return thunks;
 }));

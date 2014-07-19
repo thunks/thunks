@@ -1,4 +1,4 @@
-thunks v0.6.2 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v0.7.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 Thunks! A magical async flow control.
 
@@ -175,7 +175,7 @@ Thunks! A magical async flow control.
           console.log(error, value); // null [1, 2, 3]
         });
 
-还可以这样运行：
+还可以这样运行(this)：
 
     Thunk.call({x: 123}, 456)(function (error, value) {
       console.log(error, this.x, value); // null 123 456
@@ -209,7 +209,7 @@ Thunks! A magical async flow control.
       console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
     });
 
-还可以这样运行：
+还可以这样运行(this)：
 
     Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
       console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
@@ -222,7 +222,7 @@ Thunks! A magical async flow control.
 
 返回一个新的 `thunk` 函数。
 
-创建 `thunk` 函数，其结果值为 `(error, val1, val2, ...)`，即直接将 `digest` 的参数传入到新的 `thunk` 函数，相当于：
+将 nodejs callback 风格的输入值转换成一个新的 `thunk` 函数，该 `thunk` 函数的结果值为 `(error, val1, val2, ...)`，即直接将 `digest` 的参数传入到新的 `thunk` 函数，相当于：
 
     Thunk(function (callback) {
       callback(error, val1, val2, ...);
@@ -241,9 +241,43 @@ Thunks! A magical async flow control.
     });
 
 
-还可以这样运行：
+还可以这样运行(this)：
 
     var a = {x: 1};
     Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
       console.log(this, error, value1, value2) // { x: 1 } null 1 2
+    });
+
+### Thunk.thunkify(fn)
+
+返回一个新函数，运行该函数会返回 `thunk` 函数。
+
+将带 callback 参数的 nodejs 风格的函数 `fn` 转换成一个新的函数，新函数不再接收 `callback`，其输出为 `thunk` 函数。
+
+    var Thunk = require('../thunks.js')();
+    var fs = require('fs');
+    var fsStat = Thunk.thunkify(fs.stat);
+
+    fsStat('thunks.js')(function (error, result) {
+      console.log('thunks.js: ', result);
+    });
+    fsStat('.gitignore')(function (error, result) {
+      console.log('.gitignore: ', result);
+    });
+
+还可以这样运行(this)：
+
+    var obj = {a: 8};
+    obj.run = function (x, callback) {
+      //...
+      callback(null, this.a * x);
+    };
+
+    var run = Thunk.thunkify(obj.run);
+
+    run.call(obj, 1)(function (error, result) {
+      console.log('run 1: ', result);
+    });
+    run.call(obj, 2)(function (error, result) {
+      console.log('run 2: ', result);
     });

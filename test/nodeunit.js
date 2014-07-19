@@ -205,6 +205,19 @@ exports.thunk1 = function (test) {
     });
   })(function (error, value) {
     test.strictEqual(value, x);
+    var obj = {
+      value: x,
+      run: function (arg1, arg2, callback) {
+        console.log(123, this);
+        callback(null, arg1, arg2, this.value);
+      }
+    };
+    var thunkObj = Thunk.thunkify(obj.run);
+    return thunkObj.call(obj, 1, 2);
+  })(function (error, value1, value2, value3) {
+    test.strictEqual(value1, 1);
+    test.strictEqual(value2, 2);
+    test.strictEqual(value3, x);
     test.done();
   });
 };
