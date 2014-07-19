@@ -208,7 +208,6 @@ exports.thunk1 = function (test) {
     var obj = {
       value: x,
       run: function (arg1, arg2, callback) {
-        console.log(123, this);
         callback(null, arg1, arg2, this.value);
       }
     };
@@ -218,6 +217,14 @@ exports.thunk1 = function (test) {
     test.strictEqual(value1, 1);
     test.strictEqual(value2, 2);
     test.strictEqual(value3, x);
+    return Thunk.thunkify(1)();
+  })(function (error) {
+    test.strictEqual(error instanceof Error, true);
+    return Thunk.thunkify(function () {
+      noneFn();
+    })();
+  })(function (error) {
+    test.strictEqual(error instanceof Error, true);
     test.done();
   });
 };
