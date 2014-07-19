@@ -2,7 +2,26 @@ thunks v0.7.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branc
 ====
 Thunks! A magical async flow control.
 
-## Thunk?
+Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现的异步业务组合，Thunks 都能实现。区别有以下几点：
+
+1. 原生 Promise 出现在 ES6，Thunks 没有使用特别的 JS 特性，ES3 下都能完美运行。
+
+2. Promise 封装出来的是个对象，异步业务隐藏在 promise 对象中，promise对象的方法或属性值可能被改写（入侵）；Thunks 封装出来是一个 thunk 函数，异步业务隐藏在函数里，对外而言就是一个黑盒，不会受到外部的入侵。
+
+3.  Promise 通常自称符合函数式编程，但 Thunks 更符合函数式编程，而且是标准的 CPS 风格。
+
+4. 功能同样强大，但 Thunks 的 API 更简洁一致，Thunks 封装也更简洁。
+
+5. Thunks 拥有完美的 debug 模式，Promise 好像没有？
+
+6. Thunks 的性能是原生 Promise 的**4**倍。
+
+关于 Thunks 的 demo，可以看看 examples 目录，用超乎你想象的简洁方式进行异步编程。
+
+无需等待ES6，无需考虑兼容，仅需加入 **200** 来行的代码，就能让你使用比 Promise 更强大的异步工具！
+====
+
+## thunk?
 
 1. **`thunk`** 是一个被封装了同步或异步任务的函数；
 
@@ -13,26 +32,6 @@ Thunks! A magical async flow control.
 4. **`thunk`** 自身执行完毕后，结果进入 `callback` 运行；
 
 5. `callback` 的返回值如果是 **`thunk`** 函数，则等该 **`thunk`** 执行完毕将结果输入新 **`thunk`** 函数运行；如果是其它值，则当做正确结果进入新的 **`thunk`** 函数运行；
-
-## Async Chain By Thunk
-
-    Thunk(function (callback) {
-      // ...
-      callback(null, value)
-    })(function(error, value){
-      // ...
-      return value
-    })(function(error, value){
-      // ...
-      return Thunk(function (callback) { // nest thunk
-        // ...
-        callback(null, value)
-      })(function (error, value) {
-
-      })
-    })(function(error, value){
-      // ...
-    })
 
 ##Benchmark
 
@@ -53,7 +52,7 @@ Thunks! A magical async flow control.
 
     JSBench Completed!
 
-  **完全相同的测试逻辑，thunk 比原生 Promise 快 4 倍**
+  **完全相同的测试逻辑，Thunk 的性能是原生 Promise 的 4 倍**
 
 ## Demo
 
@@ -106,7 +105,7 @@ Thunks! A magical async flow control.
 
 ## API
 
-    var thunks = require('./thunks.js');
+    var thunks = require('thunks');
 
 ### thunks([options])
 
