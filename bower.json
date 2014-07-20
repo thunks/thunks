@@ -2,7 +2,7 @@
   "name": "thunks",
   "description": "Thunks! A magical async flow control.",
   "main": "thunks.js",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "homepage": "https://github.com/teambition/thunks",
   "authors": [
     "Yan Qing <admin@zensh.com>"

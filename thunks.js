@@ -18,6 +18,7 @@
 
   var TRUE = {},
     toString = Object.prototype.toString,
+    hasOwnProperty = Object.prototype.hasOwnProperty,
     isArray = Array.isArray || function (obj) {
       return toString.call(obj) === '[object Array]';
     };
@@ -74,6 +75,7 @@
         } else if (isObject(obj)) {
           pending = 1;
           for (var key in obj) {
+            if (!hasOwnProperty.call(obj, key)) continue;
             pending += 1;
             run(obj[key], key);
           }
