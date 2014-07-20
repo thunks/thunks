@@ -2,9 +2,9 @@ thunks v0.7.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branc
 ====
 A basic asynchronous module beyond the Promise magically.
 
-Thinking and programming in Thunks is similar to native Promise. The difference points:
+Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现的异步业务组合，Thunks 都能实现。区别有以下几点：
 
-1. Native Promise is feature of ES6, Thunks not using JS special features to run flawlessly under ES3.
+1. 原生 Promise 出现在 ES6，Thunks 没有使用特别的 JS 特性，ES3 下都能完美运行。
 
 2. Promise 封装出来的是个对象，异步业务隐藏在 promise 对象中，promise对象的方法或属性值可能被改写（入侵）；Thunks 封装出来是一个 thunk 函数，异步业务隐藏在函数里，对外而言就是一个黑盒，不会受到外部的入侵。
 

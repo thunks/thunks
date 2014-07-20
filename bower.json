@@ -1,6 +1,6 @@
 {
   "name": "thunks",
-  "description": "Thunks! A magical async flow control.",
+  "description": "A basic asynchronous module beyond the Promise magically.",
   "main": "thunks.js",
   "version": "0.7.1",
   "homepage": "https://github.com/teambition/thunks",
