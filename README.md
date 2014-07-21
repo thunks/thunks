@@ -63,38 +63,42 @@ By running `node benchmark/index.js` in a CentOS virtual machine:
 
 ## Demo
 
-    var thunks = require('../thunks.js');
-    var fs = require('fs');
-    var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
+```js
+var thunks = require('../thunks.js');
+var fs = require('fs');
+var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
 
-    Thunk.
-      all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
-        return Thunk(function (callback) { fs.stat(path, callback); });
-      }))(function (error, result) {
-        console.log('Success: ', result);
-        return Thunk(function (callback) { fs.stat('none.js', callback); });
-      })(function (error, result) {
-        console.error('This should not run!', error);
-      });
+Thunk.
+  all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
+    return Thunk(function (callback) { fs.stat(path, callback); });
+  }))(function (error, result) {
+    console.log('Success: ', result);
+    return Thunk(function (callback) { fs.stat('none.js', callback); });
+  })(function (error, result) {
+    console.error('This should not run!', error);
+  });
+```
 
 No `Maximum call stack size exceeded` error in 1000000 sync series
 
-    var Thunk = require('../thunks.js')();
-    var thunk = Thunk(0);
+```js
+var Thunk = require('../thunks.js')();
+var thunk = Thunk(0);
 
-    function callback(error, value) {
-      return ++value;
-    }
+function callback(error, value) {
+  return ++value;
+}
 
-    console.time('Thunk_series');
-    for (var i = 0; i < 1000000; i++) {
-      thunk = thunk(callback);
-    }
+console.time('Thunk_series');
+for (var i = 0; i < 1000000; i++) {
+  thunk = thunk(callback);
+}
 
-    thunk(function (error, value) {
-      console.log(error, value); // null 1000000
-      console.timeEnd('Thunk_series'); // ~1468ms
-    });
+thunk(function (error, value) {
+  console.log(error, value); // null 1000000
+  console.timeEnd('Thunk_series'); // ~1468ms
+});
+```
 
 ## Installation
 
@@ -108,11 +112,15 @@ No `Maximum call stack size exceeded` error in 1000000 sync series
 
 **browser:**
 
-    <script src="/pathTo/thunks.js"></script>
+```html
+<script src="/pathTo/thunks.js"></script>
+```
 
 ## API
 
-    var thunks = require('thunks');
+```js
+var thunks = require('thunks');
+```
 
 ### `thunks([options])`
 
@@ -121,20 +129,26 @@ Generator of `Thunks`, it generates the main function of `Thunk` with its scope.
 
 1. Here's how you create a basic `Thunk`, any exceptions would be passed the next `thunk` function:
 
-        var Thunk = thunks();
+```js
+var Thunk = thunks();
+```
 
 2. Here's the way to create a `Thunk` listening to all exceptions in current scope with `onerror`,
 and it will make sure the exeptions not being passed to the followed `thunk` function.
 
-        var Thunk = thunks(function (error) { console.error(error); });
+```js
+var Thunk = thunks(function (error) { console.error(error); });
+```
 
 3. Create a `Thunk` with `onerror` and `debug` listeners.
 Results of this `Thunk` would be passed to `debug` function first before passing to the followed `thunk` function.
 
-        var Thunk = thunks({
-          onerror: function (error) { console.error(error); },
-          debug: function () { console.log.apply(console, arguments); }
-        });
+```js
+var Thunk = thunks({
+  onerror: function (error) { console.error(error); },
+  debug: function () { console.log.apply(console, arguments); }
+});
+```
 
 Even multiple `Thunk` main functions with diferent scope are composed,
 each scope would be seperated from each other,
@@ -148,51 +162,63 @@ The parameter `start` could be:
 
 1. a `thunk` function, by calling this function a new `thunk` function will be returned
 
-        var thunk1 = Thunk(1);
-        var thunk2 = Thunk(thunk1); // thunk2 equals to thunk1;
+```js
+var thunk1 = Thunk(1);
+var thunk2 = Thunk(thunk1); // thunk2 equals to thunk1;
+```
 
 2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunk` function
 
-        Thunk(function (callback) {
-          callback(null, 1)
-        })(function (error, value) {
-          console.log(error, value); // null 1
-        });
+```js
+Thunk(function (callback) {
+  callback(null, 1)
+})(function (error, value) {
+  console.log(error, value); // null 1
+});
+```
 
 2. a Promise object, results of Promise would be passed to a new `thunk` function
 
-        var promise = Promise.resolve(1);
+```js
+var promise = Promise.resolve(1);
 
-        Thunk(promise)(function (error, value) {
-          console.log(error, value); // null 1
-        });
+Thunk(promise)(function (error, value) {
+  console.log(error, value); // null 1
+});
+```
 
 2. objects which implements methods of `thunk`
 
-        var then = Thenjs(1); // then.thunk is a thunk function
+```js
+var then = Thenjs(1); // then.thunk is a thunk function
 
-        Thunk(then)(function (error, value) {
-          console.log(error, value); // null 1
-        });
+Thunk(then)(function (error, value) {
+  console.log(error, value); // null 1
+});
+```
 
 3. values in other types would be valid results passing to a new `thunk` function
 
-        Thunk(1)(function (error, value) {
-          console.log(error, value); // null 1
-        });
+```js
+Thunk(1)(function (error, value) {
+  console.log(error, value); // null 1
+});
 
-        Thunk([1, 2, 3])(function (error, value) {
-          console.log(error, value); // null [1, 2, 3]
-        });
+Thunk([1, 2, 3])(function (error, value) {
+  console.log(error, value); // null [1, 2, 3]
+});
+```
 
 You can also run with `this`:
 
-    Thunk.call({x: 123}, 456)(function (error, value) {
-      console.log(error, this.x, value); // null 123 456
-      return 'thunk!';
-    })(function (error, value) {
-      console.log(error, this.x, value); // null 123 'thunk!'
-    });
+```js
+Thunk.call({x: 123}, 456)(function (error, value) {
+  console.log(error, this.x, value); // null 123 456
+  return 'thunk!';
+})(function (error, value) {
+  console.log(error, this.x, value); // null 123 'thunk!'
+});
+```
 
 ### `Thunk.all(obj)`
 
@@ -202,32 +228,36 @@ Returns a `thunk` function.
 They would be excuted at the same time. After all of them are finished,
 an array containing results(in its original order) would be passed to the a new `thunk` function.
 
-    Thunk.all([
-      Thunk(0),
-      Thunk(1),
-      2,
-      Thunk(function (callback) { callback(null, [3]); })
-    ])(function (error, value) {
-      console.log(error, value); // null [0, 1, 2, [3]]
-    });
+```js
+Thunk.all([
+  Thunk(0),
+  Thunk(1),
+  2,
+  Thunk(function (callback) { callback(null, [3]); })
+])(function (error, value) {
+  console.log(error, value); // null [0, 1, 2, [3]]
+});
 
-    Thunk.all({
-      a: Thunk(0),
-      b: Thunk(1),
-      c: 2,
-      d: Thunk(function (callback) { callback(null, [3]); })
-    })(function (error, value) {
-      console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
-    });
+Thunk.all({
+  a: Thunk(0),
+  b: Thunk(1),
+  c: 2,
+  d: Thunk(function (callback) { callback(null, [3]); })
+})(function (error, value) {
+  console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
+});
+```
 
 You may also write code like this:
 
-    Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
-      console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
-      return 'thunk!';
-    })(function (error, value) {
-      console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
-    });
+```js
+Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
+  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!';
+})(function (error, value) {
+  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
+});
+```
 
 ### `Thunk.digest(error, val1, val2, ...)`
 
@@ -237,29 +267,34 @@ Transform a Node.js callback function into a `thunk` function.
 This `thunk` function retuslts in `(error, val1, val2, ...)`, which is just being passed to a new `thunk` function,
 like:
 
-    Thunk(function (callback) {
-      callback(error, val1, val2, ...);
-    })
+```js
+Thunk(function (callback) {
+  callback(error, val1, val2, ...);
+})
+```
 
 One use case:
 
-    Thunk(function (callback) {
-      //...
-      callback(error, result);
-    })(function (error, value) {
-      //...
-      return Thunk.digest(error, value);
-    })(function (error, value) {
-      //...
-    });
-
+```js
+Thunk(function (callback) {
+  //...
+  callback(error, result);
+})(function (error, value) {
+  //...
+  return Thunk.digest(error, value);
+})(function (error, value) {
+  //...
+});
+```
 
 You may also write code with `this`：
 
-    var a = {x: 1};
-    Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
-      console.log(this, error, value1, value2) // { x: 1 } null 1 2
-    });
+```js
+var a = {x: 1};
+Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
+  console.log(this, error, value1, value2) // { x: 1 } null 1 2
+});
+```
 
 ### `Thunk.thunkify(fn)`
 
@@ -268,30 +303,34 @@ Returns a new function that would return a `thunk` function
 Transform a `fn` function which is in Node.js style into a new function.
 This new function does not accept `callback` as arguments, but accepts `thunk` functions.
 
-    var Thunk = require('../thunks.js')();
-    var fs = require('fs');
-    var fsStat = Thunk.thunkify(fs.stat);
+```js
+var Thunk = require('../thunks.js')();
+var fs = require('fs');
+var fsStat = Thunk.thunkify(fs.stat);
 
-    fsStat('thunks.js')(function (error, result) {
-      console.log('thunks.js: ', result);
-    });
-    fsStat('.gitignore')(function (error, result) {
-      console.log('.gitignore: ', result);
-    });
+fsStat('thunks.js')(function (error, result) {
+  console.log('thunks.js: ', result);
+});
+fsStat('.gitignore')(function (error, result) {
+  console.log('.gitignore: ', result);
+});
+```
 
 You may also write code with `this`:
 
-    var obj = {a: 8};
-    obj.run = function (x, callback) {
-      //...
-      callback(null, this.a * x);
-    };
+```js
+var obj = {a: 8};
+obj.run = function (x, callback) {
+  //...
+  callback(null, this.a * x);
+};
 
-    var run = Thunk.thunkify(obj.run);
+var run = Thunk.thunkify(obj.run);
 
-    run.call(obj, 1)(function (error, result) {
-      console.log('run 1: ', result);
-    });
-    run.call(obj, 2)(function (error, result) {
-      console.log('run 2: ', result);
-    });
+run.call(obj, 1)(function (error, result) {
+  console.log('run 1: ', result);
+});
+run.call(obj, 2)(function (error, result) {
+  console.log('run 2: ', result);
+});
+```
