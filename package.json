@@ -1,10 +1,10 @@
 {
   "name": "thunks",
-  "description": "A basic asynchronous module beyond the Promise magically.",
+  "description": "A basic asynchronous utilily module beyond Promise magically.",
   "author": {
     "name": "zensh"
   },
-  "version": "0.7.1",
+  "version": "0.7.2",
   "main": "thunks.js",
   "repository": {
     "type": "git",

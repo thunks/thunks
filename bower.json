@@ -1,8 +1,8 @@
 {
   "name": "thunks",
-  "description": "A basic asynchronous module beyond the Promise magically.",
+  "description": "A basic asynchronous utilily module beyond Promise magically.",
   "main": "thunks.js",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "homepage": "https://github.com/teambition/thunks",
   "authors": [
     "Yan Qing <admin@zensh.com>"

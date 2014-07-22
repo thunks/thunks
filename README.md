@@ -1,27 +1,27 @@
-thunks v0.7.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v0.7.2 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
-Thinking and programming in Thunks is similar to that in native Promise. But there are some different points:
+Thinking and programming in thunks is similar to that in native Promise. But there are some different points:
 
-1. Native Promise is a new feature in ES6, Thunks is not using JavaScript special features to run flawlessly under ES3.
+1. Native Promise is a new feature in ES6, thunks is not using JavaScript special features to run flawlessly under ES3.
 
 2. After wrapped by Promise we get objects with logics in Promise objects,
 methods of properties of these Promise objects could be modified(injuected);
-While Thunks returns thunk functions, with logics inside function scopes,
+While thunks returns thunk functions, with logics inside function scopes,
 which means they would never be injected from outside.
 
-3. Promise claims it's functional, while Thunks is functional
+3. Promise claims it's functional, while thunks is functional
 and it obeys the continuous-passing style.
 
-4. Having the same power as Promise, Thunks' API is more consice,
-and Thunks' implementaton is simpler.
+4. Having the same power as Promise, thunks' API is more consice,
+and thunks' implementaton is simpler.
 
-5. Thunks brings a perfect `debug` mode, which seems not appear in Promise?
+5. thunks brings a perfect `debug` mode, which seems not appear in Promise?
 
-6. Thunks is **4 times** faster as native Promise.
+6. thunks is **4 times** faster as native Promise.
 
-Read in `exmples/` diretory for more demos on Thunks.
+Read in `exmples/` diretory for more demos on thunks.
 Build asynchronous program in an extraordinary simple way.
 
 You don't have to wait till all bowsers have implemented Promise natively, but by just these **200sloc** you will get more powerful tools for handling aynchronous code.
@@ -124,7 +124,7 @@ var thunks = require('thunks');
 
 ### `thunks([options])`
 
-Generator of `Thunks`, it generates the main function of `Thunk` with its scope.
+Generator of `thunks`, it generates the main function of `Thunk` with its scope.
 "scope" refers to the running evironments `Thunk` generated(directly or indirectly) for all `thunk` functions.
 
 1. Here's how you create a basic `Thunk`, any exceptions would be passed the next `thunk` function:
