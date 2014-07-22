@@ -1,41 +1,48 @@
 thunks v0.7.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
-A basic asynchronous module beyond the Promise magically.
+A basic asynchronous utilily module beyond Promise magically.
 
-Thinking and programming in Thunks is similar to native Promise. The difference points:
+Thinking and programming in Thunks is similar to that in native Promise. But there are some different points:
 
-1. Native Promise is feature of ES6, Thunks not using JS special features to run flawlessly under ES3.
+1. Native Promise is a new feature in ES6, Thunks is not using JavaScript special features to run flawlessly under ES3.
 
-2. Promise 封装出来的是个对象，异步业务隐藏在 promise 对象中，promise对象的方法或属性值可能被改写（入侵）；Thunks 封装出来是一个 thunk 函数，异步业务隐藏在函数里，对外而言就是一个黑盒，不会受到外部的入侵。
+2. After wrapped by Promise we get objects with logics in Promise objects,
+methods of properties of these Promise objects could be modified(injuected);
+While Thunks returns thunk functions, with logics inside function scopes,
+which means they would never be injected from outside.
 
-3.  Promise 通常自称符合函数式编程，但 Thunks 更符合函数式编程，而且是标准的 CPS 风格。
+3. Promise claims it's functional, while Thunks is functional
+and it obeys the continuous-passing style.
 
-4. 功能同样强大，但 Thunks 的 API 更简洁一致，Thunks 封装也更简洁。
+4. Having the same power as Promise, Thunks' API is more consice,
+and Thunks' implementaton is simpler.
 
-5. Thunks 拥有完美的 debug 模式，Promise 好像没有？
+5. Thunks brings a perfect `debug` mode, which seems not appear in Promise?
 
-6. Thunks 的性能是原生 Promise 的**4**倍。
+6. Thunks is **4 times** faster as native Promise.
 
-关于 Thunks 的 demo，可以看看 examples 目录，用超乎你想象的简洁方式进行异步编程。
+Read in `exmples/` diretory for more demos on Thunks.
+Build asynchronous program in an extraordinary simple way.
 
-无需等待ES6，无需考虑兼容，仅需加入 **200** 来行的代码，就能让你使用比 Promise 更强大的异步工具！
+You don't have to wait till all bowsers have implemented Promise natively, but by just these **200sloc** you will get more powerful tools for handling aynchronous code.
 ====
 
-## thunk?
+## What is a thunk?
 
-1. **`thunk`** 是一个被封装了同步或异步任务的函数；
+1. **`thunk`** is a function that encapsulates synchronous or asynchronous code inside.
 
-2. **`thunk`** 有唯一一个参数 `callback`，是 CPS 函数；
+2. **`thunk`** accepts only one `callback` function as an arguments, which is a CPS function;
 
-3. **`thunk`** 运行后返回新的 **`thunk`** 函数，形成链式调用；
+3. **`thunk`** returns another **`thunk`** function after being called, for chaining operations;
 
-4. **`thunk`** 自身执行完毕后，结果进入 `callback` 运行；
+4. **`thunk`** would passing the results into a `callback` function after excuted.
 
-5. `callback` 的返回值如果是 **`thunk`** 函数，则等该 **`thunk`** 执行完毕将结果输入新 **`thunk`** 函数运行；如果是其它值，则当做正确结果进入新的 **`thunk`** 函数运行；
+5. If `callback` returns a new **`thunk`** function, then it would be send to another **`thunk`** to excute,
+or it would be send to another new **`thunk`** function as the value of the computation.
 
-##Benchmark
+## Benchmark
 
-`node benchmark/index.js`，centos 虚拟机中测试结果：
+By running `node benchmark/index.js` in a CentOS virtual machine:
 
     [root@centos thunk]# node benchmark/index
     Sync Benchmark...
@@ -52,231 +59,278 @@ Thinking and programming in Thunks is similar to native Promise. The difference 
 
     JSBench Completed!
 
-  **完全相同的测试逻辑，Thunk 的性能是原生 Promise 的 4 倍**
+**By testing with the same operations, Thunk performs 4 times faster comparing to native Promise.**
 
 ## Demo
 
-    var thunks = require('../thunks.js');
-    var fs = require('fs');
-    var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
+```js
+var thunks = require('../thunks.js');
+var fs = require('fs');
+var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
 
-    Thunk.
-      all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
-        return Thunk(function (callback) { fs.stat(path, callback); });
-      }))(function (error, result) {
-        console.log('Success: ', result);
-        return Thunk(function (callback) { fs.stat('none.js', callback); });
-      })(function (error, result) {
-        console.error('This should not run!', error);
-      });
+Thunk.
+  all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
+    return Thunk(function (callback) { fs.stat(path, callback); });
+  }))(function (error, result) {
+    console.log('Success: ', result);
+    return Thunk(function (callback) { fs.stat('none.js', callback); });
+  })(function (error, result) {
+    console.error('This should not run!', error);
+  });
+```
 
-// No `Maximum call stack size exceeded` error in 1000000 sync series
+No `Maximum call stack size exceeded` error in 1000000 sync series
 
-    var Thunk = require('../thunks.js')();
-    var thunk = Thunk(0);
+```js
+var Thunk = require('../thunks.js')();
+var thunk = Thunk(0);
 
-    function callback(error, value) {
-      return ++value;
-    }
+function callback(error, value) {
+  return ++value;
+}
 
-    console.time('Thunk_series');
-    for (var i = 0; i < 1000000; i++) {
-      thunk = thunk(callback);
-    }
+console.time('Thunk_series');
+for (var i = 0; i < 1000000; i++) {
+  thunk = thunk(callback);
+}
 
-    thunk(function (error, value) {
-      console.log(error, value); // null 1000000
-      console.timeEnd('Thunk_series'); // ~1468ms
-    });
+thunk(function (error, value) {
+  console.log(error, value); // null 1000000
+  console.timeEnd('Thunk_series'); // ~1468ms
+});
+```
 
-## Install
+## Installation
 
 **Node.js:**
 
     npm install thunks
 
-**bower:**
+**Bower:**
 
     bower install thunks
 
-**Browser:**
+**browser:**
 
-    <script src="/pathTo/thunks.js"></script>
+```html
+<script src="/pathTo/thunks.js"></script>
+```
 
 ## API
 
-    var thunks = require('thunks');
+```js
+var thunks = require('thunks');
+```
 
-### thunks([options])
+### `thunks([options])`
 
-`Thunk` 生成器函数，生成一个带作用域的 `Thunk` 主函数，作用域是指该 `Thunk` 直接或间接生成的所有 `thunk` 函数的内部运行环境。
+Generator of `Thunks`, it generates the main function of `Thunk` with its scope.
+"scope" refers to the running evironments `Thunk` generated(directly or indirectly) for all `thunk` functions.
 
-1. 生成基本形式的 `Thunk`，任何异常会输入到下一个 `thunk` 函数：
+1. Here's how you create a basic `Thunk`, any exceptions would be passed the next `thunk` function:
 
-        var Thunk = thunks();
+```js
+var Thunk = thunks();
+```
 
-2. 生成有 `onerror` 监听的 `Thunk`，该 `Thunk` 作用域内的任何异常都可被 `onerror` 捕捉，而不会进入下一个 `thunk` 函数：
+2. Here's the way to create a `Thunk` listening to all exceptions in current scope with `onerror`,
+and it will make sure the exeptions not being passed to the followed `thunk` function.
 
-        var Thunk = thunks(function (error) { console.error(error); });
+```js
+var Thunk = thunks(function (error) { console.error(error); });
+```
 
-3. 生成有 `onerror` 监听和 `debug` 监听的 `Thunk`，`onerror` 同上，该 `Thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个 `thunk` 函数：
+3. Create a `Thunk` with `onerror` and `debug` listeners.
+Results of this `Thunk` would be passed to `debug` function first before passing to the followed `thunk` function.
 
-        var Thunk = thunks({
-          onerror: function (error) { console.error(error); },
-          debug: function () { console.log.apply(console, arguments); }
-        });
+```js
+var Thunk = thunks({
+  onerror: function (error) { console.error(error); },
+  debug: function () { console.log.apply(console, arguments); }
+});
+```
 
-拥有不同作用域的多个 `Thunk` 主函数组合成复杂逻辑体时，各自的作用域仍然相互隔离，也就是说 `onerror` 监听和 `debug` 监听不会在其它作用域运行。
+Even multiple `Thunk` main functions with diferent scope are composed,
+each scope would be seperated from each other,
+which means, `onerror` and `debug` would not run in other scopes.
 
-### Thunk(start)
+### `Thunk(start)`
 
-主函数，返回一个新的 `thunk` 函数。
+This is the main function, to create new `thunk` functions.
 
-其中 `start` 可以是：
+The parameter `start` could be:
 
-1. `thunk` 函数，执行该函数，结果进入新的 `thunk` 函数
+1. a `thunk` function, by calling this function a new `thunk` function will be returned
 
-        var thunk1 = Thunk(1);
-        var thunk2 = Thunk(thunk1); // thunk2 等效于 thunk1;
+```js
+var thunk1 = Thunk(1);
+var thunk2 = Thunk(thunk1); // thunk2 equals to thunk1;
+```
 
+2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunk` function
 
-2. function (callback) {}，执行该函数，callback收集结果进入新的 `thunk` 函数
+```js
+Thunk(function (callback) {
+  callback(null, 1)
+})(function (error, value) {
+  console.log(error, value); // null 1
+});
+```
 
-        Thunk(function (callback) {
-          callback(null, 1)
-        })(function (error, value) {
-          console.log(error, value); // null 1
-        });
+2. a Promise object, results of Promise would be passed to a new `thunk` function
 
-2. promise，promise的结果进入新的 `thunk` 函数
+```js
+var promise = Promise.resolve(1);
 
-        var promise = Promise.resolve(1);
+Thunk(promise)(function (error, value) {
+  console.log(error, value); // null 1
+});
+```
 
-        Thunk(promise)(function (error, value) {
-          console.log(error, value); // null 1
-        });
+2. objects which implements methods of `thunk`
 
-2. 自带 `thunk` 方法的对象
+```js
+var then = Thenjs(1); // then.thunk is a thunk function
 
-        var then = Thenjs(1); // then.thunk is a thunk function
+Thunk(then)(function (error, value) {
+  console.log(error, value); // null 1
+});
+```
 
-        Thunk(then)(function (error, value) {
-          console.log(error, value); // null 1
-        });
+3. values in other types would be valid results passing to a new `thunk` function
 
-3. 其它值，当作有效结果进入新的 `thunk` 函数
+```js
+Thunk(1)(function (error, value) {
+  console.log(error, value); // null 1
+});
 
-        Thunk(1)(function (error, value) {
-          console.log(error, value); // null 1
-        });
+Thunk([1, 2, 3])(function (error, value) {
+  console.log(error, value); // null [1, 2, 3]
+});
+```
 
-        Thunk([1, 2, 3])(function (error, value) {
-          console.log(error, value); // null [1, 2, 3]
-        });
+You can also run with `this`:
 
-还可以这样运行(this)：
+```js
+Thunk.call({x: 123}, 456)(function (error, value) {
+  console.log(error, this.x, value); // null 123 456
+  return 'thunk!';
+})(function (error, value) {
+  console.log(error, this.x, value); // null 123 'thunk!'
+});
+```
 
-    Thunk.call({x: 123}, 456)(function (error, value) {
-      console.log(error, this.x, value); // null 123 456
-      return 'thunk!';
-    })(function (error, value) {
-      console.log(error, this.x, value); // null 123 'thunk!'
-    });
+### `Thunk.all(obj)`
 
+Returns a `thunk` function.
 
-### Thunk.all(obj)
+`obj` can be an array or an object that contains several `thunk` functions or Promise objects.
+They would be excuted at the same time. After all of them are finished,
+an array containing results(in its original order) would be passed to the a new `thunk` function.
 
-返回一个新的 `thunk` 函数。
+```js
+Thunk.all([
+  Thunk(0),
+  Thunk(1),
+  2,
+  Thunk(function (callback) { callback(null, [3]); })
+])(function (error, value) {
+  console.log(error, value); // null [0, 1, 2, [3]]
+});
 
-`obj` 是一个包含多个 `thunk` 函数或 promise 的数组或对象，并发执行各个 `thunk` 函数，全部执行完毕后其结果形成一个新数组（顺序与原数组对应）或对象，输入到返回的新`thunk` 函数。
+Thunk.all({
+  a: Thunk(0),
+  b: Thunk(1),
+  c: 2,
+  d: Thunk(function (callback) { callback(null, [3]); })
+})(function (error, value) {
+  console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
+});
+```
 
-    Thunk.all([
-      Thunk(0),
-      Thunk(1),
-      2,
-      Thunk(function (callback) { callback(null, [3]); })
-    ])(function (error, value) {
-      console.log(error, value); // null [0, 1, 2, [3]]
-    });
+You may also write code like this:
 
-    Thunk.all({
-      a: Thunk(0),
-      b: Thunk(1),
-      c: 2,
-      d: Thunk(function (callback) { callback(null, [3]); })
-    })(function (error, value) {
-      console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
-    });
+```js
+Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
+  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!';
+})(function (error, value) {
+  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
+});
+```
 
-还可以这样运行(this)：
+### `Thunk.digest(error, val1, val2, ...)`
 
-    Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
-      console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
-      return 'thunk!';
-    })(function (error, value) {
-      console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
-    });
+Returns a `thunk` function.
 
-### Thunk.digest(error, val1, val2, ...)
+Transform a Node.js callback function into a `thunk` function.
+This `thunk` function retuslts in `(error, val1, val2, ...)`, which is just being passed to a new `thunk` function,
+like:
 
-返回一个新的 `thunk` 函数。
+```js
+Thunk(function (callback) {
+  callback(error, val1, val2, ...);
+})
+```
 
-将 nodejs callback 风格的输入值转换成一个新的 `thunk` 函数，该 `thunk` 函数的结果值为 `(error, val1, val2, ...)`，即直接将 `digest` 的参数传入到新的 `thunk` 函数，相当于：
+One use case:
 
-    Thunk(function (callback) {
-      callback(error, val1, val2, ...);
-    })
+```js
+Thunk(function (callback) {
+  //...
+  callback(error, result);
+})(function (error, value) {
+  //...
+  return Thunk.digest(error, value);
+})(function (error, value) {
+  //...
+});
+```
 
-使用场景：
+You may also write code with `this`：
 
-    Thunk(function (callback) {
-      //...
-      callback(error, result);
-    })(function (error, value) {
-      //...
-      return Thunk.digest(error, value);
-    })(function (error, value) {
-      //...
-    });
+```js
+var a = {x: 1};
+Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
+  console.log(this, error, value1, value2) // { x: 1 } null 1 2
+});
+```
 
+### `Thunk.thunkify(fn)`
 
-还可以这样运行(this)：
+Returns a new function that would return a `thunk` function
 
-    var a = {x: 1};
-    Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
-      console.log(this, error, value1, value2) // { x: 1 } null 1 2
-    });
+Transform a `fn` function which is in Node.js style into a new function.
+This new function does not accept `callback` as arguments, but accepts `thunk` functions.
 
-### Thunk.thunkify(fn)
+```js
+var Thunk = require('../thunks.js')();
+var fs = require('fs');
+var fsStat = Thunk.thunkify(fs.stat);
 
-返回一个新函数，运行该函数会返回 `thunk` 函数。
+fsStat('thunks.js')(function (error, result) {
+  console.log('thunks.js: ', result);
+});
+fsStat('.gitignore')(function (error, result) {
+  console.log('.gitignore: ', result);
+});
+```
 
-将带 callback 参数的 nodejs 风格的函数 `fn` 转换成一个新的函数，新函数不再接收 `callback`，其输出为 `thunk` 函数。
+You may also write code with `this`:
 
-    var Thunk = require('../thunks.js')();
-    var fs = require('fs');
-    var fsStat = Thunk.thunkify(fs.stat);
+```js
+var obj = {a: 8};
+obj.run = function (x, callback) {
+  //...
+  callback(null, this.a * x);
+};
 
-    fsStat('thunks.js')(function (error, result) {
-      console.log('thunks.js: ', result);
-    });
-    fsStat('.gitignore')(function (error, result) {
-      console.log('.gitignore: ', result);
-    });
+var run = Thunk.thunkify(obj.run);
 
-还可以这样运行(this)：
-
-    var obj = {a: 8};
-    obj.run = function (x, callback) {
-      //...
-      callback(null, this.a * x);
-    };
-
-    var run = Thunk.thunkify(obj.run);
-
-    run.call(obj, 1)(function (error, result) {
-      console.log('run 1: ', result);
-    });
-    run.call(obj, 2)(function (error, result) {
-      console.log('run 2: ', result);
-    });
+run.call(obj, 1)(function (error, result) {
+  console.log('run 1: ', result);
+});
+run.call(obj, 2)(function (error, result) {
+  console.log('run 2: ', result);
+});
+```
