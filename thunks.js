@@ -27,10 +27,6 @@
     return typeof fn === 'function';
   }
 
-  function isObject(obj) {
-    return toString.call(obj) === '[object Object]';
-  }
-
   function isThunk(fn) {
     return isFunction(fn) && fn._isThunk === TRUE;
   }
@@ -61,7 +57,6 @@
       var pending, finished, result;
 
       try {
-        result = new obj.constructor();
         exec();
       } catch (error) {
         finished = true;
@@ -71,9 +66,11 @@
       function exec() {
         if (isArray(obj)) {
           pending = obj.length;
+          result = Array(pending);
           for (var i = pending - 1; i >= 0; i--) run(obj[i], i);
-        } else if (isObject(obj)) {
+        } else if (obj && typeof obj === 'object') {
           pending = 1;
+          result = {};
           for (var key in obj) {
             if (!hasOwnProperty.call(obj, key)) continue;
             pending += 1;
@@ -109,51 +106,52 @@
     };
   }
 
+  function continuation(parent, isStart) {
+    var result, args = parent.result, current = parent.next,
+      scope = this, onerror = scope.onerror || callback;
+
+    parent.result = false;
+    // debug in scope
+    if (scope.debug && !isStart) scope.debug.apply(scope, args);
+    // onerror in scope.
+    if (args[0] != null) {
+      if (scope.onerror) return onerror.call(scope, args[0]);
+      args = [args[0]];
+    }
+    try {
+      switch (args.length) {
+        case 1: result = parent.callback.call(parent.ctx, args[0]); break;
+        case 2: result = parent.callback.call(parent.ctx, args[0], args[1]); break;
+        case 3: result = parent.callback.call(parent.ctx, args[0], args[1], args[2]); break;
+        default: result = parent.callback.apply(parent.ctx, args);
+      }
+    } catch (error) {
+      return onerror(error);
+    }
+
+    if (result == null) return callback(null);
+    result = toThunk(result);
+    if (!isThunk(result)) return callback(null, result);
+    try {
+      return result.call(parent.ctx, callback);
+    } catch (error) {
+      return onerror(error);
+    }
+
+    function callback() {
+      if (current.result === false) return;
+      current.result = arguments.length ? arguments: [null];
+      if (current.callback) return continuation.call(scope, current);
+    }
+  }
+
   function thunks(options) {
-    var scope = {};
+    var scope = {onerror: null, debug: null};
 
     if (isFunction(options)) scope.onerror = options;
     else if (options) {
-      scope.debug = isFunction(options.debug) ? options.debug : null;
-      scope.onerror = isFunction(options.onerror) ? options.onerror : null;
-    }
-
-    function continuation(parent) {
-      var result, args = parent.result, current = parent.next, onerror = scope.onerror || callback;
-
-      parent.result = false;
-      // debug in scope
-      if (scope.debug && !parent.start) scope.debug.apply(null, args);
-      // onerror in scope.
-      if (args[0] != null) {
-        if (scope.onerror) return onerror(args[0]);
-        args = [args[0]];
-      }
-      try {
-        switch (args.length) {
-          case 1: result = parent.callback.call(parent.ctx, args[0]); break;
-          case 2: result = parent.callback.call(parent.ctx, args[0], args[1]); break;
-          case 3: result = parent.callback.call(parent.ctx, args[0], args[1], args[2]); break;
-          default: result = parent.callback.apply(parent.ctx, args);
-        }
-      } catch (error) {
-        return onerror(error);
-      }
-
-      if (result == null) return callback(null);
-      result = toThunk(result);
-      if (!isThunk(result)) return callback(null, result);
-      try {
-        return result.call(parent.ctx, callback);
-      } catch (error) {
-        return onerror(error);
-      }
-
-      function callback() {
-        if (current.result === false) return;
-        current.result = arguments.length ? arguments: [null];
-        if (current.callback) return continuation(current);
-      }
+      if (isFunction(options.debug)) scope.debug = options.debug;
+      if (isFunction(options.onerror)) scope.onerror = options.onerror;
     }
 
     function childThunk(parent) {
@@ -163,27 +161,26 @@
     }
 
     function child(parent, callback) {
-      var current = {ctx: parent.ctx};
+      var current = {ctx: parent.ctx || null, next: null, result: null, callback: null};
       if (parent.result === false) return;
       parent.callback = callback;
       parent.next = current;
-      if (parent.result) continuation(parent);
+      if (parent.result) continuation.call(scope, parent);
       return childThunk(current);
     }
 
     // main function **thunk**
     function Thunk(start) {
-      var current = {ctx: this || null};
+      var current = {ctx: this || null, next: null, result: null, callback: null};
 
       start = toThunk(start);
       if (isThunk(start)) {
-        continuation({
-          start: true,
+        continuation.call(scope, {
           ctx: current.ctx,
           next: current,
           result: [null],
           callback: function () { return start; }
-        });
+        }, true);
       } else {
         current.result = start == null ? [null] : [null, start];
       }
