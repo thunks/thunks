@@ -187,8 +187,8 @@
       return childThunk(current);
     }
 
-    Thunk.all = function (array) {
-      return Thunk.call(this, objectToThunk(array));
+    Thunk.all = function (obj) {
+      return Thunk.call(this, objectToThunk(obj));
     };
 
     Thunk.digest = function () {
@@ -212,6 +212,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = '0.7.0';
+  thunks.VERSION = 'v0.8.0';
   return thunks;
 }));
