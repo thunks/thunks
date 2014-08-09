@@ -1,4 +1,4 @@
-thunks v0.8.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v0.8.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -156,9 +156,9 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
           console.log(error, value); // null 1
         });
 
-2. 自带 `thunk` 方法的对象
+2. 自带 `toThunk` 方法的对象
 
-        var then = Thenjs(1); // then.thunk is a thunk function
+        var then = Thenjs(1); // then.toThunk() 能转换成 thunk 形式的函数，也能用于 `co`
 
         Thunk(then)(function (error, value) {
           console.log(error, value); // null 1

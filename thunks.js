@@ -212,6 +212,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v0.8.0';
+  thunks.VERSION = 'v0.8.1';
   return thunks;
 }));

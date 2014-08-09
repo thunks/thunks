@@ -1,4 +1,4 @@
-thunks v0.8.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v0.8.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -187,10 +187,10 @@ Thunk(promise)(function (error, value) {
 });
 ```
 
-2. objects which implements methods of `thunk`
+2. objects which implements methods of `toThunk`
 
 ```js
-var then = Thenjs(1); // then.thunk is a thunk function
+var then = Thenjs(1); // then.toThunk() return a thunk function
 
 Thunk(then)(function (error, value) {
   console.log(error, value); // null 1
