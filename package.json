@@ -4,7 +4,7 @@
   "author": {
     "name": "zensh"
   },
-  "version": "0.8.1",
+  "version": "0.8.2",
   "main": "thunks.js",
   "repository": {
     "type": "git",

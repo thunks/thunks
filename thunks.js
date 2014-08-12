@@ -13,7 +13,7 @@
   } else {
     root.thunks = factory();
   }
-}(this, function () {
+}(typeof window === 'object' ? window : this, function () {
   'use strict';
 
   var TRUE = {},
@@ -212,6 +212,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v0.8.1';
+  thunks.VERSION = 'v0.8.2';
   return thunks;
 }));
