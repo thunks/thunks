@@ -122,39 +122,39 @@ thunk(function (error, value) {
 var thunks = require('thunks');
 ```
 
-### `thunks([options])`
+### thunks([options])
 
 Generator of `thunks`, it generates the main function of `Thunk` with its scope.
 "scope" refers to the running evironments `Thunk` generated(directly or indirectly) for all `thunk` functions.
 
 1. Here's how you create a basic `Thunk`, any exceptions would be passed the next `thunk` function:
 
-```js
-var Thunk = thunks();
-```
+    ```js
+    var Thunk = thunks();
+    ```
 
 2. Here's the way to create a `Thunk` listening to all exceptions in current scope with `onerror`,
 and it will make sure the exeptions not being passed to the followed `thunk` function.
 
-```js
-var Thunk = thunks(function (error) { console.error(error); });
-```
+    ```js
+    var Thunk = thunks(function (error) { console.error(error); });
+    ```
 
 3. Create a `Thunk` with `onerror` and `debug` listeners.
 Results of this `Thunk` would be passed to `debug` function first before passing to the followed `thunk` function.
 
-```js
-var Thunk = thunks({
-  onerror: function (error) { console.error(error); },
-  debug: function () { console.log.apply(console, arguments); }
-});
-```
+    ```js
+    var Thunk = thunks({
+      onerror: function (error) { console.error(error); },
+      debug: function () { console.log.apply(console, arguments); }
+    });
+    ```
 
 Even multiple `Thunk` main functions with diferent scope are composed,
 each scope would be seperated from each other,
 which means, `onerror` and `debug` would not run in other scopes.
 
-### `Thunk(start)`
+### Thunk(start)
 
 This is the main function, to create new `thunk` functions.
 
@@ -162,65 +162,65 @@ The parameter `start` could be:
 
 1. a `thunk` function, by calling this function a new `thunk` function will be returned
 
-```js
-var thunk1 = Thunk(1);
-var thunk2 = Thunk(thunk1); // thunk2 equals to thunk1;
-```
+    ```js
+    var thunk1 = Thunk(1);
+    var thunk2 = Thunk(thunk1); // thunk2 equals to thunk1;
+    ```
 
 2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunk` function
 
-```js
-Thunk(function (callback) {
-  callback(null, 1)
-})(function (error, value) {
-  console.log(error, value); // null 1
-});
-```
+    ```js
+    Thunk(function (callback) {
+      callback(null, 1)
+    })(function (error, value) {
+      console.log(error, value); // null 1
+    });
+    ```
 
-2. a Promise object, results of Promise would be passed to a new `thunk` function
+3. a Promise object, results of Promise would be passed to a new `thunk` function
 
-```js
-var promise = Promise.resolve(1);
+    ```js
+    var promise = Promise.resolve(1);
 
-Thunk(promise)(function (error, value) {
-  console.log(error, value); // null 1
-});
-```
+    Thunk(promise)(function (error, value) {
+      console.log(error, value); // null 1
+    });
+    ```
 
-2. objects which implements methods of `toThunk`
+4. objects which implements methods of `toThunk`
 
-```js
-var then = Thenjs(1); // then.toThunk() return a thunk function
+    ```js
+    var then = Thenjs(1); // then.toThunk() return a thunk function
 
-Thunk(then)(function (error, value) {
-  console.log(error, value); // null 1
-});
-```
+    Thunk(then)(function (error, value) {
+      console.log(error, value); // null 1
+    });
+    ```
 
-3. values in other types would be valid results passing to a new `thunk` function
+5. values in other types would be valid results passing to a new `thunk` function
 
-```js
-Thunk(1)(function (error, value) {
-  console.log(error, value); // null 1
-});
+    ```js
+    Thunk(1)(function (error, value) {
+      console.log(error, value); // null 1
+    });
 
-Thunk([1, 2, 3])(function (error, value) {
-  console.log(error, value); // null [1, 2, 3]
-});
-```
+    Thunk([1, 2, 3])(function (error, value) {
+      console.log(error, value); // null [1, 2, 3]
+    });
+    ```
 
 You can also run with `this`:
 
-```js
-Thunk.call({x: 123}, 456)(function (error, value) {
-  console.log(error, this.x, value); // null 123 456
-  return 'thunk!';
-})(function (error, value) {
-  console.log(error, this.x, value); // null 123 'thunk!'
-});
-```
+    ```js
+    Thunk.call({x: 123}, 456)(function (error, value) {
+      console.log(error, this.x, value); // null 123 456
+      return 'thunk!';
+    })(function (error, value) {
+      console.log(error, this.x, value); // null 123 'thunk!'
+    });
+    ```
 
-### `Thunk.all(obj)`
+### Thunk.all(obj)
 
 Returns a `thunk` function.
 
@@ -259,7 +259,7 @@ Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
 });
 ```
 
-### `Thunk.digest(error, val1, val2, ...)`
+### Thunk.digest(error, val1, val2, ...)
 
 Returns a `thunk` function.
 
@@ -296,7 +296,7 @@ Thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
 });
 ```
 
-### `Thunk.thunkify(fn)`
+### Thunk.thunkify(fn)
 
 Returns a new function that would return a `thunk` function
 
