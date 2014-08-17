@@ -325,7 +325,7 @@ function run(x, callback) {
   callback(null, this.a * x);
 };
 
-var run = Thunk.thunkify.call(obj, obj.run);
+var run = Thunk.thunkify.call(obj, run);
 
 run(1)(function (error, result) {
   console.log('run 1: ', result);

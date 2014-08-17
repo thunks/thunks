@@ -272,7 +272,7 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
       callback(null, this.a * x);
     };
 
-    var run = Thunk.thunkify.call(obj, obj.run);
+    var run = Thunk.thunkify.call(obj, run);
 
     run(1)(function (error, result) {
       console.log('run 1: ', result);
