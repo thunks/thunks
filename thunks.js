@@ -188,20 +188,21 @@
     }
 
     Thunk.all = function (obj) {
-      return Thunk.call(this, objectToThunk(obj));
+      return Thunk.call(this === Thunk ? null : this, objectToThunk(obj));
     };
 
     Thunk.digest = function () {
       var args = arguments;
-      return Thunk.call(this, function (callback) {
+      return Thunk.call(this === Thunk ? null : this, function (callback) {
         callback.apply(null, args);
       });
     };
 
     Thunk.thunkify = function (fn) {
+      var ctx = this === Thunk ? null : this;
       return function () {
         var args = slice(arguments);
-        return Thunk.call(this, function (callback) {
+        return Thunk.call(ctx || this, function (callback) {
           args.push(callback);
           fn.apply(this, args);
         });
@@ -212,6 +213,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v0.8.2';
+  thunks.VERSION = 'v0.9.0';
   return thunks;
 }));

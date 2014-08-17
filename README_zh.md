@@ -1,4 +1,4 @@
-thunks v0.8.2 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v0.9.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -267,16 +267,16 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
 还可以这样运行(this)：
 
     var obj = {a: 8};
-    obj.run = function (x, callback) {
+    function run(x, callback) {
       //...
       callback(null, this.a * x);
     };
 
-    var run = Thunk.thunkify(obj.run);
+    var run = Thunk.thunkify.call(obj, obj.run);
 
-    run.call(obj, 1)(function (error, result) {
+    run(1)(function (error, result) {
       console.log('run 1: ', result);
     });
-    run.call(obj, 2)(function (error, result) {
+    run(2)(function (error, result) {
       console.log('run 2: ', result);
     });
