@@ -1,4 +1,4 @@
-thunks v0.9.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v1.0.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 

@@ -39,6 +39,30 @@
     return ret;
   }
 
+  function forEach(obj, iterator, context, isArray) {
+    if (isArray) {
+      for (var i = 0, l = obj.length; i < l; i++) iterator.call(context, obj[i], i, obj);
+    } else {
+      for (var key in obj) {
+        if (!hasOwnProperty.call(obj, key)) continue;
+        iterator.call(context, obj[key], key, obj);
+      }
+    }
+  }
+
+  function tryCatch(onerror, fn, args) {
+    try {
+      switch (args.length) {
+        case 1: return fn.call(this, args[0]) || null;
+        case 2: return fn.call(this, args[0], args[1]) || null;
+        case 3: return fn.call(this, args[0], args[1], args[2]) || null;
+        default: return fn.apply(this, args) || null;
+      }
+    } catch (error) {
+      onerror(error);
+    }
+  }
+
   function toThunk(obj) {
     if (!obj) return obj;
     if (isFunction(obj)) obj = thunkFactory(obj);
@@ -54,35 +78,24 @@
 
   function objectToThunk(obj) {
     return function (callback) {
-      var pending, finished, result;
+      var pending = 1, finished = false, result, _isArray = isArray(obj);
 
-      try {
-        exec();
-      } catch (error) {
+      if (_isArray) {
+        result = Array(obj.length);
+      } else if (obj && typeof obj === 'object') {
+        result = {};
+      }
+      if (!result) return callback(new Error('Not array or object'));
+
+      tryCatch(function (error) {
         finished = true;
         callback(error);
-      }
-
-      function exec() {
-        if (isArray(obj)) {
-          pending = obj.length;
-          result = Array(pending);
-          for (var i = pending - 1; i >= 0; i--) run(obj[i], i);
-        } else if (obj && typeof obj === 'object') {
-          pending = 1;
-          result = {};
-          for (var key in obj) {
-            if (!hasOwnProperty.call(obj, key)) continue;
-            pending += 1;
-            run(obj[key], key);
-          }
-          pending -= 1;
-        } else throw new Error('Not array or object');
-        if (!(pending || finished)) callback(null, result);
-      }
-
-      function run(fn, index) {
+      }, function (obj, iterator) {
+        forEach(obj, iterator, null, _isArray);
+        if (!(--pending || finished)) callback(null, result);
+      }, [obj, function (fn, index) {
         if (finished) return;
+        pending++;
         fn = toThunk(fn);
         if (!isThunk(fn)) {
           result[index] = fn;
@@ -94,7 +107,7 @@
           result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
           return --pending || callback(null, result);
         });
-      }
+      }]);
     };
   }
 
@@ -110,39 +123,28 @@
     var result, args = parent.result, current = parent.next,
       scope = this, onerror = scope.onerror || callback;
 
-    parent.result = false;
-    // debug in scope
-    if (scope.debug && !isStart) scope.debug.apply(scope, args);
-    // onerror in scope.
-    if (args[0] != null) {
-      if (scope.onerror) return onerror.call(scope, args[0]);
-      args = [args[0]];
-    }
-    try {
-      switch (args.length) {
-        case 1: result = parent.callback.call(parent.ctx, args[0]); break;
-        case 2: result = parent.callback.call(parent.ctx, args[0], args[1]); break;
-        case 3: result = parent.callback.call(parent.ctx, args[0], args[1], args[2]); break;
-        default: result = parent.callback.apply(parent.ctx, args);
-      }
-    } catch (error) {
-      return onerror(error);
-    }
-
-    if (result == null) return callback(null);
-    result = toThunk(result);
-    if (!isThunk(result)) return callback(null, result);
-    try {
-      return result.call(parent.ctx, callback);
-    } catch (error) {
-      return onerror(error);
-    }
-
     function callback() {
       if (current.result === false) return;
       current.result = arguments.length ? arguments: [null];
       if (current.callback) return continuation.call(scope, current);
     }
+
+    parent.result = false;
+    // debug in scope
+    if (scope.debug && !isStart) scope.debug.apply(null, args);
+    // onerror in scope
+    if (args[0] != null) {
+      args = [args[0]];
+      if (scope.onerror) return onerror(args[0]);
+    }
+
+    result = tryCatch.call(parent.ctx, onerror, parent.callback, args);
+
+    if (typeof result === 'undefined') return;
+    if (result === null) return callback(null);
+    result = toThunk(result);
+    if (!isThunk(result)) return callback(null, result);
+    tryCatch.call(parent.ctx, onerror, result, [callback]);
   }
 
   function thunks(options) {
@@ -213,6 +215,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v0.9.0';
+  thunks.VERSION = 'v1.0.0';
   return thunks;
 }));
