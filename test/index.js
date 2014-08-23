@@ -405,4 +405,31 @@ describe('thunks', function(){
       })(done);
     });
   });
+
+  describe('Thunk.delay()', function(){
+
+    it('Thunk.delay()', function (done) {
+      var Thunk = thunks();
+      var time = Date.now();
+      Thunk.delay(100)(function (error, value) {
+        should(error).be.equal(null);
+        should(Date.now() - time >= 100).be.equal(true);
+        return Thunk.delay(1000);
+      })(function (error, value) {
+        should(error).be.equal(null);
+        should(Date.now() - time >= 1100).be.equal(true);
+      })(done);
+    });
+
+    it('Thunk.digest.call()', function (done) {
+      var Thunk = thunks();
+      var time = Date.now();
+      Thunk.delay.call(x, 1010)(function (error, value) {
+        should(error).be.equal(null);
+        should(Date.now() - time >= 1010).be.equal(true);
+        should(this).be.equal(x);
+      })(done);
+
+    });
+  });
 });

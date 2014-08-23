@@ -211,10 +211,16 @@
       };
     };
 
+    Thunk.delay = function (delay) {
+      return Thunk.call(this === Thunk ? null : this, function (callback) {
+        setTimeout(callback, delay);
+      });
+    };
+
     return Thunk;
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.0.0';
+  thunks.VERSION = 'v1.1.0';
   return thunks;
 }));

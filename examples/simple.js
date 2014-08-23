@@ -17,3 +17,10 @@ thunk(function (error, value) {
   console.timeEnd('Thunk_series'); // ~1468ms
 });
 
+console.log('Thunk.delay 500: ', Date.now());
+Thunk.delay(500)(function () {
+  console.log('Thunk.delay 1000: ', Date.now());
+  return Thunk.delay(1000);
+})(function () {
+  console.log('Thunk.delay end: ', Date.now());
+});

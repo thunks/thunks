@@ -1,4 +1,4 @@
-thunks v1.0.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v1.1.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -334,3 +334,26 @@ run(2)(function (error, result) {
   console.log('run 2: ', result);
 });
 ```
+
+### Thunk.delay(delay)
+
+Return a `thunk` function, this `thunk` function will be called after `delay` milliseconds.
+
+```js
+console.log('Thunk.delay 500: ', Date.now());
+Thunk.delay(500)(function () {
+  console.log('Thunk.delay 1000: ', Date.now());
+  return Thunk.delay(1000);
+})(function () {
+  console.log('Thunk.delay end: ', Date.now());
+});```
+
+You may also write code with `this`:
+
+```js
+console.log('Thunk.delay start: ', Date.now());
+Thunk.delay.call(this, 1000)(function () {
+  console.log('Thunk.delay end: ', Date.now());
+});
+```
+
