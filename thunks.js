@@ -18,7 +18,6 @@
 
   var TRUE = {},
     toString = Object.prototype.toString,
-    hasOwnProperty = Object.prototype.hasOwnProperty,
     isArray = Array.isArray || function (obj) {
       return toString.call(obj) === '[object Array]';
     };
@@ -39,25 +38,29 @@
     return ret;
   }
 
-  function forEach(obj, iterator, context, isArray) {
+  function forEach(obj, iterator, isArray) {
     if (isArray) {
-      for (var i = 0, l = obj.length; i < l; i++) iterator.call(context, obj[i], i, obj);
+      for (var i = 0, l = obj.length; i < l; i++) iterator(obj[i], i, obj);
     } else {
       for (var key in obj) {
-        if (!hasOwnProperty.call(obj, key)) continue;
-        iterator.call(context, obj[key], key, obj);
+        if (!obj.hasOwnProperty(key)) continue;
+        iterator(obj[key], key, obj);
       }
     }
   }
 
-  function tryCatch(onerror, fn, args) {
+  function fastApply(ctx, fn, args) {
+    switch (args.length) {
+      case 1: return fn.call(ctx, args[0]) || null;
+      case 2: return fn.call(ctx, args[0], args[1]) || null;
+      case 3: return fn.call(ctx, args[0], args[1], args[2]) || null;
+      default: return fn.apply(ctx, args) || null;
+    }
+  }
+
+  function tryCatch(ctx, onerror, fn, args) {
     try {
-      switch (args.length) {
-        case 1: return fn.call(this, args[0]) || null;
-        case 2: return fn.call(this, args[0], args[1]) || null;
-        case 3: return fn.call(this, args[0], args[1], args[2]) || null;
-        default: return fn.apply(this, args) || null;
-      }
+      return fastApply(ctx, fn, args);
     } catch (error) {
       onerror(error);
     }
@@ -87,11 +90,11 @@
       }
       if (!result) return callback(new Error('Not array or object'));
 
-      tryCatch(function (error) {
+      tryCatch(null, function (error) {
         finished = true;
         callback(error);
       }, function (obj, iterator) {
-        forEach(obj, iterator, null, _isArray);
+        forEach(obj, iterator, _isArray);
         if (!(--pending || finished)) callback(null, result);
       }, [obj, function (fn, index) {
         if (finished) return;
@@ -119,14 +122,13 @@
     };
   }
 
-  function continuation(parent, isStart) {
-    var result, args = parent.result, current = parent.next,
-      scope = this, onerror = scope.onerror || callback;
+  function continuation(scope, parent, isStart) {
+    var result, args = parent.result, current = parent.next, onerror = scope.onerror || callback;
 
     function callback() {
       if (current.result === false) return;
       current.result = arguments.length ? arguments: [null];
-      if (current.callback) return continuation.call(scope, current);
+      if (current.callback) return continuation(scope, current);
     }
 
     parent.result = false;
@@ -138,13 +140,13 @@
       if (scope.onerror) return onerror(args[0]);
     }
 
-    result = tryCatch.call(parent.ctx, onerror, parent.callback, args);
+    result = tryCatch(parent.ctx, onerror, parent.callback, args);
 
     if (typeof result === 'undefined') return;
     if (result === null) return callback(null);
     result = toThunk(result);
     if (!isThunk(result)) return callback(null, result);
-    tryCatch.call(parent.ctx, onerror, result, [callback]);
+    tryCatch(parent.ctx, onerror, result, [callback]);
   }
 
   function thunks(options) {
@@ -167,7 +169,7 @@
       if (parent.result === false) return;
       parent.callback = callback;
       parent.next = current;
-      if (parent.result) continuation.call(scope, parent);
+      if (parent.result) continuation(scope, parent);
       return childThunk(current);
     }
 
@@ -177,7 +179,7 @@
 
       start = toThunk(start);
       if (isThunk(start)) {
-        continuation.call(scope, {
+        continuation(scope, {
           ctx: current.ctx,
           next: current,
           result: [null],
@@ -221,6 +223,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.1.0';
+  thunks.VERSION = 'v1.1.1';
   return thunks;
 }));

@@ -1,4 +1,4 @@
-thunks v1.1.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v1.1.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -19,7 +19,7 @@ and thunks' implementaton is simpler.
 
 5. thunks brings a perfect `debug` mode, which seems not appear in Promise?
 
-6. thunks is **4 times** faster as native Promise.
+6. thunks is **6 times** faster as native Promise.
 
 Read in `exmples/` diretory for more demos on thunks.
 Build asynchronous program in an extraordinary simple way.

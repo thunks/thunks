@@ -1,4 +1,4 @@
-thunks v1.1.0 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
+thunks v1.1.1 [![Build Status](https://travis-ci.org/teambition/thunks.png?branch=master)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -14,7 +14,7 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
 
 5. Thunks 拥有完美的 debug 模式，Promise 好像没有？
 
-6. Thunks 的性能是原生 Promise 的**4**倍。
+6. Thunks 的性能是原生 Promise 的**6倍**。
 
 关于 Thunks 的 demo，可以看看 examples 目录，用超乎你想象的简洁方式进行异步编程。
 
