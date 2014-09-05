@@ -49,21 +49,14 @@
     }
   }
 
-  function fastApply(ctx, fn, args) {
-    switch (args.length) {
-      case 1: return fn.call(ctx, args[0]) || null;
-      case 2: return fn.call(ctx, args[0], args[1]) || null;
-      case 3: return fn.call(ctx, args[0], args[1], args[2]) || null;
-      default: return fn.apply(ctx, args) || null;
-    }
-  }
-
-  function tryCatch(ctx, onerror, fn, args) {
+  function tryRun(ctx, fn, args) {
+    var result = {error: null, value: null};
     try {
-      return fastApply(ctx, fn, args);
+      result.value = fn.apply(ctx, args);
     } catch (error) {
-      onerror(error);
+      result.error = error;
     }
+    return result;
   }
 
   function toThunk(obj) {
@@ -90,10 +83,7 @@
       }
       if (!result) return callback(new Error('Not array or object'));
 
-      tryCatch(null, function (error) {
-        finished = true;
-        callback(error);
-      }, function (obj, iterator) {
+      var tryResult = tryRun(null, function (obj, iterator) {
         forEach(obj, iterator, _isArray);
         if (!(--pending || finished)) callback(null, result);
       }, [obj, function (fn, index) {
@@ -111,6 +101,10 @@
           return --pending || callback(null, result);
         });
       }]);
+      if (tryResult.error) {
+        finished = true;
+        callback(tryResult.error);
+      }
     };
   }
 
@@ -140,13 +134,13 @@
       if (scope.onerror) return onerror(args[0]);
     }
 
-    result = tryCatch(parent.ctx, onerror, parent.callback, args);
-
-    if (typeof result === 'undefined') return;
-    if (result === null) return callback(null);
-    result = toThunk(result);
+    var tryResult = tryRun(parent.ctx, parent.callback, args);
+    if (tryResult.error) return onerror(tryResult.error);
+    if (tryResult.value == null) return callback(null);
+    result = toThunk(tryResult.value);
     if (!isThunk(result)) return callback(null, result);
-    tryCatch(parent.ctx, onerror, result, [callback]);
+    tryResult = tryRun(parent.ctx, result, [callback]);
+    if (tryResult.error) return onerror(tryResult.error);
   }
 
   function thunks(options) {
@@ -223,6 +217,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.1.1';
+  thunks.VERSION = 'v1.2.0';
   return thunks;
 }));
