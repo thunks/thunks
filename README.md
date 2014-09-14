@@ -1,4 +1,4 @@
-thunks v1.2.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.2.1 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -356,4 +356,3 @@ Thunk.delay.call(this, 1000)(function () {
   console.log('Thunk.delay end: ', Date.now());
 });
 ```
-

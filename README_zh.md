@@ -1,4 +1,4 @@
-thunks v1.2.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.2.1 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -299,4 +299,3 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
     Thunk.delay.call(this, 1000)(function () {
       console.log('Thunk.delay end: ', Date.now());
     });
-

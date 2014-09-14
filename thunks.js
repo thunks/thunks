@@ -43,8 +43,7 @@
       for (var i = 0, l = obj.length; i < l; i++) iterator(obj[i], i, obj);
     } else {
       for (var key in obj) {
-        if (!obj.hasOwnProperty(key)) continue;
-        iterator(obj[key], key, obj);
+        if (obj.hasOwnProperty(key)) iterator(obj[key], key, obj);
       }
     }
   }
@@ -74,7 +73,7 @@
 
   function objectToThunk(obj) {
     return function (callback) {
-      var pending = 1, finished = false, result, _isArray = isArray(obj);
+      var result, pending = 1, finished = false, _isArray = isArray(obj);
 
       if (_isArray) {
         result = Array(obj.length);
@@ -140,7 +139,7 @@
     result = toThunk(tryResult.value);
     if (!isThunk(result)) return callback(null, result);
     tryResult = tryRun(parent.ctx, result, [callback]);
-    if (tryResult.error) return onerror(tryResult.error);
+    return tryResult.error ? onerror(tryResult.error) : null;
   }
 
   function thunks(options) {
@@ -159,7 +158,7 @@
     }
 
     function child(parent, callback) {
-      var current = {ctx: parent.ctx || null, next: null, result: null, callback: null};
+      var current = {ctx: parent.ctx, next: null, result: null, callback: null};
       if (parent.result === false) return;
       parent.callback = callback;
       parent.next = current;
@@ -169,7 +168,7 @@
 
     // main function **thunk**
     function Thunk(start) {
-      var current = {ctx: this || null, next: null, result: null, callback: null};
+      var current = {ctx: this === Thunk ? null : this, next: null, result: null, callback: null};
 
       start = toThunk(start);
       if (isThunk(start)) {
@@ -186,12 +185,12 @@
     }
 
     Thunk.all = function (obj) {
-      return Thunk.call(this === Thunk ? null : this, objectToThunk(obj));
+      return Thunk.call(this, objectToThunk(obj));
     };
 
     Thunk.digest = function () {
       var args = arguments;
-      return Thunk.call(this === Thunk ? null : this, function (callback) {
+      return Thunk.call(this, function (callback) {
         callback.apply(null, args);
       });
     };
@@ -208,7 +207,7 @@
     };
 
     Thunk.delay = function (delay) {
-      return Thunk.call(this === Thunk ? null : this, function (callback) {
+      return Thunk.call(this, function (callback) {
         setTimeout(callback, delay);
       });
     };
@@ -217,6 +216,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.2.0';
+  thunks.VERSION = 'v1.2.1';
   return thunks;
 }));

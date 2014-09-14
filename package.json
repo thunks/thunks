@@ -1,10 +1,10 @@
 {
   "name": "thunks",
   "description": "A basic asynchronous utilily module beyond Promise magically.",
-  "author": {
-    "name": "zensh"
-  },
-  "version": "1.2.0",
+  "authors": [
+    "Yan Qing <admin@zensh.com>"
+  ],
+  "version": "1.2.1",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -20,9 +20,6 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "async": ">=0.9.0",
-    "bluebird": ">=1.2.4",
-    "co": ">=3.0.0",
     "gulp": "^3.5.6",
     "gulp-jshint": "^1.8.4",
     "gulp-mocha": "^1.0.0",
@@ -36,5 +33,13 @@
   },
   "scripts": {
     "test": "gulp test"
-  }
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "benchmark",
+    "test",
+    "examples",
+    "gulpfile.js"
+  ]
 }
