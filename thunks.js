@@ -33,8 +33,8 @@
   // fast slice for `arguments`.
   function slice(args, start) {
     start = start || 0;
+    if (start >= args.length) return [];
     var len = args.length, ret = Array(len - start);
-    
     while (len-- > start) ret[len - start] = args[len];
     return ret;
   }
@@ -217,6 +217,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.2.1';
+  thunks.VERSION = 'v1.2.3';
   return thunks;
 }));
