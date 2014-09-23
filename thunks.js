@@ -32,8 +32,9 @@
 
   // fast slice for `arguments`.
   function slice(args, start) {
-    var len = args.length, ret = Array(len);
     start = start || 0;
+    var len = args.length, ret = Array(len - start);
+    
     while (len-- > start) ret[len - start] = args[len];
     return ret;
   }
