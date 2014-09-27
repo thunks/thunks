@@ -1,4 +1,4 @@
-thunks v1.2.3 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.3.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -134,7 +134,7 @@ Generator of `thunks`, it generates the main function of `Thunk` with its scope.
     ```
 
 2. Here's the way to create a `Thunk` listening to all exceptions in current scope with `onerror`,
-and it will make sure the exeptions not being passed to the followed `thunk` function.
+and it will make sure the exeptions not being passed to the followed `thunk` function, unless `onerror` function return `true`.
 
     ```js
     var Thunk = thunks(function (error) { console.error(error); });

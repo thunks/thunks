@@ -131,11 +131,16 @@
     // onerror in scope
     if (args[0] != null) {
       args = [args[0]];
-      if (scope.onerror) return onerror(args[0]);
+      if (scope.onerror) {
+        if (onerror(args[0]) !== true) return;
+        // if onerror return true then continue
+        args = [null];
+      }
     }
 
     var tryResult = tryRun(parent.ctx, parent.callback, args);
-    if (tryResult.error) return onerror(tryResult.error);
+    if (tryResult.error && onerror(tryResult.error) !== true) return;
+    if (tryResult.value === false) return;
     if (tryResult.value == null) return callback(null);
     result = toThunk(tryResult.value);
     if (!isThunk(result)) return callback(null, result);
@@ -217,6 +222,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.2.3';
+  thunks.VERSION = 'v1.3.0';
   return thunks;
 }));

@@ -26,6 +26,26 @@ describe('thunks', function(){
       });
     });
 
+    it('thunks(onerror) [return true]', function (done) {
+      var Thunk = thunks({
+        onerror: function (error) {
+          should(error).be.instanceOf(Error);
+          should(error.message).be.equal('some error and continue!');
+          return true;
+        }
+      });
+
+      Thunk()(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.equal(undefined);
+        throw new Error('some error and continue!');
+      })(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.equal(undefined);
+        done();
+      });
+    });
+
     it('thunks({onerror: onerror})', function (done) {
       var Thunk = thunks({
         onerror: function (error) {
@@ -39,7 +59,7 @@ describe('thunks', function(){
         should(value).be.equal(x);
         throw new Error('some error!');
       })(function () {
-        should('this function will not run').be.equal('');
+        throw new Error('this function will not run');
       });
     });
 
@@ -161,7 +181,11 @@ describe('thunks', function(){
       })(function (error, value) {
         should(error).be.equal(null);
         should(value).be.equal(16);
-      })(done);
+        done();
+        return false;
+      })(function (error, value) {
+        console.log(new Error('this function will not run'));
+      });
     });
 
     it('Thunk(promise)', function (done) {
