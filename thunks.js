@@ -6,13 +6,9 @@
 ;(function (root, factory) {
   'use strict';
 
-  if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = factory();
-  } else if (typeof define === 'function' && define.amd) {
-    define([], factory);
-  } else {
-    root.thunks = factory();
-  }
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else if (typeof define === 'function' && define.amd) define([], factory);
+  else root.thunks = factory();
 }(typeof window === 'object' ? window : this, function () {
   'use strict';
 
@@ -96,7 +92,10 @@
         }
         fn(function (error, res) {
           if (finished) return;
-          if (error != null) return finished = true, callback(error);
+          if (error != null) {
+            finished = true;
+            return callback(error);
+          }
           result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
           return --pending || callback(null, result);
         });
@@ -140,7 +139,6 @@
 
     var tryResult = tryRun(parent.ctx, parent.callback, args);
     if (tryResult.error && onerror(tryResult.error) !== true) return;
-    if (tryResult.value === false) return;
     if (tryResult.value == null) return callback(null);
     result = toThunk(tryResult.value);
     if (!isThunk(result)) return callback(null, result);
@@ -222,6 +220,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.3.0';
+  thunks.VERSION = 'v1.3.1';
   return thunks;
 }));

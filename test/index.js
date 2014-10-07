@@ -181,11 +181,7 @@ describe('thunks', function(){
       })(function (error, value) {
         should(error).be.equal(null);
         should(value).be.equal(16);
-        done();
-        return false;
-      })(function (error, value) {
-        console.log(new Error('this function will not run'));
-      });
+      })(done);
     });
 
     it('Thunk(promise)', function (done) {
