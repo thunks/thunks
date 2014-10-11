@@ -2,6 +2,8 @@ thunks v1.3.1 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](htt
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
+[中文说明](https://github.com/teambition/thunks/blob/master/README_zh.md)
+
 Thinking and programming in thunks is similar to that in native Promise. But there are some different points:
 
 1. Native Promise is a new feature in ES6, thunks is not using JavaScript special features to run flawlessly under ES3.
@@ -346,7 +348,8 @@ Thunk.delay(500)(function () {
   return Thunk.delay(1000);
 })(function () {
   console.log('Thunk.delay end: ', Date.now());
-});```
+});
+```
 
 You may also write code with `this`:
 
