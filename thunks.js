@@ -72,16 +72,14 @@
     return function (callback) {
       var result, pending = 1, finished = false, _isArray = isArray(obj);
 
-      if (_isArray) {
-        result = Array(obj.length);
-      } else if (obj && typeof obj === 'object') {
-        result = {};
-      }
+      if (_isArray) result = Array(obj.length);
+      else if (obj && typeof obj === 'object') result = {};
+
       if (!result) return callback(new Error('Not array or object'));
 
       var tryResult = tryRun(null, function (obj, iterator) {
         forEach(obj, iterator, _isArray);
-        if (!(--pending || finished)) callback(null, result);
+        if (!(--pending || finished)) return callback(null, result);
       }, [obj, function (fn, index) {
         if (finished) return;
         pending++;
@@ -100,6 +98,7 @@
           return --pending || callback(null, result);
         });
       }]);
+
       if (tryResult.error) {
         finished = true;
         callback(tryResult.error);
@@ -109,7 +108,7 @@
 
   function promiseToThunk(promise) {
     return function (callback) {
-      promise.then(function (res) {
+      return promise.then(function (res) {
         callback(null, res);
       }, callback);
     };
@@ -220,6 +219,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.3.1';
+  thunks.VERSION = 'v1.3.2';
   return thunks;
 }));

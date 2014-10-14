@@ -1,7 +1,7 @@
 'use strict';
 
 var gulp = require('gulp'),
-  runSequence = require('run-sequence'),
+  gulpSequence = require('gulp-sequence'),
   jshint = require('gulp-jshint'),
   uglify = require('gulp-uglify'),
   rename = require('gulp-rename'),
@@ -25,10 +25,6 @@ gulp.task('uglify', function() {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('default', function (callback) {
-  runSequence('jshint', 'mocha', 'uglify', callback);
-});
+gulp.task('default', gulpSequence('jshint', 'mocha', 'uglify'));
 
-gulp.task('test', function (callback) {
-  runSequence('jshint', 'mocha', callback);
-});
+gulp.task('test', gulpSequence('jshint', 'mocha'));
