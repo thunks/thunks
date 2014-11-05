@@ -1,4 +1,4 @@
-thunks v1.3.2 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.4.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -54,10 +54,10 @@ By running `node benchmark/index.js` in a CentOS virtual machine:
     Test thunk...
 
     JSBench Results:
-    Promise: 100 cycles, 406.61 ms/cycle, 2.459 ops/sec
-    thunk: 100 cycles, 94.57 ms/cycle, 10.574 ops/sec
+    Promise: 1000 cycles, 13.238 ms/cycle, 75.540 ops/sec
+    thunk: 1000 cycles, 2.463 ms/cycle, 406.009 ops/sec
 
-    Promise: 100%; thunk: 429.96%;
+    Promise: 100%; thunk: 537.47%;
 
     JSBench Completed!
 

@@ -1,6 +1,7 @@
 node_modules/
 docs/
 debug/
+test.js
 
 npm-debug.log
 .DS_Store

@@ -3,7 +3,7 @@
 
 var JSBench = require('jsbench'),
   len = 1000, // 任务队列长度
-  cycles = 10000, // 每个测试体运行次数
+  cycles = 1000, // 每个测试体运行次数
   syncMode = true; // 用同步任务测试
 
 var jsbench = new JSBench();
@@ -19,6 +19,7 @@ if (typeof Promise === 'function') {
 
 jsbench.
   add('thunk', require('./thunk.js')(len, syncMode)).
+  // add('test', require('./test.js')(len, syncMode)).
   // on('cycle', function (e) { console.log(e.name, e.cycle, e.time + 'ms'); }).
   on('error', function (e) { console.error(e.name, e.error.stack); }).
   run(cycles);
