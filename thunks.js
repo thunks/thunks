@@ -2,7 +2,7 @@
 //
 // **License:** MIT
 
-/* global module, define */
+/* global module, define, setImmediate */
 ;(function (root, factory) {
   'use strict';
 
@@ -16,6 +16,9 @@
     toString = Object.prototype.toString,
     isArray = Array.isArray || function (obj) {
       return toString.call(obj) === '[object Array]';
+    },
+    nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
+      setTimeout(fn, 0);
     };
 
   function isFunction(fn) {
@@ -24,6 +27,13 @@
 
   function isThunk(fn) {
     return isFunction(fn) && fn._isThunk === TRUE;
+  }
+
+  function noop(error) {
+    if (error == null) return;
+    nextTick(function () {
+      throw error;
+    });
   }
 
   // fast slice for `arguments`.
@@ -115,7 +125,7 @@
   }
 
   function continuation(parent) {
-    var thunk, current = parent.next, scope = parent.scope, result = parent.result;
+    var current = parent.next, scope = parent.scope, result = parent.result;
     if (result === false) return;
     parent.result = false;
 
@@ -133,32 +143,29 @@
         }
       } else args[0] = null;
 
-      var tryResult = tryRun(parent.ctx, parent.callback, args);
-      if (tryResult[0] != null && scope.onerror) {
-        if (scope.onerror(tryResult[0]) !== true) return;
-        tryResult = [null];
-      }
-      current.result = tryResult;
-      if (current.callback) continuation(current);
+      if (parent.callback === noop) return noop(error);
+      current.result = tryRun(parent.ctx, parent.callback, args);
+      if (current.callback) return continuation(current);
+      if (current.result[0] != null) return noop(current.result[0]);
     }
 
-    if (result[0]) return callback(result[0]);
+    if (result[0] != null) return callback(result[0]);
 
-    thunk = toThunk(result[1]);
-    if (!isThunk(thunk)) return thunk == null ? callback(null) : callback(null, thunk);
-    var error = tryRun(parent.ctx, thunk, [callback])[0];
-    return error ? callback(error) : null;
+    result = toThunk(result[1]);
+    if (!isThunk(result)) return result == null ? callback(null) : callback(null, result);
+    var error = tryRun(parent.ctx, result, [callback])[0];
+    return error && callback(error);
   }
 
   function childThunk(parent) {
-    parent.next = {ctx: parent.ctx, scope: parent.scope, next: null, callback: null, result: null};
+    parent.next = {ctx: parent.ctx, scope: parent.scope, callback: null, result: null};
     return thunkFactory(function (callback) {
       return child(parent, callback);
     });
   }
 
   function child(parent, callback) {
-    parent.callback = callback;
+    parent.callback = callback || noop;
     if (parent.result) continuation(parent);
     return childThunk(parent.next);
   }
@@ -174,7 +181,7 @@
 
     // main function **thunk**
     function Thunk(start) {
-      var current = {ctx: this === Thunk ? null : this, scope: scope, next: null, callback: null, result: [null, start]};
+      var current = {ctx: this === Thunk ? null : this, scope: scope, result: [null, start]};
       return childThunk(current);
     }
 
@@ -210,6 +217,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.4.0';
+  thunks.VERSION = 'v1.4.1';
   return thunks;
 }));
