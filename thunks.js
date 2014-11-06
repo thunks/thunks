@@ -124,9 +124,11 @@
   function continuation(parent) {
     var current = parent.next, scope = parent.scope, result = parent.result;
     if (result === false) return;
-    parent.result = false;
 
     function callback(error) {
+      if (parent.result === false) return;
+      parent.result = false;
+
       var args = slice(arguments);
       // debug in scope
       if (scope.debug) scope.debug.apply(null, args);
@@ -216,6 +218,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.4.2';
+  thunks.VERSION = 'v1.4.3';
   return thunks;
 }));

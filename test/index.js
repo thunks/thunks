@@ -181,6 +181,12 @@ describe('thunks', function(){
       })(function (error, value) {
         should(error).be.equal(null);
         should(value).be.equal(16);
+        return Thunk(function (callback) {
+          callback(null, 1);
+          callback(null, 2);
+        })(function (error, value) {
+          should(value).be.equal(1);
+        });
       })(done);
     });
 
