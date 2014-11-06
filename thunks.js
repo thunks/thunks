@@ -30,10 +30,7 @@
   }
 
   function noop(error) {
-    if (error == null) return;
-    nextTick(function () {
-      throw error;
-    });
+    if (error != null) throw error;
   }
 
   // fast slice for `arguments`.
@@ -146,7 +143,9 @@
       if (parent.callback === noop) return noop(error);
       current.result = tryRun(parent.ctx, parent.callback, args);
       if (current.callback) return continuation(current);
-      if (current.result[0] != null) return noop(current.result[0]);
+      if (current.result[0] != null) nextTick(function () {
+        if (current.result) noop(current.result[0]);
+      });
     }
 
     if (result[0] != null) return callback(result[0]);
@@ -217,6 +216,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.4.1';
+  thunks.VERSION = 'v1.4.2';
   return thunks;
 }));
