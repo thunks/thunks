@@ -26,7 +26,7 @@
   }
 
   function isThunk(fn) {
-    return isFunction(fn) && fn._isThunk === TRUE;
+    return fn && fn._isThunk === TRUE;
   }
 
   function noop(error) {

@@ -16,3 +16,17 @@ co(function *() {
 })(function (error, value) {
   console.log(error, value); // null [1, 2, 3]
 });
+
+Thunk(123)(function(err, res) {
+
+  console.log(err, res); // null, 123
+  return Promise.resolve(456);
+})(function(err, res) {
+
+  console.log(err, res); // null, 456
+  return co(function *() {
+    return yield [Thunk('a'), Promise.resolve('b')];
+  });
+})(function(err, res) {
+  console.log(err, res); // null, ['a', 'b']
+});
