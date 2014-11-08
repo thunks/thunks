@@ -12,14 +12,14 @@
 }(typeof window === 'object' ? window : this, function () {
   'use strict';
 
-  var TRUE = {},
-    toString = Object.prototype.toString,
-    isArray = Array.isArray || function (obj) {
-      return toString.call(obj) === '[object Array]';
-    },
-    nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
-      setTimeout(fn, 0);
-    };
+  var TRUE = {};
+  var toString = Object.prototype.toString;
+  var isArray = Array.isArray || function (obj) {
+    return toString.call(obj) === '[object Array]';
+  };
+  var nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
+    setTimeout(fn, 0);
+  };
 
   function isFunction(fn) {
     return typeof fn === 'function';
@@ -218,6 +218,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.4.3';
+  thunks.VERSION = 'v1.4.4';
   return thunks;
 }));
