@@ -180,6 +180,17 @@
       if (isFunction(options.onerror)) scope.onerror = options.onerror;
     }
 
+    function genSequence(value, result) {
+      return function (error) {
+        if (error) throw error;
+        if (isArray(value)) value = objectToThunk(value);
+        return Thunk(value)(function (error, value) {
+          if (error) throw error;
+          result.push(arguments.length > 2 ? slice(arguments, 1) : value);
+        });
+      };
+    }
+
     // main function **thunk**
     function Thunk(start) {
       var current = {ctx: this === Thunk ? null : this, scope: scope, result: [null, start]};
@@ -188,6 +199,19 @@
 
     Thunk.all = function (obj) {
       return Thunk.call(this, objectToThunk(obj));
+    };
+
+    Thunk.seq = function () {
+      var result = [];
+      var thunk = Thunk.call(this);
+
+      for (var i = 0, len = arguments.length; i < len; i++)
+        thunk = thunk(genSequence(arguments[i], result));
+
+      return thunk(function (error) {
+        if (error) throw error;
+        return result;
+      });
     };
 
     Thunk.digest = function () {
@@ -218,6 +242,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.4.4';
+  thunks.VERSION = 'v1.5.0';
   return thunks;
 }));

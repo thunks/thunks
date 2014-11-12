@@ -1,4 +1,4 @@
-thunks v1.4.4 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.5.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -21,13 +21,12 @@ and thunks' implementaton is simpler.
 
 5. thunks brings a perfect `debug` mode, which seems not appear in Promise?
 
-6. thunks is **6 times** faster as native Promise.
+6. thunks is **5 times** faster as native Promise.
 
 Read in `exmples/` diretory for more demos on thunks.
 Build asynchronous program in an extraordinary simple way.
 
-You don't have to wait till all bowsers have implemented Promise natively, but by just these **200sloc** you will get more powerful tools for handling aynchronous code.
-====
+**You don't have to wait till all bowsers have implemented Promise natively, but by just these **200sloc** you will get more powerful tools for handling aynchronous code.**
 
 ## What is a thunk?
 
@@ -46,20 +45,22 @@ or it would be send to another new **`thunk`** function as the value of the comp
 
 By running `node benchmark/index.js` in a CentOS virtual machine:
 
-    [root@centos thunk]# node benchmark/index
-    Sync Benchmark...
+```bash
+[root@centos thunk]# node benchmark/index
+Sync Benchmark...
 
-    JSBench Start (100 cycles, async mode):
-    Test Promise...
-    Test thunk...
+JSBench Start (100 cycles, async mode):
+Test Promise...
+Test thunk...
 
-    JSBench Results:
-    Promise: 1000 cycles, 13.238 ms/cycle, 75.540 ops/sec
-    thunk: 1000 cycles, 2.463 ms/cycle, 406.009 ops/sec
+JSBench Results:
+Promise: 1000 cycles, 13.238 ms/cycle, 75.540 ops/sec
+thunk: 1000 cycles, 2.463 ms/cycle, 406.009 ops/sec
 
-    Promise: 100%; thunk: 537.47%;
+Promise: 100%; thunk: 537.47%;
 
-    JSBench Completed!
+JSBench Completed!
+```
 
 **By testing with the same operations, Thunk performs 4 times faster comparing to native Promise.**
 
@@ -226,9 +227,7 @@ You can also run with `this`:
 
 Returns a `thunk` function.
 
-`obj` can be an array or an object that contains several `thunk` functions or Promise objects.
-They would be excuted at the same time. After all of them are finished,
-an array containing results(in its original order) would be passed to the a new `thunk` function.
+`obj` can be an array or an object that contains any value. `Thunk.all` will transform value to a `thunk` function and excuted it in parallel. After all of them are finished, an array containing results(in its original order) would be passed to the a new `thunk` function.
 
 ```js
 Thunk.all([
@@ -254,6 +253,44 @@ You may also write code like this:
 
 ```js
 Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
+  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!';
+})(function (error, value) {
+  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
+});
+```
+
+### Thunk.seq(thunk1, ..., thunkX)
+
+Returns a `thunk` function.
+
+`thunkX` can be any value, `Thunk.seq` will transform value to a `thunk` function and excuted it in order. After all of them are finished, an array containing results(in its original order) would be passed to the a new `thunk` function.
+
+```js
+Thunk.seq(
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b');
+    }, 100);
+  },
+  Thunk(function (callback) {
+    callback(null, 'c');
+  }),
+  [Thunk('d'), Thunk('e')], // thunk in array will be excuted in parallel
+  function (callback) {
+    should(flag).be.eql([true, true]);
+    flag[2] = true;
+    callback(null, 'f');
+  }
+)(function (error, value) {
+  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+});
+```
+
+You may also write code like this:
+
+```js
+Thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
   console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
   return 'thunk!';
 })(function (error, value) {

@@ -357,6 +357,70 @@ describe('thunks', function(){
     });
   });
 
+  describe('Thunk.seq()', function(){
+
+    it('Thunk.seq()', function (done) {
+      var Thunk = thunks();
+      Thunk.seq(1, 2, [3, 4], '5')(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.eql([1, 2, [3, 4], '5']);
+        var flag = [];
+        return Thunk.seq(
+          function (callback) {
+            setTimeout(function () {
+              should(flag).be.eql([]);
+              flag[0] = true;
+              callback(null, 'a', 'b');
+            }, 100);
+          },
+          Thunk(function (callback) {
+            should(flag).be.eql([true]);
+            flag[1] = true;
+            callback(null, 'c');
+          }),
+          [Thunk('d'), Thunk('e')],
+          function (callback) {
+            should(flag).be.eql([true, true]);
+            flag[2] = true;
+            callback(null, 'f');
+          }
+        );
+      })(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.eql([['a', 'b'], 'c', ['d', 'e'], 'f']);
+        return Thunk.seq(
+          0,
+          Thunk(1),
+          Thunk(Thunk(2)),
+          Thunk(function (callback) {
+            setImmediate(function () { callback(null, 3); });
+          }),
+          Thunk(function (callback) {
+            noneFn();
+          })
+        )(function (error, value) {
+          should(error).be.instanceOf(Error);
+          should(value).be.equal(undefined);
+          return Thunk.seq(1);
+        })(function (error, value) {
+          should(error).be.equal(null);
+          should(value).be.eql([1]);
+          return Thunk(x);
+        });
+      })(done);
+    });
+
+    it('Thunk.seq.call()', function (done) {
+      var Thunk = thunks();
+      Thunk.seq.call(x, 1, 2, 3, 4, 5)(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.eql([1, 2, 3, 4, 5]);
+        should(this).be.equal(x);
+      })(done);
+    });
+
+  });
+
   describe('Thunk.digest()', function(){
 
     it('Thunk.digest()', function (done) {
