@@ -201,12 +201,13 @@
       return Thunk.call(this, objectToThunk(obj));
     };
 
-    Thunk.seq = function () {
+    Thunk.seq = function (array) {
       var result = [];
       var thunk = Thunk.call(this);
 
-      for (var i = 0, len = arguments.length; i < len; i++)
-        thunk = thunk(genSequence(arguments[i], result));
+      if (arguments.length !== 1 || !isArray(array)) array = arguments;
+      for (var i = 0, len = array.length; i < len; i++)
+        thunk = thunk(genSequence(array[i], result));
 
       return thunk(function (error) {
         if (error) throw error;
@@ -242,6 +243,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.5.0';
+  thunks.VERSION = 'v1.5.1';
   return thunks;
 }));

@@ -365,7 +365,7 @@ describe('thunks', function(){
         should(error).be.equal(null);
         should(value).be.eql([1, 2, [3, 4], '5']);
         var flag = [];
-        return Thunk.seq(
+        return Thunk.seq([
           function (callback) {
             setTimeout(function () {
               should(flag).be.eql([]);
@@ -384,7 +384,7 @@ describe('thunks', function(){
             flag[2] = true;
             callback(null, 'f');
           }
-        );
+        ]);
       })(function (error, value) {
         should(error).be.equal(null);
         should(value).be.eql([['a', 'b'], 'c', ['d', 'e'], 'f']);

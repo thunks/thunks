@@ -1,4 +1,4 @@
-thunks v1.5.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.5.1 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -99,7 +99,7 @@ for (var i = 0; i < 1000000; i++) {
 
 thunk(function (error, value) {
   console.log(error, value); // null 1000000
-  console.timeEnd('Thunk_series'); // ~1468ms
+  console.timeEnd('Thunk_series'); // ~827ms
 });
 ```
 
@@ -260,11 +260,34 @@ Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
 });
 ```
 
+### Thunk.seq([thunk1, ..., thunkX])
 ### Thunk.seq(thunk1, ..., thunkX)
 
 Returns a `thunk` function.
 
 `thunkX` can be any value, `Thunk.seq` will transform value to a `thunk` function and excuted it in order. After all of them are finished, an array containing results(in its original order) would be passed to the a new `thunk` function.
+
+```js
+Thunk.seq([
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b');
+    }, 100);
+  },
+  Thunk(function (callback) {
+    callback(null, 'c');
+  }),
+  [Thunk('d'), Thunk('e')], // thunk in array will be excuted in parallel
+  function (callback) {
+    should(flag).be.eql([true, true]);
+    flag[2] = true;
+    callback(null, 'f');
+  }
+])(function (error, value) {
+  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+});
+```
+or
 
 ```js
 Thunk.seq(

@@ -1,4 +1,4 @@
-thunks v1.5.0 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
@@ -90,7 +90,7 @@ for (var i = 0; i < 1000000; i++) {
 
 thunk(function (error, value) {
   console.log(error, value); // null 1000000
-  console.timeEnd('Thunk_series'); // ~1468ms
+  console.timeEnd('Thunk_series'); // ~827ms
 });
 ```
 
@@ -239,11 +239,34 @@ Thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
 });
 ```
 
+### Thunk.seq([thunk1, ..., thunkX])
 ### Thunk.seq(thunk1, ..., thunkX)
 
 返回一个新的 `thunk` 函数。
 
 `thunkX` 可以是任何值，`Thunk.seq` 会按照顺序将其转换 `thunk` 函数并逐步执行，全部执行完毕后其结果形成一个新数组（顺序与原数组对应，输入到返回的新`thunk` 函数。
+
+```js
+Thunk.seq([
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b');
+    }, 100);
+  },
+  Thunk(function (callback) {
+    callback(null, 'c');
+  }),
+  [Thunk('d'), Thunk('e')], // thunk in array will be excuted in parallel
+  function (callback) {
+    should(flag).be.eql([true, true]);
+    flag[2] = true;
+    callback(null, 'f');
+  }
+])(function (error, value) {
+  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+});
+```
+or
 
 ```js
 Thunk.seq(
@@ -255,7 +278,7 @@ Thunk.seq(
   Thunk(function (callback) {
     callback(null, 'c');
   }),
-  [Thunk('d'), Thunk('e')], // 数组中的 thunk 函数将会并发执行
+  [Thunk('d'), Thunk('e')], // thunk in array will be excuted in parallel
   function (callback) {
     should(flag).be.eql([true, true]);
     flag[2] = true;
