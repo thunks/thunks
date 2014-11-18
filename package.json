@@ -4,13 +4,13 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "1.5.1",
+  "version": "1.5.2",
   "main": "thunks.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:teambition/thunks.git"
+    "url": "git@github.com:thunks/thunks.git"
   },
-  "homepage": "https://github.com/teambition/thunks",
+  "homepage": "https://github.com/thunks/thunks",
   "keywords": [
     "async",
     "thunk",

@@ -1,8 +1,8 @@
-thunks v1.5.1 [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks v1.5.1 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
-[中文说明](https://github.com/teambition/thunks/blob/master/README_zh.md)
+[中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
 Thinking and programming in thunks is similar to that in native Promise. But there are some different points:
 

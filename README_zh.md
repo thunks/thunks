@@ -1,4 +1,4 @@
-thunks [![Build Status](https://travis-ci.org/teambition/thunks.svg)](https://travis-ci.org/teambition/thunks)
+thunks [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 
