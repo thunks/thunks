@@ -181,8 +181,7 @@
     }
 
     function genSequence(value, result) {
-      return function (error) {
-        if (error) throw error;
+      return function () {
         if (isArray(value)) value = objectToThunk(value);
         return Thunk(value)(function (error, value) {
           if (error) throw error;
@@ -202,16 +201,15 @@
     };
 
     Thunk.seq = function (array) {
-      var result = [];
-      var thunk = Thunk.call(this);
-
       if (arguments.length !== 1 || !isArray(array)) array = arguments;
-      for (var i = 0, len = array.length; i < len; i++)
-        thunk = thunk(genSequence(array[i], result));
+      return Thunk.call(this, function (callback) {
+        var result = [];
+        // catch error as early as possible
+        var thunk = thunks(callback)();
+        for (var i = 0, len = array.length; i < len; i++)
+          thunk = thunk(genSequence(array[i], result));
 
-      return thunk(function (error) {
-        if (error) throw error;
-        return result;
+        return thunk(function () { return result; })(callback);
       });
     };
 
@@ -243,6 +241,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v1.5.1';
+  thunks.VERSION = 'v1.5.3';
   return thunks;
 }));

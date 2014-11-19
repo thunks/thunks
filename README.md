@@ -1,4 +1,4 @@
-thunks v1.5.1 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v1.5.3 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically.
 

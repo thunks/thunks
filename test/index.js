@@ -393,10 +393,14 @@ describe('thunks', function(){
           Thunk(1),
           Thunk(Thunk(2)),
           Thunk(function (callback) {
+            should('It will be run!').be.equal('It will be run!');
             setImmediate(function () { callback(null, 3); });
           }),
           Thunk(function (callback) {
             noneFn();
+          }),
+          Thunk(function (callback) {
+            should('It will not be run!').be.equal('');
           })
         )(function (error, value) {
           should(error).be.instanceOf(Error);
@@ -503,11 +507,11 @@ describe('thunks', function(){
       var time = Date.now();
       Thunk.delay(100)(function (error, value) {
         should(error).be.equal(null);
-        should(Date.now() - time >= 100).be.equal(true);
+        should(Date.now() - time >= 99).be.equal(true);
         return Thunk.delay(1000);
       })(function (error, value) {
         should(error).be.equal(null);
-        should(Date.now() - time >= 1100).be.equal(true);
+        should(Date.now() - time >= 1099).be.equal(true);
       })(done);
     });
 
@@ -516,7 +520,7 @@ describe('thunks', function(){
       var time = Date.now();
       Thunk.delay.call(x, 1010)(function (error, value) {
         should(error).be.equal(null);
-        should(Date.now() - time >= 1010).be.equal(true);
+        should(Date.now() - time >= 1009).be.equal(true);
         should(this).be.equal(x);
       })(done);
 
