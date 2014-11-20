@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "1.5.3",
+  "version": "2.0.0",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -16,7 +16,11 @@
     "thunk",
     "thunks",
     "Promise",
-    "flow"
+    "flow",
+    "yield",
+    "generator",
+    "coro",
+    "coroutine"
   ],
   "dependencies": {},
   "devDependencies": {
@@ -32,7 +36,7 @@
     "thenjs": ">=1.4.0"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "node --harmony `which gulp`"
   },
   "ignore": [
     "**/.*",

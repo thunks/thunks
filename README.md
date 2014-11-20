@@ -1,6 +1,6 @@
-thunks v1.5.3 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v2.0.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
-A basic asynchronous utilily module beyond Promise magically.
+A basic asynchronous utilily module beyond Promise magically, support generator.
 
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
@@ -22,6 +22,8 @@ and thunks' implementaton is simpler.
 5. thunks brings a perfect `debug` mode, which seems not appear in Promise?
 
 6. thunks is **5 times** faster as native Promise.
+
+7. Full implementation with Generator.
 
 Read in `exmples/` diretory for more demos on thunks.
 Build asynchronous program in an extraordinary simple way.
@@ -200,7 +202,28 @@ The parameter `start` could be:
     });
     ```
 
-5. values in other types would be valid results passing to a new `thunk` function
+5. Generator and Generator Function, like `co`, and `yield` anything
+
+    ```js
+    Thunk(function* () {
+      var x = yield 10;
+      return 2 * x;
+    })(function* (error, res) {
+      console.log(error, res); // null, 20
+
+      return yield [1, 2, Thunk(3)];
+    })(function* (error, res) {
+      console.log(error, res); // null, [1, 2, 3]
+      return yield {
+        name: 'test',
+        value: Thunk(1)
+      };
+    })(function (error, res) {
+      console.log(error, res); // null, {name: 'test', value: 1}
+    });
+    ```
+
+6. values in other types would be valid results passing to a new `thunk` function
 
     ```js
     Thunk(1)(function (error, value) {

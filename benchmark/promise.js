@@ -23,16 +23,16 @@ module.exports = function (len, syncMode) {
 
   return function (callback) {
     // 原生 Promise 测试主体
-    Promise.
-      all(tasks.map(function (task) { // 并行 tasks 队列
+    Promise
+      .all(tasks.map(function (task) { // 并行 tasks 队列
         return new Promise(function (resolve, reject) {
           task(1, function (error, value) {
             if (error) return reject(error);
             resolve(value);
           });
         });
-      })).
-      then(function () { // 串行 tasks 队列
+      }))
+      .then(function () { // 串行 tasks 队列
         return tasks.reduce(function (promise, task) {
           return promise.then(function (value) {
             return new Promise(function (resolve, reject) {
@@ -43,12 +43,10 @@ module.exports = function (len, syncMode) {
             });
           });
         }, Promise.resolve(null));
-      }).
-      then(function (value) {
+      })
+      .then(function (value) {
         callback(null, value);
-      }).
-      catch(function (error) {
-        callback(error);
-      });
+      })
+      .catch(callback);
   };
 };

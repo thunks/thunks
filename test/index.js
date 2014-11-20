@@ -526,4 +526,17 @@ describe('thunks', function(){
 
     });
   });
+
+  describe('Thunk(Generator)', function(){
+
+    try { // 检测是否支持 generator，是则加载 co 测试
+      /*jshint -W054 */
+      var check = new Function('return function*(){}');
+      it('Thunk(Generator)', function (done) {
+        require('./generator.js')(done);
+      });
+    } catch (e) {
+      console.log('Not support generator!');
+    }
+  });
 });

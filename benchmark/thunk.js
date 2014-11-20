@@ -31,15 +31,11 @@ module.exports = function (len, syncMode) {
           task(1, callback);
         });
       }))(function () { // 串行 tasks 队列
-        return tasks.reduce(function (thunk, task) {
-          return thunk(function (error, value) {
-            return Thunk(function (callback) {
-              task(1, callback);
-            });
+        return Thunk.seq(tasks.map(function (task) { // 并行 tasks 队列
+          return Thunk(function (callback) {
+            task(1, callback);
           });
-        }, Thunk(null));
-      })(function (error, value) {
-        callback(error, value);
-      });
+        }));
+      })(callback);
   };
 };

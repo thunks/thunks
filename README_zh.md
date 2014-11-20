@@ -1,6 +1,6 @@
 thunks [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
-A basic asynchronous utilily module beyond Promise magically.
+A basic asynchronous utilily module beyond Promise magically, support generator.
 
 Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现的异步业务组合，Thunks 都能实现。区别有以下几点：
 
@@ -15,6 +15,8 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
 5. Thunks 拥有完美的 debug 模式，Promise 好像没有？
 
 6. Thunks 的性能是原生 Promise 的**6倍**。
+
+7. 完美支持 generator。
 
 关于 Thunks 的 demo，可以看看 examples 目录，用超乎你想象的简洁方式进行异步编程。
 
@@ -176,7 +178,28 @@ thunk(function (error, value) {
     });
     ```
 
-5. 其它值，当作有效结果进入新的 `thunk` 函数
+5. Generator 或 Generator Function, 与 `co` 类似，但更进一步，可以 `yield` 任何值，可以形成链式调用
+
+    ```js
+    Thunk(function* () {
+      var x = yield 10;
+      return 2 * x;
+    })(function* (error, res) {
+      console.log(error, res); // null, 20
+
+      return yield [1, 2, Thunk(3)];
+    })(function* (error, res) {
+      console.log(error, res); // null, [1, 2, 3]
+      return yield {
+        name: 'test',
+        value: Thunk(1)
+      };
+    })(function (error, res) {
+      console.log(error, res); // null, {name: 'test', value: 1}
+    });
+    ```
+
+6. 其它值，当作有效结果进入新的 `thunk` 函数
 
     ```js
     Thunk(1)(function (error, value) {
