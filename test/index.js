@@ -342,6 +342,18 @@ describe('thunks', function(){
       })(done);
     });
 
+    it('Thunk.all(arg1, arg2, ...)', function (done) {
+      var Thunk = thunks();
+      Thunk.all(1, 2, 3, 4, 5)(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.eql([1, 2, 3, 4, 5]);
+        return Thunk.all(Thunk(1), 2, {a: 1, b: 2, c: 3, d: 4, e: [5]});
+      })(function (error, value) {
+        should(error).be.equal(null);
+        should(value).be.eql([1, 2, {a: 1, b: 2, c: 3, d: 4, e: [5]}]);
+      })(done);
+    });
+
     it('Thunk.all.call()', function (done) {
       var Thunk = thunks();
       Thunk.all.call(x, [1, 2, 3, 4, 5])(function (error, value) {

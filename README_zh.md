@@ -14,13 +14,13 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
 
 5. Thunks 拥有完美的 debug 模式，Promise 好像没有？
 
-6. Thunks 的性能是原生 Promise 的**6倍**。
+6. Thunks 的性能是原生 Promise 的**5倍**。
 
 7. 完美支持 generator。
 
 关于 Thunks 的 demo，可以看看 examples 目录，用超乎你想象的简洁方式进行异步编程。
 
-**无需等待ES6，无需考虑兼容，仅需加入 **200** 来行的代码，就能让你使用比 Promise 更强大的异步工具！**
+**无需等待ES6，无需考虑兼容，仅需加入 **300** 来行的代码，就能让你使用比 Promise 更强大的异步工具！**
 
 
 ## thunk?
@@ -61,39 +61,54 @@ JSBench Completed!
 ## Demo
 
 ```js
-var thunks = require('../thunks.js');
+var Thunk = require('../thunks.js')();
 var fs = require('fs');
-var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
 
-Thunk.
-  all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
-    return Thunk(function (callback) { fs.stat(path, callback); });
-  }))(function (error, result) {
-    console.log('Success: ', result);
-    return Thunk(function (callback) { fs.stat('none.js', callback); });
-  })(function (error, result) {
-    console.error('This should not run!', error);
-  });
+var size = Thunk.thunkify(fs.stat);
+
+// sequential
+size('.gitignore')(function (error, res) {
+  console.log(error, res);
+  return size('thunks.js');
+
+})(function (error, res) {
+  console.log(error, res);
+  return size('package.json');
+
+})(function (error, res) {
+  console.log(error, res);
+})
+
+// parallel
+Thunk.all([size('.gitignore'), size('thunks.js'), size('package.json')])(function (error, res) {
+  console.log(error, res);
+})
+
+// sequential
+Thunk.seq([size('.gitignore'), size('thunks.js'), size('package.json')])(function (error, res) {
+  console.log(error, res);
+})
 ```
 
-// No `Maximum call stack size exceeded` error in 1000000 sync series
 ```js
 var Thunk = require('../thunks.js')();
-var thunk = Thunk(0);
+var fs = require('fs');
 
-function callback(error, value) {
-  return ++value;
-}
+var size = Thunk.thunkify(fs.stat);
 
-console.time('Thunk_series');
-for (var i = 0; i < 1000000; i++) {
-  thunk = thunk(callback);
-}
 
-thunk(function (error, value) {
-  console.log(error, value); // null 1000000
-  console.timeEnd('Thunk_series'); // ~827ms
-});
+// generator
+Thunk(function* () {
+
+  // sequential
+  console.log(yield size('.gitignore'));
+  console.log(yield size('thunks.js'));
+  console.log(yield size('package.json'));
+
+})(function* (error, res) {
+  //parallel
+  console.log(yield [size('.gitignore'), size('thunks.js'), size('package.json')]);
+})();
 ```
 
 ## Install
@@ -224,6 +239,7 @@ Thunk.call({x: 123}, 456)(function (error, value) {
 
 
 ### Thunk.all(obj)
+### Thunk.all(thunk1, ..., thunkX)
 
 返回一个新的 `thunk` 函数。
 

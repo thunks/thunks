@@ -15,6 +15,7 @@ module.exports = function (done) {
     should(yield [1, 2, Thunk(3)]).be.eql([1, 2, 3]);
     should(yield {}).be.eql({});
     should(yield {name: 'thunks', version: Thunk('v2')}).be.eql({name: 'thunks', version: 'v2'});
+    should(yield [{}, [], [{}]]).be.eql([{}, [], [{}]]);
     return yield [
       1,
       function (cb) {
@@ -32,9 +33,30 @@ module.exports = function (done) {
     should(error).be.equal(null);
     should(res).be.eql([1, 2, 3, 4, 5]);
     return yield [1, Promise.reject(new Error('some error')), 3];
-  })(function (error, res) {
+  })(function* (error, res) {
     should(error).be.instanceOf(Error);
     should(error.message).be.equal('some error');
     should(res).be.equal(undefined);
+    should(yield res).be.equal(undefined);
+    return Thunk(1);
+  })(function* (error, res) {
+    should(error).be.equal(null);
+    should(res).be.equal(1);
+    should(yield res).be.equal(1);
+
+    return function* () {
+      return yield [1, 2, 3, 4, 5];
+    };
+  })(function* (error, res) {
+    should(error).be.equal(null);
+    should(res).be.eql([1, 2, 3, 4, 5]);
+    should(yield res).be.eql([1, 2, 3, 4, 5]);
+
+    return (function* () {
+      return yield [1, 2, 3, 4, 5];
+    })();
+  })(function (error, res) {
+    should(error).be.equal(null);
+    should(res).be.eql([1, 2, 3, 4, 5]);
   })(done);
 };

@@ -68,16 +68,24 @@
     return obj;
   }
 
+  function endThunk(ctx, value, callback) {
+    value = toThunk(value);
+    if (!isFunction(value)) return value == null ? callback(null) : callback(null, value);
+    if (isGeneratorFunction(value)) value = generatorToThunk(value.call(ctx));
+    var error = tryRun(ctx, value, [callback])[0];
+    return error && callback(error);
+  }
+
   function generatorToThunk(gen) {
     return function (callback) {
       var tickDepth = maxTickDepth, ctx = this;
 
       function run(error, res) {
-        var ret = error == null ? gen.next(res) : gen.throw(error);
-        if (ret.done) return callback(null, ret.value);
-        var value = toThunk(ret.value, true);
+        var value, ret = error == null ? gen.next(res) : gen.throw(error);
+        if (ret.done) return endThunk(ctx, ret.value, callback);
+        value = toThunk(ret.value, true);
         if (!isFunction(value)) return next(null, value);
-        if (tickDepth--) return value.call(ctx, next);
+        if (--tickDepth) return value.call(ctx, next);
 
         nextTick(function () {
           tickDepth = maxTickDepth;
@@ -106,7 +114,7 @@
       var result, pending = 1, finished = false;
       if (isArray(obj)) result = Array(obj.length);
       else if (isObject(obj)) result = {};
-      if (!result) return callback(new Error('Not array or object'));
+      else return callback(new Error('Not array or object'));
 
       function run(obj) {
         if (isArray(obj)) {
@@ -122,7 +130,7 @@
       function next(fn, index) {
         if (finished) return;
         pending++;
-        fn = toThunk(fn);
+        fn = toThunk(fn, true);
         if (!isFunction(fn)) {
           result[index] = fn;
           return --pending || callback(null, result);
@@ -165,7 +173,7 @@
         if (error != null) return callback(error);
         result[i] = arguments.length > 2 ? slice(arguments, 1) : res;
         if (++i > end) return callback(null, result);
-        if (tickDepth--) return run(array[i]);
+        if (--tickDepth) return run(array[i]);
         nextTick(function () {
           tickDepth = maxTickDepth;
           run(array[i]);
@@ -213,11 +221,7 @@
     }
 
     if (result[0] != null) return callback(result[0]);
-    result = toThunk(result[1]);
-    if (!isFunction(result)) return result == null ? callback(null) : callback(null, result);
-    if (isGeneratorFunction(result)) result = generatorToThunk(result.call(parent.ctx));
-    var error = tryRun(parent.ctx, result, [callback])[0];
-    return error && callback(error);
+    return endThunk(parent.ctx, result[1], callback);
   }
 
   function childThunk(parent) {
@@ -247,6 +251,7 @@
     }
 
     Thunk.all = function (obj) {
+      if (arguments.length > 1) obj = slice(arguments);
       return Thunk.call(this, objectToThunk(obj));
     };
 
@@ -283,6 +288,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.0.1';
+  thunks.VERSION = 'v2.1.0';
   return thunks;
 }));

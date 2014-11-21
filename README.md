@@ -1,4 +1,4 @@
-thunks v2.0.1 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v2.1.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
@@ -28,7 +28,7 @@ and thunks' implementaton is simpler.
 Read in `exmples/` diretory for more demos on thunks.
 Build asynchronous program in an extraordinary simple way.
 
-**You don't have to wait till all bowsers have implemented Promise natively, but by just these **200sloc** you will get more powerful tools for handling aynchronous code.**
+**You don't have to wait till all bowsers have implemented Promise natively, but by just these **300sloc** you will get more powerful tools for handling aynchronous code.**
 
 ## What is a thunk?
 
@@ -64,45 +64,59 @@ Promise: 100%; thunk: 537.47%;
 JSBench Completed!
 ```
 
-**By testing with the same operations, Thunk performs 4 times faster comparing to native Promise.**
+**By testing with the same operations, Thunk performs 5 times faster comparing to native Promise.**
 
 ## Demo
 
 ```js
-var thunks = require('../thunks.js');
+var Thunk = require('../thunks.js')();
 var fs = require('fs');
-var Thunk = thunks(function (error) { console.error('Thunk error:', error); });
 
-Thunk.
-  all(['examples/demo.js', 'thunks.js', '.gitignore'].map(function (path) {
-    return Thunk(function (callback) { fs.stat(path, callback); });
-  }))(function (error, result) {
-    console.log('Success: ', result);
-    return Thunk(function (callback) { fs.stat('none.js', callback); });
-  })(function (error, result) {
-    console.error('This should not run!', error);
-  });
+var size = Thunk.thunkify(fs.stat);
+
+// sequential
+size('.gitignore')(function (error, res) {
+  console.log(error, res);
+  return size('thunks.js');
+
+})(function (error, res) {
+  console.log(error, res);
+  return size('package.json');
+
+})(function (error, res) {
+  console.log(error, res);
+})
+
+// parallel
+Thunk.all([size('.gitignore'), size('thunks.js'), size('package.json')])(function (error, res) {
+  console.log(error, res);
+})
+
+// sequential
+Thunk.seq([size('.gitignore'), size('thunks.js'), size('package.json')])(function (error, res) {
+  console.log(error, res);
+})
 ```
-
-No `Maximum call stack size exceeded` error in 1000000 sync series
 
 ```js
 var Thunk = require('../thunks.js')();
-var thunk = Thunk(0);
+var fs = require('fs');
 
-function callback(error, value) {
-  return ++value;
-}
+var size = Thunk.thunkify(fs.stat);
 
-console.time('Thunk_series');
-for (var i = 0; i < 1000000; i++) {
-  thunk = thunk(callback);
-}
 
-thunk(function (error, value) {
-  console.log(error, value); // null 1000000
-  console.timeEnd('Thunk_series'); // ~827ms
-});
+// generator
+Thunk(function* () {
+
+  // sequential
+  console.log(yield size('.gitignore'));
+  console.log(yield size('thunks.js'));
+  console.log(yield size('package.json'));
+
+})(function* (error, res) {
+  //parallel
+  console.log(yield [size('.gitignore'), size('thunks.js'), size('package.json')]);
+})();
 ```
 
 ## Installation
@@ -247,6 +261,7 @@ You can also run with `this`:
     ```
 
 ### Thunk.all(obj)
+### Thunk.all(thunk1, ..., thunkX)
 
 Returns a `thunk` function.
 
