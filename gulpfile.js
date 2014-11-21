@@ -3,8 +3,6 @@
 var gulp = require('gulp'),
   gulpSequence = require('gulp-sequence'),
   jshint = require('gulp-jshint'),
-  uglify = require('gulp-uglify'),
-  rename = require('gulp-rename'),
   mocha = require('gulp-mocha');
 
 gulp.task('jshint', function () {
@@ -18,13 +16,6 @@ gulp.task('mocha', function () {
     .pipe(mocha());
 });
 
-gulp.task('uglify', function() {
-  return gulp.src('thunks.js')
-    .pipe(uglify())
-    .pipe(rename('thunks.min.js'))
-    .pipe(gulp.dest('./'));
-});
-
-gulp.task('default', gulpSequence('jshint', 'mocha', 'uglify'));
+gulp.task('default', ['test']);
 
 gulp.task('test', gulpSequence('jshint', 'mocha'));

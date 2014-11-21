@@ -12,7 +12,7 @@
 }(typeof window === 'object' ? window : this, function () {
   'use strict';
 
-  var TRUE = {}, maxTickDepth = 100, toString = Object.prototype.toString;
+  var maxTickDepth = 100, toString = Object.prototype.toString;
   var isArray = Array.isArray || function (obj) {
     return toString.call(obj) === '[object Array]';
   };
@@ -26,10 +26,6 @@
 
   function isFunction(fn) {
     return typeof fn === 'function';
-  }
-
-  function isThunk(fn) {
-    return fn && fn._isThunk === TRUE;
   }
 
   function isGenerator(obj) {
@@ -65,17 +61,11 @@
 
   function toThunk(obj, thunkObj) {
     if (!obj) return obj;
-    if (isFunction(obj)) obj = thunkFactory(obj);
-    else if (isGenerator(obj)) obj = thunkFactory(generatorToThunk(obj));
-    else if (isFunction(obj.toThunk)) obj = thunkFactory(obj.toThunk());
-    else if (isFunction(obj.then)) obj = thunkFactory(promiseToThunk(obj));
-    else if (thunkObj && (isArray(obj) || isObject(obj))) obj = thunkFactory(objectToThunk(obj));
+    if (isGenerator(obj)) obj = generatorToThunk(obj);
+    else if (isFunction(obj.toThunk)) obj = obj.toThunk();
+    else if (isFunction(obj.then)) obj = promiseToThunk(obj);
+    else if (thunkObj && (isArray(obj) || isObject(obj))) obj = objectToThunk(obj);
     return obj;
-  }
-
-  function thunkFactory(thunk) {
-    thunk._isThunk = TRUE;
-    return thunk;
   }
 
   function generatorToThunk(gen) {
@@ -86,7 +76,7 @@
         var ret = error == null ? gen.next(res) : gen.throw(error);
         if (ret.done) return callback(null, ret.value);
         var value = toThunk(ret.value, true);
-        if (!isThunk(value)) return next(null, value);
+        if (!isFunction(value)) return next(null, value);
         if (tickDepth--) return value.call(ctx, next);
 
         nextTick(function () {
@@ -133,7 +123,7 @@
         if (finished) return;
         pending++;
         fn = toThunk(fn);
-        if (!isThunk(fn)) {
+        if (!isFunction(fn)) {
           result[index] = fn;
           return --pending || callback(null, result);
         }
@@ -163,7 +153,7 @@
 
       function run(fn) {
         fn = toThunk(fn, true);
-        if (!isThunk(fn)) return next(null, fn);
+        if (!isFunction(fn)) return next(null, fn);
         try {
           fn(next);
         } catch (err) {
@@ -224,7 +214,7 @@
 
     if (result[0] != null) return callback(result[0]);
     result = toThunk(result[1]);
-    if (!isThunk(result)) return result == null ? callback(null) : callback(null, result);
+    if (!isFunction(result)) return result == null ? callback(null) : callback(null, result);
     if (isGeneratorFunction(result)) result = generatorToThunk(result.call(parent.ctx));
     var error = tryRun(parent.ctx, result, [callback])[0];
     return error && callback(error);
@@ -232,9 +222,9 @@
 
   function childThunk(parent) {
     parent.next = {ctx: parent.ctx, scope: parent.scope, callback: null, result: null};
-    return thunkFactory(function (callback) {
+    return function (callback) {
       return child(parent, callback);
-    });
+    };
   }
 
   function child(parent, callback) {
@@ -293,6 +283,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.0.0';
+  thunks.VERSION = 'v2.0.1';
   return thunks;
 }));

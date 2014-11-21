@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -27,8 +27,6 @@
     "gulp": "^3.5.6",
     "gulp-jshint": "^1.8.4",
     "gulp-mocha": "^1.0.0",
-    "gulp-rename": "^1.2.0",
-    "gulp-uglify": "^0.3.1",
     "gulp-sequence": "^0.1.0",
     "jsbench": ">=0.3.x",
     "mocha": "^1.21.0",
@@ -40,10 +38,11 @@
   },
   "ignore": [
     "**/.*",
-    "node_modules",
     "benchmark",
     "test",
     "examples",
-    "gulpfile.js"
+    "gulpfile.js",
+    "bower.json",
+    "component.json"
   ]
 }
