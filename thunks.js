@@ -60,7 +60,7 @@
   }
 
   function toThunk(obj, thunkObj) {
-    if (!obj) return obj;
+    if (!obj || isFunction(obj)) return obj;
     if (isGenerator(obj)) obj = generatorToThunk(obj);
     else if (isFunction(obj.toThunk)) obj = obj.toThunk();
     else if (isFunction(obj.then)) obj = promiseToThunk(obj);
@@ -288,6 +288,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.1.0';
+  thunks.VERSION = 'v2.1.1';
   return thunks;
 }));

@@ -17,9 +17,21 @@ if (typeof Promise === 'function') {
   console.log('Not support Promise!');
 }
 
-jsbench.
-  add('thunk', require('./thunk.js')(len, syncMode)).
-  // add('test', require('./test.js')(len, syncMode)).
-  // on('cycle', function (e) { console.log(e.name, e.cycle, e.time + 'ms'); }).
-  on('error', function (e) { console.error(e.name, e.error.stack); }).
-  run(cycles);
+try { // 检测是否支持 generator
+  /*jshint -W054 */
+  var check = new Function('return function*(){}');
+  jsbench.add('co', require('./co.js')(len, syncMode));
+  jsbench.add('thunks-generator', require('./thunks-gen.js')(len, syncMode));
+} catch (e) {
+  console.log('Not support generator!');
+}
+
+jsbench
+  .add('bluebird', require('./bluebird.js')(len, syncMode))
+  .add('when', require('./when.js')(len, syncMode))
+  .add('RSVP', require('./rsvp.js')(len, syncMode))
+  .add('async', require('./async.js')(len, syncMode))
+  .add('thenjs', require('./then.js')(len, syncMode))
+  .add('thunks', require('./thunks.js')(len, syncMode))
+  // on('cycle', function (e) {console.log(e.name, e.cycle, e.time + 'ms')}).
+  .run(cycles);

@@ -1,4 +1,4 @@
-thunks v2.1.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v2.1.1 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
@@ -45,26 +45,36 @@ or it would be send to another new **`thunk`** function as the value of the comp
 
 ## Benchmark
 
-By running `node benchmark/index.js` in a CentOS virtual machine:
-
 ```bash
-[root@centos thunk]# node benchmark/index
+➜  thunks git:(master) ✗ node --harmony benchmark/index
 Sync Benchmark...
 
-JSBench Start (100 cycles, async mode):
+JSBench Start (1000 cycles, async mode):
 Test Promise...
-Test thunk...
+Test co...
+Test thunks-generator...
+Test bluebird...
+Test when...
+Test RSVP...
+Test async...
+Test thenjs...
+Test thunks...
 
 JSBench Results:
-Promise: 1000 cycles, 13.238 ms/cycle, 75.540 ops/sec
-thunk: 1000 cycles, 2.463 ms/cycle, 406.009 ops/sec
+co: 1000 cycles, 29.334 ms/cycle, 34.090 ops/sec
+Promise: 1000 cycles, 27.786 ms/cycle, 35.989 ops/sec
+async: 1000 cycles, 2.631 ms/cycle, 380.084 ops/sec
+RSVP: 1000 cycles, 1.621 ms/cycle, 616.903 ops/sec
+when: 1000 cycles, 1.423 ms/cycle, 702.741 ops/sec
+bluebird: 1000 cycles, 1.036 ms/cycle, 965.251 ops/sec
+thenjs: 1000 cycles, 0.767 ms/cycle, 1303.781 ops/sec
+thunks: 1000 cycles, 0.698 ms/cycle, 1432.665 ops/sec
+thunks-generator: 1000 cycles, 0.514 ms/cycle, 1945.525 ops/sec
 
-Promise: 100%; thunk: 537.47%;
+co: 100%; Promise: 105.57%; async: 1114.94%; RSVP: 1809.62%; when: 2061.42%; bluebird: 2831.47%; thenjs: 3824.51%; thunks: 4202.58%; thunks-generator: 5707.00%;
 
 JSBench Completed!
 ```
-
-**By testing with the same operations, Thunk performs 5 times faster comparing to native Promise.**
 
 ## Demo
 
