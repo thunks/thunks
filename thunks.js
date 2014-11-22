@@ -278,7 +278,7 @@
 
     Thunk.delay = function (delay) {
       return Thunk.call(this, function (callback) {
-        setTimeout(callback, delay);
+        return delay > 0 ? setTimeout(callback, delay) : nextTick(callback);
       });
     };
 
