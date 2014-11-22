@@ -129,7 +129,7 @@
 
       function next(fn, index) {
         if (finished) return;
-        pending++;
+        ++pending;
         fn = toThunk(fn, true);
         if (!isFunction(fn)) {
           result[index] = fn;
@@ -180,8 +180,7 @@
         });
       }
 
-      if (end < 0) return callback(null, result);
-      run(array[0]);
+      return end < 0 ? callback(null, result) : run(array[0]);
     };
   }
 
@@ -220,8 +219,7 @@
       });
     }
 
-    if (result[0] != null) return callback(result[0]);
-    return endThunk(parent.ctx, result[1], callback);
+    return result[0] != null ? callback(result[0]) : endThunk(parent.ctx, result[1], callback);
   }
 
   function childThunk(parent) {
@@ -288,6 +286,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.1.1';
+  thunks.VERSION = 'v2.1.2';
   return thunks;
 }));
