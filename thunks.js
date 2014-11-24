@@ -36,8 +36,11 @@
     return obj && obj.constructor && obj.constructor.name === 'GeneratorFunction';
   }
 
-  function noop(error) {
-    if (error != null) throw error;
+  function noOp(error) {
+    if (error == null) return;
+    nextTick(function () {
+      throw error;
+    });
   }
 
   // fast slice for `arguments`.
@@ -80,20 +83,24 @@
     return function (callback) {
       var tickDepth = maxTickDepth, ctx = this;
 
+      function exec(fn) { // catch yield error
+        try {
+          fn.call(ctx, next);
+        } catch (err) {
+          return run(err);
+        }
+      }
+
       function run(error, res) {
         var value, ret = error == null ? gen.next(res) : gen.throw(error);
         if (ret.done) return endThunk(ctx, ret.value, callback);
         value = toThunk(ret.value, true);
         if (!isFunction(value)) return next(null, value);
-        if (--tickDepth) return value.call(ctx, next);
+        if (--tickDepth) return exec(value);
 
         nextTick(function () {
           tickDepth = maxTickDepth;
-          try {
-            value.call(ctx, next);
-          } catch (err) {
-            return callback(err);
-          }
+          exec(value);
         });
       }
 
@@ -211,11 +218,11 @@
         }
       }
 
-      if (parent.callback === noop) return noop(error);
+      if (parent.callback === noOp) return noOp(args[0]);
       current.result = tryRun(parent.ctx, parent.callback, args);
       if (current.callback) return continuation(current);
       if (current.result[0] != null) nextTick(function () {
-        if (current.result) noop(current.result[0]);
+        if (current.result) noOp(current.result[0]);
       });
     }
 
@@ -230,7 +237,7 @@
   }
 
   function child(parent, callback) {
-    parent.callback = callback || noop;
+    parent.callback = callback || noOp;
     if (parent.result) continuation(parent);
     return childThunk(parent.next);
   }
@@ -286,6 +293,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.1.2';
+  thunks.VERSION = 'v2.2.0';
   return thunks;
 }));

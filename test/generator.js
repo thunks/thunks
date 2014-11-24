@@ -55,8 +55,20 @@ module.exports = function (done) {
     return (function* () {
       return yield [1, 2, 3, 4, 5];
     })();
-  })(function (error, res) {
+  })(function* (error, res) {
     should(error).be.equal(null);
     should(res).be.eql([1, 2, 3, 4, 5]);
+    try {
+      yield function () { noneFn(); };
+    } catch (err) {
+      error = err;
+    }
+    should(error).be.instanceOf(Error);
+
+    yield function () { noneFn(); };
+
+  })(function (error, res) {
+    should(error).be.instanceOf(Error);
+    should(res).be.equal(undefined);    
   })(done);
 };
