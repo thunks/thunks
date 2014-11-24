@@ -212,7 +212,7 @@
       else {
         args = [error];
         if (scope.onerror) {
-          if (scope.onerror(error) !== true) return;
+          if (scope.onerror.call(null, error) !== true) return;
           // if onerror return true then continue
           args = [null];
         }
@@ -293,6 +293,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.2.0';
+  thunks.VERSION = 'v2.2.1';
   return thunks;
 }));

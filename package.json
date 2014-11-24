@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "2.2.0",
+  "version": "2.2.1",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "benchmark",
     "test",
     "examples",
+    "docs",
     "gulpfile.js",
     "bower.json",
     "component.json"

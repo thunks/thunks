@@ -1,8 +1,10 @@
-thunks v2.2.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v2.2.1 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
+
+[thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
 
 Thinking and programming in thunks is similar to that in native Promise. But there are some different points:
 
