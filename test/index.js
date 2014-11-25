@@ -360,7 +360,19 @@ describe('thunks', function(){
         should(error).be.equal(null);
         should(value).be.eql([1, 2, 3, 4, 5]);
         should(this).be.equal(x);
-        return Thunk.all.call(null, {a: 1, b: 2, c: 3, d: 4, e: [5]});
+        return Thunk.all.call(x, {
+          a: 1,
+          b: 2,
+          c: 3,
+          d: function (callback) {
+            should(this).be.equal(x);
+            callback(null, 4);
+          },
+          e: [function (callback) {
+            should(this).be.equal(x);
+            callback(null, 5);
+          }]
+        });
       })(function (error, value) {
         should(error).be.equal(null);
         should(value).be.eql({a: 1, b: 2, c: 3, d: 4, e: [5]});
@@ -428,9 +440,15 @@ describe('thunks', function(){
 
     it('Thunk.seq.call()', function (done) {
       var Thunk = thunks();
-      Thunk.seq.call(x, 1, 2, 3, 4, 5)(function (error, value) {
+      Thunk.seq.call(x, 1, 2, 3, 4, function (callback) {
+        should(this).be.equal(x);
+        callback(null, 5);
+      }, [function (callback) {
+        should(this).be.equal(x);
+        callback(null, 6);
+      }])(function (error, value) {
         should(error).be.equal(null);
-        should(value).be.eql([1, 2, 3, 4, 5]);
+        should(value).be.eql([1, 2, 3, 4, 5, [6]]);
         should(this).be.equal(x);
       })(done);
     });

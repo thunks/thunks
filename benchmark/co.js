@@ -42,7 +42,7 @@ module.exports = function (len, syncMode) {
         yield tasks[i];
       }
     }).then(function () {
-      callback()
+      callback();
     }).catch(callback);
   };
 };

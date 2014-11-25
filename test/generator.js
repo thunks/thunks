@@ -6,6 +6,8 @@ var should = require('should'),
 
 module.exports = function (done) {
   var Thunk = thunks();
+  var x = {};
+
   Thunk(function* () {
     should(yield 1).be.equal(1);
     should(yield null).be.equal(null);
@@ -38,10 +40,19 @@ module.exports = function (done) {
     should(error.message).be.equal('some error');
     should(res).be.equal(undefined);
     should(yield res).be.equal(undefined);
-    return Thunk(1);
+    return Thunk.call(x, function* () {
+      should(this).be.equal(x);
+      return yield [function (callback) {
+        should(this).be.equal(x);
+        callback(null, 1);
+      }, [function (callback) {
+        should(this).be.equal(x);
+        callback(null, 1);
+      }]];
+    });
   })(function* (error, res) {
     should(error).be.equal(null);
-    should(res).be.equal(1);
+    should(res).be.eql([1, [1]]);
     should(yield res).be.equal(1);
 
     return function* () {
@@ -69,6 +80,6 @@ module.exports = function (done) {
 
   })(function (error, res) {
     should(error).be.instanceOf(Error);
-    should(res).be.equal(undefined);    
+    should(res).be.equal(undefined);
   })(done);
 };

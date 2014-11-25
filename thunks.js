@@ -118,7 +118,7 @@
 
   function objectToThunk(obj) {
     return function (callback) {
-      var result, pending = 1, finished = false;
+      var result, pending = 1, finished = false, ctx = this;
       if (isArray(obj)) result = Array(obj.length);
       else if (isObject(obj)) result = {};
       else return callback(new Error('Not array or object'));
@@ -142,7 +142,7 @@
           result[index] = fn;
           return --pending || callback(null, result);
         }
-        fn(function (error, res) {
+        fn.call(ctx, function (error, res) {
           if (finished) return;
           if (error != null) {
             finished = true;
@@ -164,13 +164,13 @@
 
   function sequenceToThunk(array) {
     return function (callback) {
-      var i = 0, end = array.length - 1, tickDepth = maxTickDepth, result = Array(array.length);
+      var i = 0, end = array.length - 1, tickDepth = maxTickDepth, result = Array(array.length), ctx = this;
 
       function run(fn) {
         fn = toThunk(fn, true);
         if (!isFunction(fn)) return next(null, fn);
         try {
-          fn(next);
+          fn.call(ctx, next);
         } catch (err) {
           return callback(err);
         }
@@ -293,6 +293,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.2.1';
+  thunks.VERSION = 'v2.2.2';
   return thunks;
 }));
