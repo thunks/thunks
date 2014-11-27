@@ -142,6 +142,7 @@
           result[index] = fn;
           return --pending || callback(null, result);
         }
+        if (isGeneratorFunction(fn)) fn = generatorToThunk(fn.call(ctx));
         fn.call(ctx, function (error, res) {
           if (finished) return;
           if (error != null) {
@@ -169,6 +170,7 @@
       function run(fn) {
         fn = toThunk(fn, true);
         if (!isFunction(fn)) return next(null, fn);
+        if (isGeneratorFunction(fn)) fn = generatorToThunk(fn.call(ctx));
         try {
           fn.call(ctx, next);
         } catch (err) {
@@ -293,6 +295,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.2.2';
+  thunks.VERSION = 'v2.3.0';
   return thunks;
 }));

@@ -1,4 +1,4 @@
-thunks v2.2.2 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v2.3.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
@@ -282,7 +282,7 @@ Returns a `thunk` function.
 ```js
 Thunk.all([
   Thunk(0),
-  Thunk(1),
+  function* () { return yield 1; },
   2,
   Thunk(function (callback) { callback(null, [3]); })
 ])(function (error, value) {
@@ -327,7 +327,7 @@ Thunk.seq([
   Thunk(function (callback) {
     callback(null, 'c');
   }),
-  [Thunk('d'), Thunk('e')], // thunk in array will be excuted in parallel
+  [Thunk('d'), function* () { return yield 'e'; }], // thunk in array will be excuted in parallel
   function (callback) {
     should(flag).be.eql([true, true]);
     flag[2] = true;

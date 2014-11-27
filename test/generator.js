@@ -78,8 +78,26 @@ module.exports = function (done) {
 
     yield function () { noneFn(); };
 
-  })(function (error, res) {
+  })(function* (error, res) {
     should(error).be.instanceOf(Error);
     should(res).be.equal(undefined);
+    return yield [Thunk.all([
+      function* () {
+        return yield 1;
+      },
+      (function* () {
+        return yield 2;
+      }())
+    ]), Thunk.seq([
+      function* () {
+        return yield 3;
+      },
+      (function* () {
+        return yield 4;
+      }())
+    ])];
+  })(function (error, res) {
+    should(error).be.equal(null);
+    should(res).be.eql([[1, 2], [3, 4]]);
   })(done);
 };
