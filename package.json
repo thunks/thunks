@@ -1,6 +1,6 @@
 {
   "name": "thunks",
-  "description": "A basic asynchronous utilily module beyond Promise magically.",
+  "description": "A basic asynchronous utilily module beyond Promise magically, support generator",
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],

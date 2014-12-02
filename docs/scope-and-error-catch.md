@@ -14,7 +14,8 @@ var Thunk = thunks({
   },
   debug: function () {
     console.log.apply(console, arguments);
-  });
+  }
+});
 
 Thunk(function (callback) {
   // do some thing ...
