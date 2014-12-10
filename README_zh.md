@@ -37,7 +37,7 @@ Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现�
 
 ##Benchmark
 
-```bash
+```js
 ➜  thunks git:(master) ✗ node --harmony benchmark/index
 Sync Benchmark...
 
@@ -53,17 +53,48 @@ Test thenjs...
 Test thunks...
 
 JSBench Results:
-co: 1000 cycles, 29.334 ms/cycle, 34.090 ops/sec
-Promise: 1000 cycles, 27.786 ms/cycle, 35.989 ops/sec
-async: 1000 cycles, 2.631 ms/cycle, 380.084 ops/sec
-RSVP: 1000 cycles, 1.621 ms/cycle, 616.903 ops/sec
-when: 1000 cycles, 1.423 ms/cycle, 702.741 ops/sec
-bluebird: 1000 cycles, 1.036 ms/cycle, 965.251 ops/sec
-thenjs: 1000 cycles, 0.767 ms/cycle, 1303.781 ops/sec
-thunks: 1000 cycles, 0.698 ms/cycle, 1432.665 ops/sec
-thunks-generator: 1000 cycles, 0.514 ms/cycle, 1945.525 ops/sec
+co: 1000 cycles, 28.909 ms/cycle, 34.591 ops/sec
+Promise: 1000 cycles, 26.661 ms/cycle, 37.508 ops/sec
+when: 1000 cycles, 23.631 ms/cycle, 42.317 ops/sec
+thunks: 1000 cycles, 7.141 ms/cycle, 140.036 ops/sec
+thunks-generator: 1000 cycles, 5.918 ms/cycle, 168.976 ops/sec
+async: 1000 cycles, 2.911 ms/cycle, 343.525 ops/sec
+RSVP: 1000 cycles, 2.319 ms/cycle, 431.220 ops/sec
+bluebird: 1000 cycles, 1.735 ms/cycle, 576.369 ops/sec
+thenjs: 1000 cycles, 1.403 ms/cycle, 712.758 ops/sec
 
-co: 100%; Promise: 105.57%; async: 1114.94%; RSVP: 1809.62%; when: 2061.42%; bluebird: 2831.47%; thenjs: 3824.51%; thunks: 4202.58%; thunks-generator: 5707.00%;
+co: 100%; Promise: 108.43%; when: 122.34%; thunks: 404.83%; thunks-generator: 488.49%; async: 993.10%; RSVP: 1246.61%; bluebird: 1666.22%; thenjs: 2060.51%;
+
+JSBench Completed!
+```
+
+```js
+➜  thunks git:(master) ✗ node --harmony benchmark/index
+Async Benchmark...
+
+JSBench Start (1000 cycles, async mode):
+Test Promise...
+Test co...
+Test thunks-generator...
+Test bluebird...
+Test when...
+Test RSVP...
+Test async...
+Test thenjs...
+Test thunks...
+
+JSBench Results:
+co: 1000 cycles, 34.887 ms/cycle, 28.664 ops/sec
+Promise: 1000 cycles, 33.526 ms/cycle, 29.828 ops/sec
+when: 1000 cycles, 29.172 ms/cycle, 34.279 ops/sec
+RSVP: 1000 cycles, 11.872 ms/cycle, 84.232 ops/sec
+thunks: 1000 cycles, 11.047 ms/cycle, 90.522 ops/sec
+thunks-generator: 1000 cycles, 10.441 ms/cycle, 95.776 ops/sec
+bluebird: 1000 cycles, 8.221 ms/cycle, 121.640 ops/sec
+async: 1000 cycles, 7.037 ms/cycle, 142.106 ops/sec
+thenjs: 1000 cycles, 5.242 ms/cycle, 190.767 ops/sec
+
+co: 100%; Promise: 104.06%; when: 119.59%; RSVP: 293.86%; thunks: 315.81%; thunks-generator: 334.13%; bluebird: 424.36%; async: 495.77%; thenjs: 665.53%;
 
 JSBench Completed!
 ```

@@ -1,4 +1,4 @@
-// **Github:** https://github.com/teambition/thunks
+// **Github:** https://github.com/thunks/thunks
 //
 // **License:** MIT
 
