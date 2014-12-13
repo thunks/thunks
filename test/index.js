@@ -545,7 +545,7 @@ describe('thunks', function(){
       })(done);
     });
 
-    it('Thunk.digest.call()', function (done) {
+    it('Thunk.delay.call()', function (done) {
       var Thunk = thunks();
       var time = Date.now();
       Thunk.delay.call(x, 1010)(function (error, value) {

@@ -201,17 +201,19 @@
     };
   }
 
-  function continuation(parent) {
-    var current = parent.next, scope = parent.scope, result = parent.result;
+  function continuation(parent, cons) {
+    var current = parent.next, scope = cons.scope, result = parent.result;
     if (result === false) return;
 
     function callback(error) {
+      var args = arguments;
       if (parent.result === false) return;
       parent.result = false;
-      var args = slice(arguments);
       if (scope.debug) scope.debug.apply(null, args);
-      if (error == null) args[0] = null;
-      else {
+      if (error == null) {
+        if (!args.length) args = [null];
+        else args[0] = null;
+      } else {
         args = [error];
         if (scope.onerror) {
           if (scope.onerror.call(null, error) !== true) return;
@@ -221,27 +223,32 @@
       }
 
       if (parent.callback === noOp) return noOp(args[0]);
-      current.result = tryRun(parent.ctx, parent.callback, args);
-      if (current.callback) return continuation(current);
+      current.result = tryRun(cons.ctx, parent.callback, args);
+      if (current.callback) return continuation(current, cons);
       if (current.result[0] != null) nextTick(function () {
         if (current.result) noOp(current.result[0]);
       });
     }
 
-    return result[0] != null ? callback(result[0]) : endThunk(parent.ctx, result[1], callback);
+    return result[0] != null ? callback(result[0]) : endThunk(cons.ctx, result[1], callback);
   }
 
-  function childThunk(parent) {
-    parent.next = {ctx: parent.ctx, scope: parent.scope, callback: null, result: null};
+  function Link(result) {
+    this.callback = null;
+    this.result = result;
+  }
+
+  function childThunk(parent, cons) {
+    parent.next = new Link(null);
     return function (callback) {
-      return child(parent, callback);
+      return child(parent, cons, callback);
     };
   }
 
-  function child(parent, callback) {
+  function child(parent, cons, callback) {
     parent.callback = callback || noOp;
-    if (parent.result) continuation(parent);
-    return childThunk(parent.next);
+    if (parent.result) continuation(parent, cons);
+    return childThunk(parent.next, cons);
   }
 
   function thunks(options) {
@@ -253,8 +260,7 @@
     }
 
     function Thunk(start) {
-      var current = {ctx: this === Thunk ? null : this, scope: scope, result: [null, start]};
-      return childThunk(current);
+      return childThunk(new Link([null, start]), {ctx: this === Thunk ? null : this, scope: scope});
     }
 
     Thunk.all = function (obj) {
@@ -295,6 +301,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.3.0';
+  thunks.VERSION = 'v2.4.0';
   return thunks;
 }));
