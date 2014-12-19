@@ -380,6 +380,11 @@ Thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
 });
 ```
 
+### Thunk.race([thunk1, ..., thunkX])
+### Thunk.race(thunk1, ..., thunkX)
+
+返回一个新的 `thunk` 函数。迭代数组所有 thunk 函数最先完成的运算结果会传入其中，无论正确或错误。
+
 ### Thunk.digest(error, val1, val2, ...)
 
 返回一个新的 `thunk` 函数。

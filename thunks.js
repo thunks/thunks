@@ -9,14 +9,14 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else if (typeof define === 'function' && define.amd) define([], factory);
   else root.thunks = factory();
-}(typeof window === 'object' ? window : this, function () {
+}(typeof window === 'object' ? window : this, function() {
   'use strict';
 
   var maxTickDepth = 100, toString = Object.prototype.toString;
   var isArray = Array.isArray || function (obj) {
     return toString.call(obj) === '[object Array]';
   };
-  var nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
+  var nextTick = typeof setImmediate === 'function' ? setImmediate : function(fn) {
     setTimeout(fn, 0);
   };
 
@@ -38,7 +38,7 @@
 
   function noOp(error) {
     if (error == null) return;
-    nextTick(function () {
+    nextTick(function() {
       throw error;
     });
   }
@@ -98,7 +98,7 @@
         if (!isFunction(value)) return next(null, value);
         if (--tickDepth) return exec(value);
 
-        nextTick(function () {
+        nextTick(function() {
           tickDepth = maxTickDepth;
           exec(value);
         });
@@ -117,7 +117,7 @@
   }
 
   function objectToThunk(obj) {
-    return function (callback) {
+    return function(callback) {
       var result, pending = 1, finished = false, ctx = this;
       if (isArray(obj)) result = Array(obj.length);
       else if (isObject(obj)) result = {};
@@ -143,7 +143,7 @@
           return --pending || callback(null, result);
         }
         if (isGeneratorFunction(fn)) fn = generatorToThunk(fn.call(ctx));
-        fn.call(ctx, function (error, res) {
+        fn.call(ctx, function(error, res) {
           if (finished) return;
           if (error != null) {
             finished = true;
@@ -164,7 +164,7 @@
   }
 
   function sequenceToThunk(array) {
-    return function (callback) {
+    return function(callback) {
       var i = 0, end = array.length - 1, tickDepth = maxTickDepth, result = Array(array.length), ctx = this;
 
       function run(fn) {
@@ -194,8 +194,8 @@
   }
 
   function promiseToThunk(promise) {
-    return function (callback) {
-      return promise.then(function (res) {
+    return function(callback) {
+      return promise.then(function(res) {
         callback(null, res);
       }, callback);
     };
@@ -240,7 +240,7 @@
 
   function childThunk(parent, cons) {
     parent.next = new Link(null);
-    return function (callback) {
+    return function(callback) {
       return child(parent, cons, callback);
     };
   }
@@ -263,36 +263,43 @@
       return childThunk(new Link([null, start]), {ctx: this === Thunk ? null : this, scope: scope});
     }
 
-    Thunk.all = function (obj) {
+    Thunk.all = function(obj) {
       if (arguments.length > 1) obj = slice(arguments);
       return Thunk.call(this, objectToThunk(obj));
     };
 
-    Thunk.seq = function (array) {
+    Thunk.seq = function(array) {
       if (arguments.length !== 1 || !isArray(array)) array = arguments;
       return Thunk.call(this, sequenceToThunk(array));
     };
 
-    Thunk.digest = function () {
+    Thunk.race = function(array) {
+      if (arguments.length > 1) array = slice(arguments);
+      return Thunk.call(this, function (done) {
+        for (var i = 0, l = array.length; i < l; i++) Thunk.call(this, array[i])(done);
+      });
+    };
+
+    Thunk.digest = function() {
       var args = arguments;
-      return Thunk.call(this, function (callback) {
+      return Thunk.call(this, function(callback) {
         callback.apply(null, args);
       });
     };
 
-    Thunk.thunkify = function (fn) {
+    Thunk.thunkify = function(fn) {
       var ctx = this === Thunk ? null : this;
-      return function () {
+      return function() {
         var args = slice(arguments);
-        return Thunk.call(ctx || this, function (callback) {
+        return Thunk.call(ctx || this, function(callback) {
           args.push(callback);
           fn.apply(this, args);
         });
       };
     };
 
-    Thunk.delay = function (delay) {
-      return Thunk.call(this, function (callback) {
+    Thunk.delay = function(delay) {
+      return Thunk.call(this, function(callback) {
         return delay > 0 ? setTimeout(callback, delay) : nextTick(callback);
       });
     };
@@ -301,6 +308,6 @@
   }
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.4.0';
+  thunks.VERSION = 'v2.5.0';
   return thunks;
 }));

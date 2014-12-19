@@ -1,4 +1,4 @@
-thunks v2.4.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks v2.5.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
@@ -401,6 +401,11 @@ Thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
   console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
 });
 ```
+
+### Thunk.race([thunk1, ..., thunkX])
+### Thunk.race(thunk1, ..., thunkX)
+
+Returns a `thunk` function with the value or error from one first completed.
 
 ### Thunk.digest(error, val1, val2, ...)
 
