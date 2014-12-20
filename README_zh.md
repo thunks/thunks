@@ -2,6 +2,10 @@ thunks [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
+# [toa](https://github.com/toajs/toa): A web app framework rely on thunks.
+
+[thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
+
 Thunks 的编程思维与原生 Promise 是一致的，原生 Promise 能实现的异步业务组合，Thunks 都能实现。区别有以下几点：
 
 1. 原生 Promise 出现在 ES6，Thunks 没有使用特别的 JS 特性，ES3 下都能完美运行。

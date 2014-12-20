@@ -2,6 +2,8 @@ thunks v2.5.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https:/
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
 
+# [toa](https://github.com/toajs/toa): A web app framework rely on thunks.
+
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
