@@ -1,6 +1,8 @@
 'use strict';
 /*global describe, it, before, after, beforeEach, afterEach, Promise, noneFn*/
 
+/*jshint -W124*/
+
 var should = require('should'),
   thunks = require('../thunks.js');
 
@@ -53,7 +55,9 @@ module.exports = function (done) {
   })(function* (error, res) {
     should(error).be.equal(null);
     should(res).be.eql([1, [1]]);
-    should(yield res).be.equal(1);
+    should(yield function*() {
+      return yield 1;
+    }).be.equal(1);
 
     return function* () {
       return yield [1, 2, 3, 4, 5];
@@ -76,7 +80,7 @@ module.exports = function (done) {
     }
     should(error).be.instanceOf(Error);
 
-    yield function () { noneFn(); };
+    yield function* () { noneFn(); };
 
   })(function* (error, res) {
     should(error).be.instanceOf(Error);

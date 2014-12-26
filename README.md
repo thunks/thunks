@@ -1,6 +1,10 @@
-thunks v2.5.0 [![Build Status](https://travis-ci.org/thunks/thunks.svg)](https://travis-ci.org/thunks/thunks)
+thunks
 ====
 A basic asynchronous utilily module beyond Promise magically, support generator.
+
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Talk topic][talk-image]][talk-url]
 
 # [toa](https://github.com/toajs/toa): A web app framework rely on thunks.
 
@@ -507,3 +511,12 @@ Thunk.delay.call(this, 1000)(function () {
   console.log('Thunk.delay end: ', Date.now());
 });
 ```
+
+[npm-url]: https://npmjs.org/package/thunks
+[npm-image]: http://img.shields.io/npm/v/thunks.svg
+
+[travis-url]: https://travis-ci.org/thunks/thunks
+[travis-image]: http://img.shields.io/travis/thunks/thunks.svg
+
+[talk-url]: https://guest.talk.ai/rooms/d1ccbf802n
+[talk-image]: https://img.shields.io/talk/t/d1ccbf802n.svg
