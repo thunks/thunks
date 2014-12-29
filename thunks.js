@@ -12,13 +12,17 @@
 }(typeof window === 'object' ? window : this, function() {
   'use strict';
 
-  var maxTickDepth = 100, toString = Object.prototype.toString;
-  var isArray = Array.isArray || function (obj) {
+  var maxTickDepth = 100, toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty;
+  var isArray = Array.isArray || function(obj) {
     return toString.call(obj) === '[object Array]';
   };
   var nextTick = typeof setImmediate === 'function' ? setImmediate : function(fn) {
     setTimeout(fn, 0);
   };
+
+  thunks.NAME = 'thunks';
+  thunks.VERSION = 'v2.6.1';
+  return thunks;
 
   function isObject(obj) {
     return obj && obj.constructor === Object;
@@ -83,12 +87,12 @@
   function generatorToThunk(gen) {
     return function(callback) {
       var tickDepth = maxTickDepth, ctx = this;
+      return run();
 
       function run(error, res) {
         var value, ret = error == null ? gen.next(res) : gen.throw(error);
         if (ret.done) return runThunk(ctx, ret.value, callback);
         if (--tickDepth) return runThunk(ctx, ret.value, next, true, true);
-
         nextTick(function() {
           tickDepth = maxTickDepth;
           runThunk(ctx, ret.value, next, true);
@@ -102,14 +106,22 @@
           return callback(err);
         }
       }
-
-      return run();
     };
   }
 
   function objectToThunk(obj) {
     return function(callback) {
       var result, pending = 1, finished = false, ctx = this;
+      if (isArray(obj)) {
+        result = Array(obj.length);
+        for (var i = 0, l = obj.length; i < l; i++) next(obj[i], i);
+      } else if (isObject(obj)) {
+        result = {};
+        for (var key in obj) {
+          if (hasOwnProperty.call(obj, key)) next(obj[key], key);
+        }
+      } else throw new Error('Not array or object');
+      return --pending || callback(null, result);
 
       function next(fn, index) {
         if (finished) return;
@@ -124,37 +136,24 @@
           return --pending || callback(null, result);
         }, true, true);
       }
-
-      if (isArray(obj)) {
-        result = Array(obj.length);
-        for (var i = 0, l = obj.length; i < l; i++) next(obj[i], i);
-      } else if (isObject(obj)) {
-        result = {};
-        for (var key in obj) {
-          if (obj.hasOwnProperty(key)) next(obj[key], key);
-        }
-      } else throw new Error('Not array or object');
-
-      if (!(--pending || finished)) return callback(null, result);
     };
   }
 
   function sequenceToThunk(array) {
     return function(callback) {
       var i = 0, end = array.length - 1, tickDepth = maxTickDepth, result = Array(array.length), ctx = this;
+      return end < 0 ? callback(null, result) : runThunk(ctx, array[0], next, true);
 
       function next(error, res) {
         if (error != null) return callback(error);
         result[i] = arguments.length > 2 ? slice(arguments, 1) : res;
         if (++i > end) return callback(null, result);
         if (--tickDepth) return runThunk(ctx, array[i], next, true);
-        nextTick(function () {
+        nextTick(function() {
           tickDepth = maxTickDepth;
           runThunk(ctx, array[i], next, true);
         });
       }
-
-      return end < 0 ? callback(null, result) : runThunk(ctx, array[0], next, true);
     };
   }
 
@@ -166,9 +165,10 @@
     };
   }
 
-  function continuation(parent, cons) {
-    var current = parent.next, scope = cons.scope, result = parent.result;
+  function continuation(parent, domain) {
+    var current = parent.next, scope = domain.scope, result = parent.result;
     if (result === false) return;
+    return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
 
     function callback(error) {
       var args = arguments;
@@ -188,27 +188,25 @@
       }
 
       if (parent.callback === noOp) return noOp(args[0]);
-      current.result = tryRun(cons.ctx, parent.callback, args);
-      if (current.callback) return continuation(current, cons);
-      if (current.result[0] != null) nextTick(function () {
+      current.result = tryRun(domain.ctx, parent.callback, args);
+      if (current.callback) return continuation(current, domain);
+      if (current.result[0] != null) nextTick(function() {
         if (current.result) noOp(current.result[0]);
       });
     }
-
-    return result[0] != null ? callback(result[0]) : runThunk(cons.ctx, result[1], callback);
   }
 
-  function childThunk(parent, cons) {
+  function childThunk(parent, domain) {
     parent.next = {callback: null, result: null};
     return function(callback) {
-      return child(parent, cons, callback);
+      return child(parent, domain, callback);
     };
   }
 
-  function child(parent, cons, callback) {
+  function child(parent, domain, callback) {
     parent.callback = callback || noOp;
-    if (parent.result) continuation(parent, cons);
-    return childThunk(parent.next, cons);
+    if (parent.result) continuation(parent, domain);
+    return childThunk(parent.next, domain);
   }
 
   function thunks(options) {
@@ -235,7 +233,7 @@
 
     Thunk.race = function(array) {
       if (arguments.length > 1) array = slice(arguments);
-      return Thunk.call(this, function (done) {
+      return Thunk.call(this, function(done) {
         for (var i = 0, l = array.length; i < l; i++) Thunk.call(this, array[i])(done);
       });
     };
@@ -266,8 +264,4 @@
 
     return Thunk;
   }
-
-  thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.6.0';
-  return thunks;
 }));

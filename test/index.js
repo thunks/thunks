@@ -671,19 +671,19 @@ describe('thunks', function() {
       Thunk.delay(100)(function(error, value) {
         should(error).be.equal(null);
         should(Date.now() - time >= 99).be.equal(true);
-        return Thunk.delay(1000);
+        return Thunk.delay(100);
       })(function(error, value) {
         should(error).be.equal(null);
-        should(Date.now() - time >= 1099).be.equal(true);
+        should(Date.now() - time >= 199).be.equal(true);
       })(done);
     });
 
     it('Thunk.delay.call()', function(done) {
       var Thunk = thunks();
       var time = Date.now();
-      Thunk.delay.call(x, 1010)(function(error, value) {
+      Thunk.delay.call(x, 100)(function(error, value) {
         should(error).be.equal(null);
-        should(Date.now() - time >= 1009).be.equal(true);
+        should(Date.now() - time >= 99).be.equal(true);
         should(this).be.equal(x);
       })(done);
 
