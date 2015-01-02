@@ -69,19 +69,20 @@ Test thenjs...
 Test thunks...
 
 JSBench Results:
-co: 1000 cycles, 28.909 ms/cycle, 34.591 ops/sec
-Promise: 1000 cycles, 26.661 ms/cycle, 37.508 ops/sec
-when: 1000 cycles, 23.631 ms/cycle, 42.317 ops/sec
-thunks: 1000 cycles, 7.141 ms/cycle, 140.036 ops/sec
-thunks-generator: 1000 cycles, 5.918 ms/cycle, 168.976 ops/sec
-async: 1000 cycles, 2.911 ms/cycle, 343.525 ops/sec
-RSVP: 1000 cycles, 2.319 ms/cycle, 431.220 ops/sec
-bluebird: 1000 cycles, 1.735 ms/cycle, 576.369 ops/sec
-thenjs: 1000 cycles, 1.403 ms/cycle, 712.758 ops/sec
+co: 1000 cycles, 25.454 ms/cycle, 39.287 ops/sec
+Promise: 1000 cycles, 24.594 ms/cycle, 40.660 ops/sec
+thunks: 1000 cycles, 7.276 ms/cycle, 137.438 ops/sec
+thunks-generator: 1000 cycles, 5.577 ms/cycle, 179.308 ops/sec
+async: 1000 cycles, 2.788 ms/cycle, 358.680 ops/sec
+RSVP: 1000 cycles, 2.225 ms/cycle, 449.438 ops/sec
+when: 1000 cycles, 1.816 ms/cycle, 550.661 ops/sec
+bluebird: 1000 cycles, 1.67 ms/cycle, 598.802 ops/sec
+thenjs: 1000 cycles, 1.345 ms/cycle, 743.494 ops/sec
 
-co: 100%; Promise: 108.43%; when: 122.34%; thunks: 404.83%; thunks-generator: 488.49%; async: 993.10%; RSVP: 1246.61%; bluebird: 1666.22%; thenjs: 2060.51%;
+co: 100%; Promise: 103.50%; thunks: 349.84%; thunks-generator: 456.41%; async: 912.98%; RSVP: 1144.00%; when: 1401.65%; bluebird: 1524.19%; thenjs: 1892.49%;
 
 JSBench Completed!
+
 ```
 
 ```js
@@ -100,17 +101,17 @@ Test thenjs...
 Test thunks...
 
 JSBench Results:
-co: 1000 cycles, 34.887 ms/cycle, 28.664 ops/sec
-Promise: 1000 cycles, 33.526 ms/cycle, 29.828 ops/sec
-when: 1000 cycles, 29.172 ms/cycle, 34.279 ops/sec
-RSVP: 1000 cycles, 11.872 ms/cycle, 84.232 ops/sec
-thunks: 1000 cycles, 11.047 ms/cycle, 90.522 ops/sec
-thunks-generator: 1000 cycles, 10.441 ms/cycle, 95.776 ops/sec
-bluebird: 1000 cycles, 8.221 ms/cycle, 121.640 ops/sec
-async: 1000 cycles, 7.037 ms/cycle, 142.106 ops/sec
-thenjs: 1000 cycles, 5.242 ms/cycle, 190.767 ops/sec
+co: 1000 cycles, 32.755 ms/cycle, 30.530 ops/sec
+Promise: 1000 cycles, 31.139 ms/cycle, 32.114 ops/sec
+thunks: 1000 cycles, 11.388 ms/cycle, 87.812 ops/sec
+RSVP: 1000 cycles, 10.155 ms/cycle, 98.474 ops/sec
+thunks-generator: 1000 cycles, 10.126 ms/cycle, 98.756 ops/sec
+when: 1000 cycles, 8.835 ms/cycle, 113.186 ops/sec
+bluebird: 1000 cycles, 8.352 ms/cycle, 119.732 ops/sec
+async: 1000 cycles, 6.477 ms/cycle, 154.392 ops/sec
+thenjs: 1000 cycles, 4.939 ms/cycle, 202.470 ops/sec
 
-co: 100%; Promise: 104.06%; when: 119.59%; RSVP: 293.86%; thunks: 315.81%; thunks-generator: 334.13%; bluebird: 424.36%; async: 495.77%; thenjs: 665.53%;
+co: 100%; Promise: 105.19%; thunks: 287.63%; RSVP: 322.55%; thunks-generator: 323.47%; when: 370.74%; bluebird: 392.18%; async: 505.71%; thenjs: 663.19%;
 
 JSBench Completed!
 ```

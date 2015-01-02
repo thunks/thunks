@@ -20,7 +20,7 @@ module.exports = function (len, syncMode) {
 
   function promiseify(fn) {
     return function (x) {
-      return new Promise(function (resolve, reject) {
+      return new When.Promise(function (resolve, reject) {
         fn(i, function (error, value) {
           if (error) return reject(error);
           resolve(value);
