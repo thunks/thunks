@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "2.6.2",
+  "version": "2.6.3",
   "main": "thunks.js",
   "repository": {
     "type": "git",

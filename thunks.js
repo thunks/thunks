@@ -3,7 +3,7 @@
 // **License:** MIT
 
 /* global module, define, setImmediate */
-;(function (root, factory) {
+;(function(root, factory) {
   'use strict';
 
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -21,7 +21,7 @@
   };
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.6.2';
+  thunks.VERSION = 'v2.6.3';
   return thunks;
 
   function isObject(obj) {
@@ -167,31 +167,29 @@
 
   function continuation(parent, domain) {
     var current = parent.next, scope = domain.scope, result = parent.result;
-    if (result === false) return;
     return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
 
     function callback(err) {
-      var args = arguments;
       if (parent.result === false) return;
       parent.result = false;
+      var args = arguments;
       if (scope.debug) scope.debug.apply(null, args);
-      if (err == null) {
-        if (!args.length) args = [null];
-        else args[0] = null;
-      } else {
+      if (!args.length) args = [null];
+      else if (err == null) args[0] = null;
+      else {
         args = [err];
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return;
-          // if onerror return true then continue
-          args = [null];
+          args[0] = null; // if onerror return true then continue
         }
       }
 
-      if (parent.callback === noOp) return noOp(args[0]);
       current.result = tryRun(domain.ctx, parent.callback, args);
       if (current.callback) return continuation(current, domain);
       if (current.result[0] != null) nextTick(function() {
-        if (current.result) noOp(current.result[0]);
+        if (!current.result) return;
+        if (scope.onerror && scope.onerror.call(null, current.result[0]) !== true) return;
+        noOp(current.result[0]);
       });
     }
   }
@@ -204,6 +202,7 @@
   }
 
   function child(parent, domain, callback) {
+    if (parent.callback) throw new Error('The thunk has been filled');
     parent.callback = callback || noOp;
     if (parent.result) continuation(parent, domain);
     return childThunk(parent.next, domain);

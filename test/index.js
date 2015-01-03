@@ -10,7 +10,7 @@ describe('thunks', function() {
 
   describe('thunks()', function() {
 
-    it('thunks(onerror)', function(done) {
+    it('thunks(onerror) 1', function(done) {
       var Thunk = thunks(function(error) {
         should(error).be.instanceOf(Error);
         should(error.message).be.equal('some error!');
@@ -23,6 +23,20 @@ describe('thunks', function() {
         throw new Error('some error!');
       })(function() {
         should('this function will not run').be.equal('');
+      });
+    });
+
+    it('thunks(onerror) 2', function(done) {
+      var Thunk = thunks(function(error) {
+        should(error).be.instanceOf(Error);
+        should(error.message).be.equal('some error 2!');
+        done();
+      });
+
+      Thunk()(function(error, value) {
+        should(error).be.equal(null);
+        should(value).be.equal(undefined);
+        throw new Error('some error 2!');
       });
     });
 
@@ -83,6 +97,22 @@ describe('thunks', function() {
         should(_debug[0]).be.equal(error);
         should(_debug.length).be.equal(1);
       })(done);
+    });
+
+    it('Throw err while fill repeatedly', function(done) {
+      var Thunk = thunks();
+      var thunk = Thunk(1);
+      thunk(function(error, value) {
+        should(error).be.equal(null);
+        should(value).be.equal(1);
+      });
+      should(function() {
+        thunk();
+      }).throw('The thunk has been filled');
+      should(function() {
+        thunk(function() {});
+      }).throw('The thunk has been filled');
+      done();
     });
   });
 
