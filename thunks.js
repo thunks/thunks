@@ -21,7 +21,7 @@
   };
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.6.1';
+  thunks.VERSION = 'v2.6.2';
   return thunks;
 
   function isObject(obj) {
@@ -40,10 +40,10 @@
     return obj && obj.constructor && obj.constructor.name === 'GeneratorFunction';
   }
 
-  function noOp(error) {
-    if (error == null) return;
+  function noOp(err) {
+    if (err == null) return;
     nextTick(function() {
-      throw error;
+      throw err;
     });
   }
 
@@ -60,28 +60,28 @@
     var result = [null, null];
     try {
       result[1] = fn.apply(ctx, args);
-    } catch (error) {
-      result[0] = error;
+    } catch (err) {
+      result[0] = err;
     }
     return result;
   }
 
   function toThunk(obj, thunkObj) {
     if (!obj || isFunction(obj)) return obj;
-    if (isGenerator(obj)) obj = generatorToThunk(obj);
-    else if (isFunction(obj.toThunk)) obj = obj.toThunk();
-    else if (isFunction(obj.then)) obj = promiseToThunk(obj);
-    else if (thunkObj && (isArray(obj) || isObject(obj))) obj = objectToThunk(obj);
+    if (isGenerator(obj)) return generatorToThunk(obj);
+    if (isFunction(obj.toThunk)) return obj.toThunk();
+    if (isFunction(obj.then)) return promiseToThunk(obj);
+    if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj);
     return obj;
   }
 
   function runThunk(ctx, value, callback, thunkObj, noTryRun) {
-    value = toThunk(value, thunkObj);
-    if (!isFunction(value)) return value == null ? callback(null) : callback(null, value);
-    if (isGeneratorFunction(value)) value = generatorToThunk(value.call(ctx));
-    if (noTryRun) return value.call(ctx, callback);
-    var error = tryRun(ctx, value, [callback])[0];
-    return error && callback(error);
+    var err, thunk = toThunk(value, thunkObj);
+    if (!isFunction(thunk)) return thunk == null ? callback(null) : callback(null, thunk);
+    if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx));
+    if (noTryRun) return thunk.call(ctx, callback);
+    err = tryRun(ctx, thunk, [callback])[0];
+    return err && callback(err);
   }
 
   function generatorToThunk(gen) {
@@ -89,8 +89,8 @@
       var tickDepth = maxTickDepth, ctx = this;
       return run();
 
-      function run(error, res) {
-        var value, ret = error == null ? gen.next(res) : gen.throw(error);
+      function run(err, res) {
+        var ret = err == null ? gen.next(res) : gen.throw(err);
         if (ret.done) return runThunk(ctx, ret.value, callback);
         if (--tickDepth) return runThunk(ctx, ret.value, next, true, true);
         nextTick(function() {
@@ -99,11 +99,11 @@
         });
       }
 
-      function next(error, res) {
+      function next(err, res) {
         try {
-          run(error, arguments.length > 2 ? slice(arguments, 1) : res);
-        } catch (err) {
-          return callback(err);
+          run(err, arguments.length > 2 ? slice(arguments, 1) : res);
+        } catch (error) {
+          return callback(error);
         }
       }
     };
@@ -126,11 +126,11 @@
       function next(fn, index) {
         if (finished) return;
         ++pending;
-        runThunk(ctx, fn, function(error, res) {
+        runThunk(ctx, fn, function(err, res) {
           if (finished) return;
-          if (error != null) {
+          if (err != null) {
             finished = true;
-            return callback(error);
+            return callback(err);
           }
           result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
           return --pending || callback(null, result);
@@ -144,8 +144,8 @@
       var i = 0, end = array.length - 1, tickDepth = maxTickDepth, result = Array(array.length), ctx = this;
       return end < 0 ? callback(null, result) : runThunk(ctx, array[0], next, true);
 
-      function next(error, res) {
-        if (error != null) return callback(error);
+      function next(err, res) {
+        if (err != null) return callback(err);
         result[i] = arguments.length > 2 ? slice(arguments, 1) : res;
         if (++i > end) return callback(null, result);
         if (--tickDepth) return runThunk(ctx, array[i], next, true);
@@ -170,18 +170,18 @@
     if (result === false) return;
     return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
 
-    function callback(error) {
+    function callback(err) {
       var args = arguments;
       if (parent.result === false) return;
       parent.result = false;
       if (scope.debug) scope.debug.apply(null, args);
-      if (error == null) {
+      if (err == null) {
         if (!args.length) args = [null];
         else args[0] = null;
       } else {
-        args = [error];
+        args = [err];
         if (scope.onerror) {
-          if (scope.onerror.call(null, error) !== true) return;
+          if (scope.onerror.call(null, err) !== true) return;
           // if onerror return true then continue
           args = [null];
         }

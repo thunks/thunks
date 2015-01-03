@@ -1,6 +1,6 @@
 thunks
 ====
-A basic asynchronous utilily module beyond Promise magically, support generator.
+A small and magical async control flow tool, wrap promise, generator and anything to thunk.
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
@@ -12,31 +12,9 @@ A basic asynchronous utilily module beyond Promise magically, support generator.
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
 
-Thinking and programming in thunks is similar to that in native Promise. But there are some different points:
+## Compatibility
 
-1. Native Promise is a new feature in ES6, thunks is not using JavaScript special features to run flawlessly under ES3.
-
-2. After wrapped by Promise we get objects with logics in Promise objects,
-methods of properties of these Promise objects could be modified(injuected);
-While thunks returns thunk functions, with logics inside function scopes,
-which means they would never be injected from outside.
-
-3. Promise claims it's functional, while thunks is functional
-and it obeys the continuous-passing style.
-
-4. Having the same power as Promise, thunks' API is more consice,
-and thunks' implementaton is simpler.
-
-5. thunks brings a perfect `debug` mode, which seems not appear in Promise?
-
-6. thunks is **5 times** faster as native Promise.
-
-7. Full implementation with Generator.
-
-Read in `exmples/` diretory for more demos on thunks.
-Build asynchronous program in an extraordinary simple way.
-
-**You don't have to wait till all bowsers have implemented Promise natively, but by just these **300sloc** you will get more powerful tools for handling aynchronous code.**
+ES3+, support node.js and all browsers.
 
 ## What is a thunk?
 
