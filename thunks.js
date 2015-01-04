@@ -21,7 +21,7 @@
   };
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.6.3';
+  thunks.VERSION = 'v2.6.4';
   return thunks;
 
   function isObject(obj) {
@@ -165,8 +165,9 @@
     };
   }
 
-  function continuation(parent, domain) {
+  function continuation(parent, domain, tickDepth) {
     var current = parent.next, scope = domain.scope, result = parent.result;
+    tickDepth = tickDepth || maxTickDepth;
     return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
 
     function callback(err) {
@@ -185,7 +186,12 @@
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args);
-      if (current.callback) return continuation(current, domain);
+      if (current.callback) {
+        if (--tickDepth) return continuation(current, domain, tickDepth);
+        return nextTick(function() {
+          continuation(current, domain, 0);
+        });
+      }
       if (current.result[0] != null) nextTick(function() {
         if (!current.result) return;
         if (scope.onerror && scope.onerror.call(null, current.result[0]) !== true) return;
