@@ -12,7 +12,8 @@
 }(typeof window === 'object' ? window : this, function() {
   'use strict';
 
-  var maxTickDepth = 100, toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty;
+  var maxTickDepth = 100, SIGSTOP = {};
+  var toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty;
   var isArray = Array.isArray || function(obj) {
     return toString.call(obj) === '[object Array]';
   };
@@ -21,7 +22,7 @@
   };
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.6.4';
+  thunks.VERSION = 'v2.7.0';
   return thunks;
 
   function isObject(obj) {
@@ -90,6 +91,7 @@
       return run();
 
       function run(err, res) {
+        if (err && err.code === SIGSTOP) return callback(err);
         var ret = err == null ? gen.next(res) : gen.throw(err);
         if (ret.done) return runThunk(ctx, ret.value, callback);
         if (--tickDepth) return runThunk(ctx, ret.value, next, true, true);
@@ -179,10 +181,12 @@
       else if (err == null) args[0] = null;
       else {
         args = [err];
+        var sigstop = err && err.code;
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return;
           args[0] = null; // if onerror return true then continue
         }
+        if (sigstop === SIGSTOP) return;
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args);
@@ -208,7 +212,7 @@
   }
 
   function child(parent, domain, callback) {
-    if (parent.callback) throw new Error('The thunk has been filled');
+    if (parent.callback) throw new Error('The thunk already filled');
     parent.callback = callback || noOp;
     if (parent.result) continuation(parent, domain);
     return childThunk(parent.next, domain);
@@ -265,6 +269,13 @@
       return Thunk.call(this, function(callback) {
         return delay > 0 ? setTimeout(callback, delay) : nextTick(callback);
       });
+    };
+
+    Thunk.stop = function(message) {
+      var cancel = new Error(message || 'thunk stoped');
+      cancel.code = SIGSTOP;
+      cancel.status = 19;
+      throw cancel;
     };
 
     return Thunk;

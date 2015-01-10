@@ -473,6 +473,38 @@ Thunk.delay.call(this, 1000)(function () {
 });
 ```
 
+### Thunk.stop([messagge])
+
+终止 `thunk` 函数的运行，类似于 `Promise` 的 `cancelable`(ES6 没有定义，原生 Promise 也未实现)。运行 `Thunk.stop` 将抛出一个 `Error` 对象终止信号。
+终止信号能被作用域的 `onerror` 捕获，但 stop 行为不能被取消（即 `return true` 无效）。
+
+终止信号拥有 `message`、特殊的 `code` 和 `status === 19`（POSIX signal SIGSTOP）。
+
+```js
+var Thunk = require('thunks')(function(err) {
+  console.log(err); // { [Error: Stop now!] code: {}, status: 19 }
+});
+
+Thunk(function(callback) {
+  Thunk.stop('Stop now!');
+  console.log('It will not be run!');
+})(function(error, value) {
+  console.log('It will not be run!');
+});
+```
+
+```js
+Thunk.delay(100)(function() {
+  console.log('Hello');
+  return Thunk.delay(100)(function() {
+    Thunk.stop('Stop now!');
+    console.log('It will not be run!');
+  });
+})(function(error, value) {
+  console.log('It will not be run!');
+});
+```
+
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg
 

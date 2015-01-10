@@ -108,10 +108,10 @@ describe('thunks', function() {
       });
       should(function() {
         thunk();
-      }).throw('The thunk has been filled');
+      }).throw('The thunk already filled');
       should(function() {
         thunk(function() {});
-      }).throw('The thunk has been filled');
+      }).throw('The thunk already filled');
       done();
     });
   });
@@ -717,6 +717,39 @@ describe('thunks', function() {
         should(this).be.equal(x);
       })(done);
 
+    });
+  });
+
+  describe('Thunk.stop()', function() {
+
+    it('Thunk.stop()', function(done) {
+      var Thunk = thunks();
+      Thunk(1)(function(error, value) {
+        should(error).be.equal(null);
+        should(value).be.equal(1);
+        Thunk.stop();
+        should('It will not be run!').be.equal(true);
+      })(function(error, value) {
+        should('It will not be run!').be.equal(true);
+      });
+      done();
+    });
+
+    it('Thunk.stop("stop message")', function(done) {
+      var Thunk = thunks(function(err) {
+        should(err.message).be.equal('stop message');
+        should(err.status).be.equal(19);
+        done();
+        return true;
+      });
+      Thunk(1)(function(error, value) {
+        should(error).be.equal(null);
+        should(value).be.equal(1);
+        Thunk.stop('stop message');
+        should('It will not be run!').be.equal(true);
+      })(function(error, value) {
+        should('It will not be run!').be.equal(true);
+      });
     });
   });
 
