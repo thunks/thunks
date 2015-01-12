@@ -1,8 +1,10 @@
 'use strict';
 /*global console, noneFn*/
 
-var Thunk = require('../thunks.js')(function(err) {
-  console.log(err); // { [Error: Stop now!] code: {}, status: 19 }
+var Thunk = require('../thunks.js')({
+  debug: function(res) {
+    if (res) console.log(res); // { [Error: Stop now!] code: {}, status: 19 }
+  }
 });
 
 Thunk(function(callback) {

@@ -736,11 +736,13 @@ describe('thunks', function() {
     });
 
     it('Thunk.stop("stop message")', function(done) {
-      var Thunk = thunks(function(err) {
-        should(err.message).be.equal('stop message');
-        should(err.status).be.equal(19);
-        done();
-        return true;
+      var Thunk = thunks({
+        debug: function(res) {
+          if (res && res.status === 19) {
+            should(res.message).be.equal('stop message');
+            done();
+          }
+        }
       });
       Thunk(1)(function(error, value) {
         should(error).be.equal(null);

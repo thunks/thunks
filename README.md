@@ -493,12 +493,14 @@ Thunk.delay.call(this, 1000)(function () {
 
 ### Thunk.stop([messagge])
 
-This will stop thunk function with a message similar to Promise's cancelable(not implement yet). It will throw a stop signal.
-Stop signal is a Error object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code, stop signal can be caught by `onerror`.
+This will stop thunk function with a message similar to Promise's cancelable(not implement yet). It will throw a stop signal object.
+Stop signal is a Error object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code, stop signal can be caught by `debug`.
 
 ```js
-var Thunk = require('thunks')(function(err) {
-  console.log(err); // { [Error: Stop now!] code: {}, status: 19 }
+var Thunk = require('thunks')({
+  debug: function(res) {
+    if (res) console.log(res); // { [Error: Stop now!] code: {}, status: 19 }
+  }
 });
 
 Thunk(function(callback) {

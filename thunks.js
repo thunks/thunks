@@ -22,7 +22,7 @@
   };
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.7.0';
+  thunks.VERSION = 'v2.7.1';
   return thunks;
 
   function isObject(obj) {
@@ -181,12 +181,11 @@
       else if (err == null) args[0] = null;
       else {
         args = [err];
-        var sigstop = err && err.code;
+        if (err && err.code === SIGSTOP) return;
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return;
           args[0] = null; // if onerror return true then continue
         }
-        if (sigstop === SIGSTOP) return;
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args);
@@ -272,10 +271,11 @@
     };
 
     Thunk.stop = function(message) {
-      var cancel = new Error(message || 'thunk stoped');
-      cancel.code = SIGSTOP;
-      cancel.status = 19;
-      throw cancel;
+      throw {
+        message: String(message || 'thunk stoped'),
+        code: SIGSTOP,
+        status: 19
+      };
     };
 
     return Thunk;
