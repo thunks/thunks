@@ -22,7 +22,7 @@
   };
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.7.1';
+  thunks.VERSION = 'v2.7.2';
   return thunks;
 
   function isObject(obj) {
@@ -38,7 +38,10 @@
   }
 
   function isGeneratorFunction(obj) {
-    return obj && obj.constructor && obj.constructor.name === 'GeneratorFunction';
+    var constr = obj.constructor;
+    if (!constr) return false;
+    if (constr.name === 'GeneratorFunction' || constr.displayName === 'GeneratorFunction') return true;
+    return isGenerator(constr.prototype);
   }
 
   function noOp(err) {
@@ -95,15 +98,15 @@
         var ret = err == null ? gen.next(res) : gen.throw(err);
         if (ret.done) return runThunk(ctx, ret.value, callback);
         if (--tickDepth) return runThunk(ctx, ret.value, next, true, true);
-        nextTick(function() {
+        return nextTick(function() {
           tickDepth = maxTickDepth;
-          runThunk(ctx, ret.value, next, true);
+          return runThunk(ctx, ret.value, next, true);
         });
       }
 
       function next(err, res) {
         try {
-          run(err, arguments.length > 2 ? slice(arguments, 1) : res);
+          return run(err, arguments.length > 2 ? slice(arguments, 1) : res);
         } catch (error) {
           return callback(error);
         }
@@ -213,6 +216,7 @@
   function child(parent, domain, callback) {
     if (parent.callback) throw new Error('The thunk already filled');
     parent.callback = callback || noOp;
+    if (!isFunction(parent.callback)) throw new TypeError(String(callback) + ' is not a function');
     if (parent.result) continuation(parent, domain);
     return childThunk(parent.next, domain);
   }

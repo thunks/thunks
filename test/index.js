@@ -114,6 +114,20 @@ describe('thunks', function() {
       }).throw('The thunk already filled');
       done();
     });
+
+    it('Throw err while fill with non function', function(done) {
+      var Thunk = thunks();
+      should(function() {
+        Thunk(1)('abc');
+      }).throw();
+      should(function() {
+        Thunk(1)([]);
+      }).throw();
+      should(function() {
+        Thunk(1)({});
+      }).throw();
+      done();
+    });
   });
 
   describe('Thunk()', function() {
@@ -757,7 +771,7 @@ describe('thunks', function() {
 
   describe('Thunk(Generator)', function() {
 
-    try { // 检测是否支持 generator，是则加载 co 测试
+    try { // 检测是否支持 generator，是则加载 generator 测试
       /*jshint -W054 */
       var check = new Function('return function*(){}');
       it('Thunk(Generator)', function(done) {
