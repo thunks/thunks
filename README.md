@@ -6,8 +6,6 @@ A small and magical async control flow tool, wrap promise, generator and anythin
 [![Build Status][travis-image]][travis-url]
 [![Talk topic][talk-image]][talk-url]
 
-## [Toa](https://github.com/toajs/toa): A powerful web framework rely on thunks.
-
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
@@ -15,6 +13,16 @@ A small and magical async control flow tool, wrap promise, generator and anythin
 ## Compatibility
 
 ES3+, support node.js and all browsers.
+
+## Implementations:
+
+- [Toa](https://github.com/toajs/toa): A powerful web framework rely on thunks.
+- [thunk-redis](https://github.com/thunks/thunk-redis) A thunk/promise-based redis client with pipelining and cluster.
+- [thunk-stream](https://github.com/thunks/thunk-stream) Wrap a readable/writable/duplex/transform stream to a thunk.
+- [thunk-queue](https://github.com/thunks/thunk-queue) Thunk queue for uncertainty tasks evaluation.
+- [file-cache](https://github.com/thunks/file-cache) Read file with caching, rely on thunks.
+
+And a mountain of applications in server-side or client-side.
 
 ## What is a thunk?
 
@@ -490,6 +498,10 @@ Thunk.delay(100)(function() {
   console.log('It will not be run!');
 });
 ```
+
+## Who's using
+
++ Teambition community: https://bbs.teambition.com/ use in server-side and client-side
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg

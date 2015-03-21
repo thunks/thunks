@@ -24,19 +24,19 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "gulp": "^3.8.10",
-    "gulp-jshint": "^1.9.2",
+    "gulp": "^3.8.11",
+    "gulp-jshint": "^1.9.4",
     "gulp-mocha": "^2.0.0",
-    "gulp-sequence": "^0.3.1",
+    "gulp-sequence": "^0.3.2",
     "jsbench": "^0.5.1",
-    "mocha": "^2.1.0",
-    "should": "^4.6.5",
+    "mocha": "^2.2.1",
+    "should": "^5.2.0",
     "thenjs": ">=1.5.0",
     "async": ">=0.9.0",
-    "bluebird": ">=2.9.0",
-    "co": ">=4.3.0",
-    "rsvp": ">=3.0.0",
-    "when": ">=3.7.0"
+    "bluebird": ">=2.9.14",
+    "co": ">=4.5.1",
+    "rsvp": ">=3.0.17",
+    "when": ">=3.7.2"
   },
   "scripts": {
     "test": "node --harmony `which gulp`"
