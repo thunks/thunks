@@ -85,7 +85,7 @@
     if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx));
     if (noTryRun) return thunk.call(ctx, callback);
     err = tryRun(ctx, thunk, [callback])[0];
-    return err && callback(err);
+    return err != null && callback(err);
   }
 
   function generatorToThunk(gen) {
