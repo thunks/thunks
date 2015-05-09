@@ -1,9 +1,9 @@
 'use strict';
 /*global console, noneFn*/
 
-var Thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')();
 
-Thunk(function (callback) {
+thunk(function(callback) {
   noneFn();
 })();
 // none function to catch error, error will be throw.

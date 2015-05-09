@@ -1,12 +1,12 @@
 'use strict';
 /*global module, process*/
 
-var Thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')();
 var fs = require('fs');
 
-var size = Thunk.thunkify(fs.stat);
+var size = thunk.thunkify(fs.stat);
 
-Thunk(function* () {
+thunk(function*() {
   // 3 concurrent stat()s at a time
   var a = yield [size('.gitignore'), size('thunks.js'), size('package.json')];
   var b = yield [size('.gitignore'), size('thunks.js'), size('package.json')];
@@ -15,7 +15,7 @@ Thunk(function* () {
   console.log(b);
   console.log(c);
 
-})(function* () {
+})(function*() {
   // 9 concurrent stat()s
   var a = [size('.gitignore'), size('thunks.js'), size('package.json')];
   var b = [size('.gitignore'), size('thunks.js'), size('package.json')];
@@ -23,7 +23,7 @@ Thunk(function* () {
   var d = yield [a, b, c];
   console.log(d);
 
-})(function* () {
+})(function*() {
   var a = size('.gitignore');
   var b = size('thunks.js');
   var c = size('package.json');

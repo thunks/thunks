@@ -1,9 +1,9 @@
 'use strict';
 /*global module, process*/
 
-var Thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')();
 var request = require('request');
-var get = Thunk.thunkify.call(request, request.get);
+var get = thunk.thunkify.call(request, request.get);
 
 // measure response time N times
 function* latency(url, times) {
@@ -19,7 +19,7 @@ function* latency(url, times) {
 }
 
 
-Thunk(function* () {
+thunk(function*() {
   // run each test in sequence
   var a = yield latency('http://baidu.com', 5);
   console.log(a);
@@ -37,6 +37,6 @@ Thunk(function* () {
   var c = latency('http://weibo.com', 5);
 
   return yield [a, b, c];
-})(function (error, res) {
+})(function(error, res) {
   console.log(error, res);
 });

@@ -8,7 +8,7 @@ thunks 的作用域和异常处理设计
 
 ```js
 var thunks = require('thunks');
-var Thunk = thunks({
+var thunk = thunks({
   onerror: function (error) {
     console.error(error);
   },
@@ -17,7 +17,7 @@ var Thunk = thunks({
   }
 });
 
-Thunk(function (callback) {
+thunk(function (callback) {
   // do some thing ...
   callback(error, value);
 })(function (error, res) {
@@ -25,13 +25,13 @@ Thunk(function (callback) {
 });
 ```
 
-### `thunks` 函数
+### `thunks` 母函数
 
-**母函数**，用于生成带作用域的 `Thunk`；
+**母函数**，用于生成带作用域的 `thunk`；
 
-### `Thunk` 函数
+### `thunk` 生成器
 
-thunk 函数**生成器**，凡是使用同一个 `Thunk` 生成的任何 thunk 函数以及其派生的 thunk 链，都在同一个作用域内。（是否可以访问作用域？抱歉，为了代码安全，作用域是无形的存在，你访问不到~）
+thunk 函数**生成器**，凡是使用同一个 `thunk` 生成器生成的任何 thunk 函数以及其派生的 thunk 链，都在同一个作用域内。（是否可以访问作用域？抱歉，为了代码安全，作用域是无形的存在，你访问不到~）
 
 ### `debug` 方法
 
@@ -63,7 +63,7 @@ proto.hscan = function () {
 
 ```js
 http.createServer(function (req, res) {
-  var Thunk = thunks(function (error) {
+  var thunk = thunks(function (error) {
     // 发生错误则将错误响应给用户
     res.renderError(error);
     // 如果是系统错误，则做相应处理，如写入日志等
@@ -71,7 +71,7 @@ http.createServer(function (req, res) {
   })
 
   // sessionAuth 也经过了 thunks 封装
-  Thunk(sessionAuth(req))(function (error, result) {
+  thunk(sessionAuth(req))(function (error, result) {
     // error 必定为 null，不用管
     // 其它业务逻辑等，不管同步异步都可以用 thunks 封装，你懂的
   });
@@ -88,18 +88,18 @@ http.createServer(function (req, res) {
 
 thunk 函数内部自行 `try catch`，操作细节见后面示例。
 
-### 几种 Thunk 的创建方式
+### 几种 thunk 生成器的创建方式
 
 1. 不注册任何方法：
 
   ```js
-  var Thunk = thunks();
+  var thunk = thunks();
   ```
 
 2. 只注册 `onerror`：
 
   ```js
-  var Thunk = thunks(function (error) {
+  var thunk = thunks(function (error) {
     console.error(error);
   });
   ```
@@ -107,7 +107,7 @@ thunk 函数内部自行 `try catch`，操作细节见后面示例。
   如果 `onerror` 返回 `true`，则会忽略错误，继续执行后续逻辑。
 
   ```js
-  var Thunk = thunks(function (error) {
+  var thunk = thunks(function (error) {
     console.error(error);
     return true;
   });
@@ -116,7 +116,7 @@ thunk 函数内部自行 `try catch`，操作细节见后面示例。
 3. 注册 `debug` 和 `onerror`：
 
   ```js
-  var Thunk = thunks({
+  var thunk = thunks({
     onerror: function (error) {
       console.error(error);
     },
@@ -131,11 +131,11 @@ thunk 函数内部自行 `try catch`，操作细节见后面示例。
 见识了作用域，那么如果不添加 `onerror` 监听是不是就会丢失异常呢？显然不是：
 
 ```js
-var Thunk = require('thunks')();
+var thunk = require('thunks')();
 ```
 
 ```js
-Thunk(function (callback) {
+thunk(function (callback) {
   noneFn();
 })();
 // throw error: `ReferenceError: noneFn is not defined`
@@ -144,7 +144,7 @@ Thunk(function (callback) {
 如上，异常将会被抛出系统：`ReferenceError: noneFn is not defined`。
 
 ```js
-Thunk(function (callback) {
+thunk(function (callback) {
   noneFn();
 })(function (error, res) {
   // catch a error
@@ -158,7 +158,7 @@ Thunk(function (callback) {
 如上，第一个异常被捕获，第二个被抛出系统。第一个因为给 thunk 添加了数据接收体 `callback` 函数，thunks 当然认为 callback 会处理异常，所以把异常丢给 callback 处理。第二个，没有数据接收体，就把异常抛出系统了。如果是封装第三方 API，不知道后面有没有接收体，那么就应该像这样处理：
 
 ```js
-var Thunk = require('thunks')();
+var thunk = require('thunks')();
 
 module.exports = function (arg, options)
   return Thunk(function (callback) {
@@ -178,7 +178,7 @@ module.exports = function (arg, options)
 前面提到，“自行 `try catch` 异常” 是怎么回事，其实很简单：
 
 ```js
-Thunk(function (callback) {
+thunk(function (callback) {
   try {
     noneFn();
   } catch (err) {
@@ -195,9 +195,9 @@ Thunk(function (callback) {
 最后看看 `generator` 函数中的异常处理，很简单的示例代码，自行理解：
 
 ```js
-var Thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')();
 
-Thunk(function* () {
+thunk(function* () {
   // catch error by yourself
   try {
     yield function (callback) { noneFn(); };

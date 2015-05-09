@@ -1,17 +1,17 @@
 'use strict';
 /*global console*/
 
-var Thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')();
 
-console.time('Thunk_parallel');
-Thunk.
+console.time('thunk_parallel');
+thunk.
   all([
-    Thunk(function (callback) { setTimeout(function () { callback(null, 1); }, 1000); }),
+    thunk(function(callback) { setTimeout(function() { callback(null, 1); }, 1000); }),
     2,
-    Thunk(3),
-    Thunk(Thunk(4)),
-    Thunk(function (callback) { setTimeout(function () { callback(null, 5); }, 1000); }),
-  ])(function (error, result) {
+    thunk(3),
+    thunk(thunk(4)),
+    thunk(function(callback) { setTimeout(function() { callback(null, 5); }, 1000); }),
+  ])(function(error, result) {
     console.log(error, result); // null, [1, 2, 3, 4, 5]
-    console.timeEnd('Thunk_parallel'); // ~1014ms
+    console.timeEnd('thunk_parallel'); // ~1014ms
   });

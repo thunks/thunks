@@ -1,11 +1,11 @@
 'use strict';
 /*global console, noneFn*/
 
-var Thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')();
 
-Thunk(function (callback) {
+thunk(function(callback) {
   noneFn();
-})(function (error, res) {
+})(function(error, res) {
   // catch a error
   console.log(error, res); // [ReferenceError: noneFn is not defined] undefined
   noneFn();

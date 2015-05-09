@@ -20,50 +20,140 @@
   var nextTick = typeof setImmediate === 'function' ? setImmediate : function(fn) {
     setTimeout(fn, 0);
   };
+  if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick;
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v2.7.2';
+  thunks.VERSION = 'v3.0.0';
   return thunks;
 
-  function isObject(obj) {
-    return obj && obj.constructor === Object;
+  function thunks(options) {
+    var scope = {onerror: null, debug: null};
+    if (isFunction(options)) scope.onerror = options;
+    else if (options) {
+      if (isFunction(options.debug)) scope.debug = options.debug;
+      if (isFunction(options.onerror)) scope.onerror = options.onerror;
+    }
+
+    function thunk(start) {
+      return childThunk({callback: null, result: [null, start]}, {ctx: this === thunk ? null : this, scope: scope});
+    }
+
+    thunk.all = function(obj) {
+      if (arguments.length > 1) obj = slice(arguments);
+      return thunk.call(this, objectToThunk(obj));
+    };
+
+    thunk.seq = function(array) {
+      if (arguments.length !== 1 || !isArray(array)) array = arguments;
+      return thunk.call(this, sequenceToThunk(array));
+    };
+
+    thunk.race = function(array) {
+      if (arguments.length > 1) array = slice(arguments);
+      return thunk.call(this, function(done) {
+        for (var i = 0, l = array.length; i < l; i++) thunk.call(this, array[i])(done);
+      });
+    };
+
+    thunk.digest = function() {
+      var args = arguments;
+      return thunk.call(this, function(callback) {
+        return apply(null, callback, args);
+      });
+    };
+
+    thunk.thunkify = function(fn) {
+      var ctx = this === thunk ? null : this;
+      return function() {
+        var args = slice(arguments);
+        return thunk.call(ctx || this, function(callback) {
+          args.push(callback);
+          return apply(this, fn, args);
+        });
+      };
+    };
+
+    thunk.delay = function(delay) {
+      return thunk.call(this, function(callback) {
+        return delay > 0 ? setTimeout(callback, delay) : nextTick(callback);
+      });
+    };
+
+    thunk.stop = function(message) {
+      throw {
+        message: String(message || 'thunk stoped'),
+        code: SIGSTOP,
+        status: 19
+      };
+    };
+
+    return thunk;
   }
 
-  function isFunction(fn) {
-    return typeof fn === 'function';
+  function childThunk(parent, domain) {
+    parent.next = {callback: null, result: null};
+    return function(callback) {
+      return child(parent, domain, callback);
+    };
   }
 
-  function isGenerator(obj) {
-    return isFunction(obj.next) && isFunction(obj.throw);
+  function child(parent, domain, callback) {
+    if (parent.callback) throw new Error('The thunk already filled');
+    if (callback && !isFunction(callback)) throw new TypeError(String(callback) + ' is not a function');
+    parent.callback = callback || noOp;
+    if (parent.result) continuation(parent, domain);
+    return childThunk(parent.next, domain);
   }
 
-  function isGeneratorFunction(obj) {
-    var constr = obj.constructor;
-    if (!constr) return false;
-    if (constr.name === 'GeneratorFunction' || constr.displayName === 'GeneratorFunction') return true;
-    return isGenerator(constr.prototype);
+  function continuation(parent, domain, tickDepth) {
+    var current = parent.next, scope = domain.scope, result = parent.result;
+    tickDepth = tickDepth || maxTickDepth;
+    return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
+
+    function callback(err) {
+      if (parent.result === false) return;
+      parent.result = false;
+      var args = arguments;
+      if (scope.debug) apply(null, scope.debug, args);
+      if (!args.length) args = [null];
+      else if (err == null) args[0] = null;
+      else {
+        args = [err];
+        if (err && err.code === SIGSTOP) return;
+        if (scope.onerror) {
+          if (scope.onerror.call(null, err) !== true) return;
+          args[0] = null; // if onerror return true then continue
+        }
+      }
+
+      current.result = tryRun(domain.ctx, parent.callback, args);
+      if (current.callback) {
+        if (--tickDepth) return continuation(current, domain, tickDepth);
+        return nextTick(function() {
+          continuation(current, domain, 0);
+        });
+      }
+      if (current.result[0] != null) nextTick(function() {
+        if (!current.result) return;
+        if (scope.onerror && scope.onerror.call(null, current.result[0]) !== true) return;
+        noOp(current.result[0]);
+      });
+    }
   }
 
-  function noOp(err) {
-    if (err == null) return;
-    nextTick(function() {
-      throw err;
-    });
-  }
-
-  // fast slice for `arguments`.
-  function slice(args, start) {
-    start = start || 0;
-    if (start >= args.length) return [];
-    var len = args.length, ret = Array(len - start);
-    while (len-- > start) ret[len - start] = args[len];
-    return ret;
+  function runThunk(ctx, value, callback, thunkObj, noTryRun) {
+    var thunk = toThunk(value, thunkObj);
+    if (!isFunction(thunk)) return thunk == null ? callback(null) : callback(null, thunk);
+    if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx));
+    if (noTryRun) return thunk.call(ctx, callback);
+    var err = tryRun(ctx, thunk, [callback])[0];
+    return err != null && callback(err);
   }
 
   function tryRun(ctx, fn, args) {
     var result = [null, null];
     try {
-      result[1] = fn.apply(ctx, args);
+      result[1] = apply(ctx, fn, args);
     } catch (err) {
       result[0] = err;
     }
@@ -77,15 +167,6 @@
     if (isFunction(obj.then)) return promiseToThunk(obj);
     if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj);
     return obj;
-  }
-
-  function runThunk(ctx, value, callback, thunkObj, noTryRun) {
-    var err, thunk = toThunk(value, thunkObj);
-    if (!isFunction(thunk)) return thunk == null ? callback(null) : callback(null, thunk);
-    if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx));
-    if (noTryRun) return thunk.call(ctx, callback);
-    err = tryRun(ctx, thunk, [callback])[0];
-    return err != null && callback(err);
   }
 
   function generatorToThunk(gen) {
@@ -170,118 +251,47 @@
     };
   }
 
-  function continuation(parent, domain, tickDepth) {
-    var current = parent.next, scope = domain.scope, result = parent.result;
-    tickDepth = tickDepth || maxTickDepth;
-    return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
+  // fast slice for `arguments`.
+  function slice(args, start) {
+    start = start || 0;
+    if (start >= args.length) return [];
+    var len = args.length, ret = Array(len - start);
+    while (len-- > start) ret[len - start] = args[len];
+    return ret;
+  }
 
-    function callback(err) {
-      if (parent.result === false) return;
-      parent.result = false;
-      var args = arguments;
-      if (scope.debug) scope.debug.apply(null, args);
-      if (!args.length) args = [null];
-      else if (err == null) args[0] = null;
-      else {
-        args = [err];
-        if (err && err.code === SIGSTOP) return;
-        if (scope.onerror) {
-          if (scope.onerror.call(null, err) !== true) return;
-          args[0] = null; // if onerror return true then continue
-        }
-      }
-
-      current.result = tryRun(domain.ctx, parent.callback, args);
-      if (current.callback) {
-        if (--tickDepth) return continuation(current, domain, tickDepth);
-        return nextTick(function() {
-          continuation(current, domain, 0);
-        });
-      }
-      if (current.result[0] != null) nextTick(function() {
-        if (!current.result) return;
-        if (scope.onerror && scope.onerror.call(null, current.result[0]) !== true) return;
-        noOp(current.result[0]);
-      });
+  function apply(ctx, fn, args) {
+    switch (args.length) {
+      case 2: return fn.call(ctx, args[0], args[1]);
+      case 1: return fn.call(ctx, args[0]);
+      case 0: return fn.call(ctx);
+      default: return fn.apply(ctx, args);
     }
   }
 
-  function childThunk(parent, domain) {
-    parent.next = {callback: null, result: null};
-    return function(callback) {
-      return child(parent, domain, callback);
-    };
+  function isObject(obj) {
+    return obj && obj.constructor === Object;
   }
 
-  function child(parent, domain, callback) {
-    if (parent.callback) throw new Error('The thunk already filled');
-    parent.callback = callback || noOp;
-    if (!isFunction(parent.callback)) throw new TypeError(String(callback) + ' is not a function');
-    if (parent.result) continuation(parent, domain);
-    return childThunk(parent.next, domain);
+  function isFunction(fn) {
+    return typeof fn === 'function';
   }
 
-  function thunks(options) {
-    var scope = {onerror: null, debug: null};
-    if (isFunction(options)) scope.onerror = options;
-    else if (options) {
-      if (isFunction(options.debug)) scope.debug = options.debug;
-      if (isFunction(options.onerror)) scope.onerror = options.onerror;
-    }
+  function isGenerator(obj) {
+    return isFunction(obj.next) && isFunction(obj.throw);
+  }
 
-    function Thunk(start) {
-      return childThunk({callback: null, result: [null, start]}, {ctx: this === Thunk ? null : this, scope: scope});
-    }
+  function isGeneratorFunction(obj) {
+    var constr = obj.constructor;
+    if (!constr) return false;
+    if (constr.name === 'GeneratorFunction' || constr.displayName === 'GeneratorFunction') return true;
+    return isGenerator(constr.prototype);
+  }
 
-    Thunk.all = function(obj) {
-      if (arguments.length > 1) obj = slice(arguments);
-      return Thunk.call(this, objectToThunk(obj));
-    };
-
-    Thunk.seq = function(array) {
-      if (arguments.length !== 1 || !isArray(array)) array = arguments;
-      return Thunk.call(this, sequenceToThunk(array));
-    };
-
-    Thunk.race = function(array) {
-      if (arguments.length > 1) array = slice(arguments);
-      return Thunk.call(this, function(done) {
-        for (var i = 0, l = array.length; i < l; i++) Thunk.call(this, array[i])(done);
-      });
-    };
-
-    Thunk.digest = function() {
-      var args = arguments;
-      return Thunk.call(this, function(callback) {
-        callback.apply(null, args);
-      });
-    };
-
-    Thunk.thunkify = function(fn) {
-      var ctx = this === Thunk ? null : this;
-      return function() {
-        var args = slice(arguments);
-        return Thunk.call(ctx || this, function(callback) {
-          args.push(callback);
-          fn.apply(this, args);
-        });
-      };
-    };
-
-    Thunk.delay = function(delay) {
-      return Thunk.call(this, function(callback) {
-        return delay > 0 ? setTimeout(callback, delay) : nextTick(callback);
-      });
-    };
-
-    Thunk.stop = function(message) {
-      throw {
-        message: String(message || 'thunk stoped'),
-        code: SIGSTOP,
-        status: 19
-      };
-    };
-
-    return Thunk;
+  function noOp(err) {
+    if (err == null) return;
+    nextTick(function() {
+      throw err;
+    });
   }
 }));

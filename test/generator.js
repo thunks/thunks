@@ -7,20 +7,20 @@ var should = require('should'),
   thunks = require('../thunks.js');
 
 module.exports = function(done) {
-  var Thunk = thunks();
+  var thunk = thunks();
   var x = {};
 
-  Thunk(function*() {
+  thunk(function*() {
     should(yield 1).be.equal(1);
     should(yield null).be.equal(null);
-    should(yield Thunk(1)).be.equal(1);
+    should(yield thunk(1)).be.equal(1);
     should(yield Promise.resolve(1)).be.equal(1);
     should(yield [1, 2, 3]).be.eql([1, 2, 3]);
-    should(yield [1, 2, Thunk(3)]).be.eql([1, 2, 3]);
+    should(yield [1, 2, thunk(3)]).be.eql([1, 2, 3]);
     should(yield {}).be.eql({});
     should(yield {
       name: 'thunks',
-      version: Thunk('v2')
+      version: thunk('v2')
     }).be.eql({
       name: 'thunks',
       version: 'v2'
@@ -39,9 +39,9 @@ module.exports = function(done) {
           cb(null, 2);
         });
       },
-      Thunk(3),
+      thunk(3),
       Promise.resolve(4),
-      Thunk(function*() {
+      thunk(function*() {
         return yield 5;
       })
     ];
@@ -55,7 +55,7 @@ module.exports = function(done) {
     should(res).be.equal(undefined);
     should(
       yield res).be.equal(undefined);
-    return Thunk.call(x, function*() {
+    return thunk.call(x, function*() {
       should(this).be.equal(x);
       return yield [function(callback) {
           should(this).be.equal(x);
@@ -104,13 +104,13 @@ module.exports = function(done) {
   })(function*(error, res) {
     should(error).be.instanceOf(Error);
     should(res).be.equal(undefined);
-    return yield [Thunk.all([
+    return yield [thunk.all([
       function*() {
         return yield 1;
       }, (function*() {
         return yield 2;
       }())
-    ]), Thunk.seq([
+    ]), thunk.seq([
       function*() {
         return yield 3;
       }, (function*() {
@@ -124,10 +124,10 @@ module.exports = function(done) {
       [3, 4]
     ]);
   })(function() {
-    Thunk(function* () {
+    thunk(function* () {
       try {
         yield function*(error, value) {
-          Thunk.stop();
+          thunk.stop();
           should('It will not be run!').be.equal(true);
         };
       } catch (e) {

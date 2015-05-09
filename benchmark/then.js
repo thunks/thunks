@@ -3,23 +3,23 @@
 
 var Thenjs = require('thenjs');
 
-module.exports = function (len, syncMode) {
+module.exports = function(len, syncMode) {
   var task, list = [], tasks = [];
 
   if (syncMode) { // 模拟同步任务
-    task = function (x, callback) {
+    task = function(x, callback) {
       callback(null, x);
     };
   } else { // 模拟异步任务
-    task = function (x, callback) {
-      setImmediate(function () {
+    task = function(x, callback) {
+      setImmediate(function() {
         callback(null, x);
       });
     };
   }
 
   function toThunk(fn, x) {
-    return function (done) {
+    return function(done) {
       fn(x, done);
     };
   }
@@ -30,17 +30,17 @@ module.exports = function (len, syncMode) {
     tasks[i] = task;
   }
 
-  return function (callback) {
+  return function(callback) {
     // Thenjs 测试主体
-    Thenjs.each(list, function (cont, i) { // 并行 list 队列
+    Thenjs.each(list, function(cont, i) { // 并行 list 队列
       task(i, cont);
     })
-    .eachSeries(list, function (cont, i) { // 串行 list 队列
+    .eachSeries(list, function(cont, i) { // 串行 list 队列
       task(i, cont);
     })
     .parallel(tasks.map(toThunk)) // 并行 tasks 队列
     .series(tasks.map(toThunk)) // 串行 tasks 队列
-    .fin(function (cont, error) {
+    .fin(function(cont, error) {
       callback(error);
     });
   };

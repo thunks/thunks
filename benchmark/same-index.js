@@ -19,6 +19,6 @@ if (typeof Promise === 'function') {
 
 jsbench.
   add('thunks', require('./same-thunks.js')(len, syncMode)).
-  // on('cycle', function (e) { console.log(e.name, e.cycle, e.time + 'ms'); }).
-  on('error', function (e) { console.error(e.name, e.error.stack); }).
+  // on('cycle', function(e) { console.log(e.name, e.cycle, e.time + 'ms'); }).
+  on('error', function(e) { console.error(e.name, e.error.stack); }).
   run(cycles);

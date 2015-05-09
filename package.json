@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "2.7.3",
+  "version": "3.0.0",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -25,21 +25,21 @@
   "dependencies": {},
   "devDependencies": {
     "gulp": "^3.8.11",
-    "gulp-jshint": "^1.9.4",
+    "gulp-jshint": "^1.10.0",
     "gulp-mocha": "^2.0.1",
     "gulp-sequence": "^0.3.2",
     "jsbench": "^0.5.1",
-    "mocha": "^2.2.1",
-    "should": "^5.2.0",
+    "mocha": "^2.2.4",
+    "should": "^6.0.1",
     "thenjs": ">=1.5.0",
     "async": ">=0.9.0",
-    "bluebird": ">=2.9.21",
-    "co": ">=4.5.1",
+    "bluebird": ">=2.9.25",
+    "co": ">=4.5.4",
     "rsvp": ">=3.0.18",
-    "when": ">=3.7.2"
+    "when": ">=3.7.3"
   },
   "scripts": {
-    "test": "node --harmony `which gulp`"
+    "test": "gulp test"
   },
   "ignore": [
     "**/.*",

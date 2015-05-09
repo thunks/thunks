@@ -9,7 +9,7 @@
 
 ```js
 var cache = {};
-function maybeSync(arg, callback) {  
+function maybeSync(arg, callback) {
   if (cache[arg]) return callback(null, cache[arg]);
 
   fs.readFile(arg, function (err, data) {

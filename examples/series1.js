@@ -1,20 +1,20 @@
 'use strict';
 /*global console*/
 
-var Thunk = require('../thunks.js')();
-var result = [], thunk = Thunk(1);
+var thunk = require('../thunks.js')();
+var result = [], thunkFn = thunk(1);
 
 function callback(error, value) {
   result.push(value);
-  return Thunk(function (callback2) {
-    setTimeout(function () { callback2(null, value * 2); }, 1000);
+  return thunk(function(callback2) {
+    setTimeout(function() { callback2(null, value * 2); }, 1000);
   });
 }
-console.time('Thunk_series');
+console.time('thunk_series');
 for (var i = 0; i < 5; i++) {
-  thunk = thunk(callback);
+  thunkFn = thunkFn(callback);
 }
-thunk(function (error) {
+thunkFn(function(error) {
   console.log(error, result); // null, [1, 2, 4, 8, 16]
-  console.timeEnd('Thunk_series'); // ~5050ms
+  console.timeEnd('thunk_series'); // ~5050ms
 });
