@@ -23,7 +23,7 @@
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick;
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v3.0.0';
+  thunks.VERSION = 'v3.0.1';
   return thunks;
 
   function thunks(options) {
@@ -44,7 +44,7 @@
     };
 
     thunk.seq = function(array) {
-      if (arguments.length !== 1 || !isArray(array)) array = arguments;
+      if (arguments.length !== 1 || !isArray(array)) array = slice(arguments);
       return thunk.call(this, sequenceToThunk(array));
     };
 
@@ -56,7 +56,7 @@
     };
 
     thunk.digest = function() {
-      var args = arguments;
+      var args = slice(arguments);
       return thunk.call(this, function(callback) {
         return apply(null, callback, args);
       });
@@ -107,27 +107,27 @@
 
   function continuation(parent, domain, tickDepth) {
     var current = parent.next, scope = domain.scope, result = parent.result;
-    tickDepth = tickDepth || maxTickDepth;
     return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback);
 
     function callback(err) {
-      if (parent.result === false) return;
-      parent.result = false;
-      var args = arguments;
+      if (parent.result === null) return;
+      parent.result = null;
+      var args = slice(arguments);
       if (scope.debug) apply(null, scope.debug, args);
       if (!args.length) args = [null];
       else if (err == null) args[0] = null;
       else {
-        args = [err];
         if (err && err.code === SIGSTOP) return;
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return;
-          args[0] = null; // if onerror return true then continue
+          err = null; // if onerror return true then continue
         }
+        args = [err];
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args);
       if (current.callback) {
+        tickDepth = tickDepth || maxTickDepth;
         if (--tickDepth) return continuation(current, domain, tickDepth);
         return nextTick(function() {
           continuation(current, domain, 0);
@@ -147,7 +147,7 @@
     if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx));
     if (noTryRun) return thunk.call(ctx, callback);
     var err = tryRun(ctx, thunk, [callback])[0];
-    return err != null && callback(err);
+    return err && callback(err);
   }
 
   function tryRun(ctx, fn, args) {
@@ -261,12 +261,10 @@
   }
 
   function apply(ctx, fn, args) {
-    switch (args.length) {
-      case 2: return fn.call(ctx, args[0], args[1]);
-      case 1: return fn.call(ctx, args[0]);
-      case 0: return fn.call(ctx);
-      default: return fn.apply(ctx, args);
-    }
+    if (args.length === 2) return fn.call(ctx, args[0], args[1]);
+    if (args.length === 1) return fn.call(ctx, args[0]);
+    if (args.length === 0) return fn.call(ctx);
+    return fn.apply(ctx, args);
   }
 
   function isObject(obj) {
