@@ -12,7 +12,7 @@
 }(typeof window === 'object' ? window : this, function() {
   'use strict';
 
-  var maxTickDepth = 100, SIGSTOP = {};
+  var maxTickDepth = 100;
   var toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty;
   var isArray = Array.isArray || function(obj) {
     return toString.call(obj) === '[object Array]';
@@ -23,7 +23,7 @@
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick;
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v3.0.1';
+  thunks.VERSION = 'v3.0.2';
   return thunks;
 
   function thunks(options) {
@@ -35,7 +35,7 @@
     }
 
     function thunk(start) {
-      return childThunk({callback: null, result: [null, start]}, {ctx: this === thunk ? null : this, scope: scope});
+      return childThunk(new Link([null, start], null), new Domain(this === thunk ? null : this));
     }
 
     thunk.all = function(obj) {
@@ -80,18 +80,29 @@
     };
 
     thunk.stop = function(message) {
-      throw {
-        message: String(message || 'thunk stoped'),
-        code: SIGSTOP,
-        status: 19
-      };
+      throw new StopSig(message);
     };
 
+    function Domain(ctx) {
+      this.ctx = ctx;
+    }
+    Domain.prototype.scope = scope;
     return thunk;
   }
 
+  function Link(result, callback) {
+    this.result = result;
+    this.callback = callback;
+  }
+
+  function StopSig(message) {
+    this.status = 19;
+    this.code = 'SIGSTOP';
+    this.message = String(message || 'thunk stoped');
+  }
+
   function childThunk(parent, domain) {
-    parent.next = {callback: null, result: null};
+    parent.next = new Link(null, null);
     return function(callback) {
       return child(parent, domain, callback);
     };
@@ -117,7 +128,7 @@
       if (!args.length) args = [null];
       else if (err == null) args[0] = null;
       else {
-        if (err && err.code === SIGSTOP) return;
+        if (err && err instanceof StopSig) return;
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return;
           err = null; // if onerror return true then continue
@@ -175,7 +186,7 @@
       return run();
 
       function run(err, res) {
-        if (err && err.code === SIGSTOP) return callback(err);
+        if (err && err instanceof StopSig) return callback(err);
         var ret = err == null ? gen.next(res) : gen.throw(err);
         if (ret.done) return runThunk(ctx, ret.value, callback);
         if (--tickDepth) return runThunk(ctx, ret.value, next, true, true);

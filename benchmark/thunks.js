@@ -14,8 +14,8 @@ module.exports = function(len, syncMode) {
     };
   } else { // 模拟异步任务
     task = function(x, callback) {
-      setImmediate(function() {
-        return thunk(function(callback) {
+      return thunk(function(callback) {
+        setImmediate(function() {
           callback(null, x);
         });
       });

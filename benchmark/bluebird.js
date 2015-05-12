@@ -14,8 +14,8 @@ module.exports = function(len, syncMode) {
     };
   } else { // 模拟异步任务
     task = function(x) {
-      setImmediate(function() {
-        return new Bluebird(function(resolve, reject) {
+      return new Bluebird(function(resolve, reject) {
+        setImmediate(function() {
           resolve(x);
         });
       });

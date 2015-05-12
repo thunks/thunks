@@ -13,7 +13,9 @@ module.exports = function(len, syncMode) {
   } else { // 模拟异步任务
     task = function(x) {
       return new Promise(function(resolve, reject) {
-        resolve(x);
+        setImmediate(function() {
+          resolve(x);
+        });
       });
     };
   }

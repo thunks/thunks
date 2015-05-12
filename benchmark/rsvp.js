@@ -14,8 +14,8 @@ module.exports = function(len, syncMode) {
     };
   } else { // 模拟异步任务
     task = function(x, callback) {
-      setImmediate(function() {
-        return new RSVP.Promise(function(resolve, reject) {
+      return new RSVP.Promise(function(resolve, reject) {
+        setImmediate(function() {
           resolve(x);
         });
       });
