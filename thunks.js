@@ -23,7 +23,7 @@
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick;
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = 'v3.0.2';
+  thunks.VERSION = '3.0.3';
   return thunks;
 
   function thunks(options) {
@@ -80,7 +80,7 @@
     };
 
     thunk.stop = function(message) {
-      throw new StopSig(message);
+      throw new SigStop(message);
     };
 
     function Domain(ctx) {
@@ -95,7 +95,7 @@
     this.callback = callback;
   }
 
-  function StopSig(message) {
+  function SigStop(message) {
     this.status = 19;
     this.code = 'SIGSTOP';
     this.message = String(message || 'thunk stoped');
@@ -128,7 +128,7 @@
       if (!args.length) args = [null];
       else if (err == null) args[0] = null;
       else {
-        if (err && err instanceof StopSig) return;
+        if (err instanceof SigStop) return;
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return;
           err = null; // if onerror return true then continue
@@ -186,7 +186,7 @@
       return run();
 
       function run(err, res) {
-        if (err && err instanceof StopSig) return callback(err);
+        if (err instanceof SigStop) return callback(err);
         var ret = err == null ? gen.next(res) : gen.throw(err);
         if (ret.done) return runThunk(ctx, ret.value, callback);
         if (--tickDepth) return runThunk(ctx, ret.value, next, true, true);
@@ -290,11 +290,8 @@
     return isFunction(obj.next) && isFunction(obj.throw);
   }
 
-  function isGeneratorFunction(obj) {
-    var constr = obj.constructor;
-    if (!constr) return false;
-    if (constr.name === 'GeneratorFunction' || constr.displayName === 'GeneratorFunction') return true;
-    return isGenerator(constr.prototype);
+  function isGeneratorFunction(fn) {
+    return fn.constructor.name === 'GeneratorFunction';
   }
 
   function noOp(err) {
