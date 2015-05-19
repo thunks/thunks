@@ -40,7 +40,7 @@
 
     thunk.all = function(obj) {
       if (arguments.length > 1) obj = slice(arguments);
-      return thunk.call(this, objectToThunk(obj));
+      return thunk.call(this, objectToThunk(obj, true));
     };
 
     thunk.seq = function(array) {
@@ -69,6 +69,16 @@
         return thunk.call(ctx || this, function(callback) {
           args.push(callback);
           return apply(this, fn, args);
+        });
+      };
+    };
+
+    thunk.upgrade = function(fn) {
+      var ctx = this === thunk ? null : this;
+      return function() {
+        return thunk.call(ctx || this, objectToThunk(slice(arguments), false))(function(err, res) {
+          if (err != null) throw err;
+          return apply(this, fn, res);
         });
       };
     };
@@ -176,7 +186,7 @@
     if (isGenerator(obj)) return generatorToThunk(obj);
     if (isFunction(obj.toThunk)) return obj.toThunk();
     if (isFunction(obj.then)) return promiseToThunk(obj);
-    if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj);
+    if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj, false);
     return obj;
   }
 
@@ -206,7 +216,7 @@
     };
   }
 
-  function objectToThunk(obj) {
+  function objectToThunk(obj, thunkObj) {
     return function(callback) {
       var result, pending = 1, finished = false, ctx = this;
       if (isArray(obj)) {
@@ -231,7 +241,7 @@
           }
           result[index] = arguments.length > 2 ? slice(arguments, 1) : res;
           return --pending || callback(null, result);
-        }, true, true);
+        }, thunkObj, true);
       }
     };
   }

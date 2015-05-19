@@ -3,8 +3,8 @@
 
 /*jshint -W124*/
 
-var should = require('should'),
-  thunks = require('../thunks.js');
+var should = require('should');
+var thunks = require('../thunks.js');
 
 module.exports = function(done) {
   var thunk = thunks();

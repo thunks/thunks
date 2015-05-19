@@ -2,10 +2,10 @@
 /*global describe, it, before, after, beforeEach, afterEach, Promise, noneFn*/
 
 /*jshint -W083*/
-var should = require('should'),
-  thunks = require('../thunks.js'),
-  thenjs = require('thenjs'),
-  x = {};
+var should = require('should');
+var thenjs = require('thenjs');
+var thunks = require('../thunks.js');
+var x = {};
 
 describe('thunks', function() {
 
@@ -705,6 +705,43 @@ describe('thunks', function() {
         should(value3).be.equal(x);
         should(this).be.equal(x);
       })(done);
+    });
+  });
+
+  describe('thunk.upgrade()', function() {
+    function test(a, b) {
+      return a === b;
+    }
+
+    it('thunk.upgrade()', function(done) {
+      var thunk = thunks();
+      var testT = thunk.upgrade(test);
+
+      testT(1, thunk(1))(function(error, value) {
+        should(value).be.equal(true);
+        return testT(x, thunk(function(callback) {
+          setTimeout(function() {
+            callback(null, x);
+          });
+        }));
+      })(function(error, value) {
+        should(value).be.equal(true);
+        return testT(1, thunk(2));
+      })(function(error, value) {
+        should(value).be.equal(false);
+        return thunk.upgrade(function(a, b, c, d) {
+          should(a).be.equal(1);
+          should(b).be.equal('a');
+          should(c).be.equal(x);
+          should(d).be.eql([1, 2, 3]);
+          return 'OK';
+        })(thunk(1), thunk('a'), thunk(x), thunk([1, 2, 3]));
+      })(function(error, value) {
+        should(value).be.equal('OK');
+      })(done);
+    });
+
+    it.skip('thunk.upgrade.call()', function(done) {
     });
   });
 

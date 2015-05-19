@@ -411,6 +411,36 @@ run(2)(function(error, result) {
 });
 ```
 
+### thunk.upgrade(fn)
+
+Returns a new function that accept `thunkable` arguments, the new function return a child thunk function
+
+Transform a `fn` function into a new function.
+This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`.
+
+```js
+var thunk = require('../thunks.js')();
+
+function calculator(a, b, c) {
+  return (a + b + c) * 10;
+}
+
+var calculatorT = thunk.upgrade(calculator);
+
+var value1 = thunk(2);
+var value2 = Promise.resolve(3);
+
+calculatorT(value1, value2, 5)(function(error, result) {
+  console.log(result); // 100
+});
+```
+
+You may also write code with `this`:
+
+```js
+var calculatorT = thunk.upgrade.call(context, calculator);
+```
+
 ### thunk.delay(delay)
 
 Return a child thunk function, this child thunk function will be called after `delay` milliseconds.
