@@ -411,7 +411,7 @@ run(2)(function(error, result) {
 });
 ```
 
-### thunk.upgrade(fn)
+### thunk.lift(fn)
 
 Returns a new function that accept `thunkable` arguments, the new function return a child thunk function
 
@@ -425,7 +425,7 @@ function calculator(a, b, c) {
   return (a + b + c) * 10;
 }
 
-var calculatorT = thunk.upgrade(calculator);
+var calculatorT = thunk.lift(calculator);
 
 var value1 = thunk(2);
 var value2 = Promise.resolve(3);
@@ -438,7 +438,7 @@ calculatorT(value1, value2, 5)(function(error, result) {
 You may also write code with `this`:
 
 ```js
-var calculatorT = thunk.upgrade.call(context, calculator);
+var calculatorT = thunk.lift.call(context, calculator);
 ```
 
 ### thunk.delay(delay)

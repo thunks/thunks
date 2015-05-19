@@ -708,14 +708,14 @@ describe('thunks', function() {
     });
   });
 
-  describe('thunk.upgrade()', function() {
+  describe('thunk.lift()', function() {
     function test(a, b) {
       return a === b;
     }
 
-    it('thunk.upgrade()', function(done) {
+    it('thunk.lift()', function(done) {
       var thunk = thunks();
-      var testT = thunk.upgrade(test);
+      var testT = thunk.lift(test);
 
       testT(1, thunk(1))(function(error, value) {
         should(value).be.equal(true);
@@ -729,7 +729,7 @@ describe('thunks', function() {
         return testT(1, thunk(2));
       })(function(error, value) {
         should(value).be.equal(false);
-        return thunk.upgrade(function(a, b, c, d) {
+        return thunk.lift(function(a, b, c, d) {
           should(a).be.equal(1);
           should(b).be.equal('a');
           should(c).be.equal(x);
@@ -741,7 +741,7 @@ describe('thunks', function() {
       })(done);
     });
 
-    it.skip('thunk.upgrade.call()', function(done) {
+    it.skip('thunk.lift.call()', function(done) {
     });
   });
 

@@ -73,7 +73,7 @@
       };
     };
 
-    thunk.upgrade = function(fn) {
+    thunk.lift = function(fn) {
       var ctx = this === thunk ? null : this;
       return function() {
         return thunk.call(ctx || this, objectToThunk(slice(arguments), false))(function(err, res) {
