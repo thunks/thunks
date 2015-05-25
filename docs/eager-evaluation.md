@@ -93,7 +93,7 @@ exports.updateIssue = function*(issueObj) {
   return res;
 };
 ```
-这是从用户社区系统的 DAO 操作模块抽取的一段，我添加了一些注释。它是用 [Toa](https://github.com/toajs/toa) 构建的系统(开发中)。
+这是从用户社区系统的 DAO 操作模块抽取的一段，我添加了一些注释。它是用 [Toa](https://github.com/toajs/toa) 构建的系统。
 
 这只是一个相对简单的场景。采用 thunk API，我们可以按照逻辑获取一个一个异步任务的 thunk，按顺序推入任务队列，中间若有出错可以直接退出。当一切准备好，我们才真正开始执行这个异步任务队列。
 

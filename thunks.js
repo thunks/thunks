@@ -23,7 +23,7 @@
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick;
 
   thunks.NAME = 'thunks';
-  thunks.VERSION = '3.0.3';
+  thunks.VERSION = '3.1.2';
   return thunks;
 
   function thunks(options) {
@@ -186,7 +186,7 @@
     if (isGenerator(obj)) return generatorToThunk(obj);
     if (isFunction(obj.toThunk)) return obj.toThunk();
     if (isFunction(obj.then)) return promiseToThunk(obj);
-    if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj, false);
+    if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj, thunkObj);
     return obj;
   }
 
