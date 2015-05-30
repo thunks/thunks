@@ -5,6 +5,7 @@ A small and magical async control flow tool, wrap promise, generator and anythin
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Talk topic][talk-image]][talk-url]
+[![js-standard-style][js-standard-image]][js-standard-url]
 
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
@@ -28,9 +29,9 @@ And a mountain of applications in server-side or client-side.
 
 1. **`thunk`** is a function that encapsulates synchronous or asynchronous code inside.
 
-2. **`thunk`** accepts only one `callback` function as an arguments, which is a CPS function;
+2. **`thunk`** accepts only one `callback` function as an arguments, which is a CPS function.
 
-3. **`thunk`** returns another **`thunk`** function after being called, for chaining operations;
+3. **`thunk`** returns another **`thunk`** function after being called, for chaining operations.
 
 4. **`thunk`** would passing the results into a `callback` function after excuted.
 
@@ -40,54 +41,65 @@ or it would be send to another new **`thunk`** function as the value of the comp
 ## Demo
 
 ```js
-var thunk = require('../thunks.js')();
-var fs = require('fs');
+var thunk = require('../thunks.js')()
+var fs = require('fs')
 
-var size = thunk.thunkify(fs.stat);
+var size = thunk.thunkify(fs.stat)
 
-// sequential
-size('.gitignore')(function(error, res) {
-  console.log(error, res);
-  return size('thunks.js');
+// generator
+thunk(function *() {
 
-})(function(error, res) {
-  console.log(error, res);
-  return size('package.json');
+  // sequential
+  console.log(yield size('.gitignore'))
+  console.log(yield size('thunks.js'))
+  console.log(yield size('package.json'))
 
-})(function(error, res) {
-  console.log(error, res);
-})
-
-// parallel
-thunk.all([size('.gitignore'), size('thunks.js'), size('package.json')])(function(error, res) {
-  console.log(error, res);
-})
-
-// sequential
-thunk.seq([size('.gitignore'), size('thunks.js'), size('package.json')])(function(error, res) {
-  console.log(error, res);
-})
+})(function *(error, res) {
+  //parallel
+  console.log(yield [
+    size('.gitignore'),
+    size('thunks.js'),
+    size('package.json')
+  ])
+})()
 ```
 
 ```js
-var thunk = require('../thunks.js')();
-var fs = require('fs');
+var thunk = require('../thunks.js')()
+var fs = require('fs')
 
-var size = thunk.thunkify(fs.stat);
+var size = thunk.thunkify(fs.stat)
 
+// sequential
+size('.gitignore')(function (error, res) {
+  console.log(error, res)
+  return size('thunks.js')
 
-// generator
-thunk(function*() {
+})(function (error, res) {
+  console.log(error, res)
+  return size('package.json')
 
-  // sequential
-  console.log(yield size('.gitignore'));
-  console.log(yield size('thunks.js'));
-  console.log(yield size('package.json'));
+})(function (error, res) {
+  console.log(error, res)
+})
 
-})(function*(error, res) {
-  //parallel
-  console.log(yield [size('.gitignore'), size('thunks.js'), size('package.json')]);
-})();
+// parallel
+thunk.all([
+  size('.gitignore'),
+  size('thunks.js'),
+  size('package.json')
+])(function (error, res) {
+  console.log(error, res)
+})
+
+// sequential
+thunk.seq([
+  size('.gitignore'),
+  size('thunks.js'),
+  size('package.json')
+])(function (error, res) {
+  console.log(error, res)
+})
 ```
 
 ## Installation
@@ -109,7 +121,7 @@ thunk(function*() {
 ## API
 
 ```js
-var thunks = require('thunks');
+var thunks = require('thunks')
 ```
 
 ### thunks([options])
@@ -120,14 +132,14 @@ Matrix of `thunk`, it generates a `thunk` generator function with it's scope.
 1. Here's how you create a basic `thunk`, any exceptions would be passed the next child thunk function:
 
   ```js
-  var thunk = thunks();
+  var thunk = thunks()
   ```
 
 2. Here's the way to create a `thunk` listening to all exceptions in current scope with `onerror`,
 and it will make sure the exeptions not being passed to the followed child thunk function, unless `onerror` function return `true`.
 
   ```js
-  var thunk = thunks(function(error) { console.error(error); });
+  var thunk = thunks(function (error) { console.error(error) })
   ```
 
 3. Create a `thunk` with `onerror` and `debug` listeners.
@@ -135,9 +147,9 @@ Results of this `thunk` would be passed to `debug` function first before passing
 
   ```js
   var thunk = thunks({
-    onerror: function(error) { console.error(error); },
-    debug: function() { console.log.apply(console, arguments); }
-  });
+    onerror: function (error) { console.error(error) },
+    debug: function () { console.log.apply(console, arguments) }
+  })
   ```
 
 Even multiple `thunk` main functions with diferent scope are composed,
@@ -153,82 +165,82 @@ The parameter `start` could be:
 1. a child thunk function, by calling this function a new child thunk function will be returned
 
   ```js
-  var thunk1 = thunk(1);
-  var thunk2 = thunk(thunk1); // thunk2 equals to thunk1;
+  var thunk1 = thunk(1)
+  var thunk2 = thunk(thunk1) // thunk2 equals to thunk1
   ```
 
 2. `function(callback) {}`, by calling it, results woule be gathered and be passed to the next child thunk function
 
   ```js
-  thunk(function(callback) {
+  thunk(function (callback) {
     callback(null, 1)
-  })(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  })(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
 3. a Promise object, results of Promise would be passed to a new child thunk function
 
   ```js
-  var promise = Promise.resolve(1);
+  var promise = Promise.resolve(1)
 
-  thunk(promise)(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  thunk(promise)(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
 4. objects which implements methods of `toThunk`
 
   ```js
-  var then = Thenjs(1); // then.toThunk() return a thunk function
+  var then = Thenjs(1) // then.toThunk() return a thunk function
 
-  thunk(then)(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  thunk(then)(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
 5. Generator and Generator Function, like `co`, and `yield` anything
 
   ```js
-  thunk(function*() {
-    var x = yield 10;
-    return 2 * x;
-  })(function*(error, res) {
-    console.log(error, res); // null, 20
+  thunk(function *() {
+    var x = yield 10
+    return 2 * x
+  })(function *(error, res) {
+    console.log(error, res) // null, 20
 
-    return yield [1, 2, thunk(3)];
-  })(function*(error, res) {
-    console.log(error, res); // null, [1, 2, 3]
+    return yield [1, 2, thunk(3)]
+  })(function *(error, res) {
+    console.log(error, res) // null, [1, 2, 3]
     return yield {
       name: 'test',
       value: thunk(1)
-    };
-  })(function(error, res) {
-    console.log(error, res); // null, {name: 'test', value: 1}
-  });
+    }
+  })(function (error, res) {
+    console.log(error, res) // null, {name: 'test', value: 1}
+  })
   ```
 
 6. values in other types would be valid results passing to a new child thunk function
 
   ```js
-  thunk(1)(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  thunk(1)(function (error, value) {
+    console.log(error, value) // null 1
+  })
 
-  thunk([1, 2, 3])(function(error, value) {
-    console.log(error, value); // null [1, 2, 3]
-  });
+  thunk([1, 2, 3])(function (error, value) {
+    console.log(error, value) // null [1, 2, 3]
+  })
   ```
 
 You can also run with `this`:
 
   ```js
-  thunk.call({x: 123}, 456)(function(error, value) {
-    console.log(error, this.x, value); // null 123 456
-    return 'thunk!';
-  })(function(error, value) {
-    console.log(error, this.x, value); // null 123 'thunk!'
-  });
+  thunk.call({x: 123}, 456)(function (error, value) {
+    console.log(error, this.x, value) // null 123 456
+    return 'thunk!'
+  })(function (error, value) {
+    console.log(error, this.x, value) // null 123 'thunk!'
+  })
   ```
 
 ### thunk.all(obj)
@@ -241,32 +253,32 @@ Returns a child thunk function.
 ```js
 thunk.all([
   thunk(0),
-  function*() { return yield 1; },
+  function *() { return yield 1 },
   2,
-  thunk(function(callback) { callback(null, [3]); })
-])(function(error, value) {
-  console.log(error, value); // null [0, 1, 2, [3]]
-});
+  thunk(function (callback) { callback(null, [3]) })
+])(function (error, value) {
+  console.log(error, value) // null [0, 1, 2, [3]]
+})
 
 thunk.all({
   a: thunk(0),
   b: thunk(1),
   c: 2,
-  d: thunk(function(callback) { callback(null, [3]); })
-})(function(error, value) {
-  console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
-});
+  d: thunk(function (callback) { callback(null, [3]) })
+})(function (error, value) {
+  console.log(error, value) // null {a: 0, b: 1, c: 2, d: [3]}
+})
 ```
 
 You may also write code like this:
 
 ```js
-thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
-  return 'thunk!';
-})(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
-});
+thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!'
+})(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] 'thunk!'
+})
 ```
 
 ### thunk.seq([thunk1, ..., thunkX])
@@ -278,56 +290,56 @@ Returns a child thunk function.
 
 ```js
 thunk.seq([
-  function(callback) {
-    setTimeout(function() {
-      callback(null, 'a', 'b');
-    }, 100);
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b')
+    }, 100)
   },
-  thunk(function(callback) {
-    callback(null, 'c');
+  thunk(function (callback) {
+    callback(null, 'c')
   }),
-  [thunk('d'), function*() { return yield 'e'; }], // thunk in array will be excuted in parallel
-  function(callback) {
-    should(flag).be.eql([true, true]);
-    flag[2] = true;
-    callback(null, 'f');
+  [thunk('d'), function *() { return yield 'e' }], // thunk in array will be excuted in parallel
+  function (callback) {
+    should(flag).be.eql([true, true])
+    flag[2] = true
+    callback(null, 'f')
   }
-])(function(error, value) {
-  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
-});
+])(function (error, value) {
+  console.log(error, value) // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+})
 ```
 or
 
 ```js
 thunk.seq(
-  function(callback) {
-    setTimeout(function() {
-      callback(null, 'a', 'b');
-    }, 100);
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b')
+    }, 100)
   },
-  thunk(function(callback) {
-    callback(null, 'c');
+  thunk(function (callback) {
+    callback(null, 'c')
   }),
   [thunk('d'), thunk('e')], // thunk in array will be excuted in parallel
-  function(callback) {
-    should(flag).be.eql([true, true]);
-    flag[2] = true;
-    callback(null, 'f');
+  function (callback) {
+    should(flag).be.eql([true, true])
+    flag[2] = true
+    callback(null, 'f')
   }
-)(function(error, value) {
-  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
-});
+)(function (error, value) {
+  console.log(error, value) // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+})
 ```
 
 You may also write code like this:
 
 ```js
-thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
-  return 'thunk!';
-})(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
-});
+thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!'
+})(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] 'thunk!'
+})
 ```
 
 ### thunk.race([thunk1, ..., thunkX])
@@ -344,32 +356,32 @@ This child thunk function retuslts in `(error, val1, val2, ...)`, which is just 
 like:
 
 ```js
-thunk(function(callback) {
-  callback(error, val1, val2, ...);
+thunk(function (callback) {
+  callback(error, val1, val2, ...)
 })
 ```
 
 One use case:
 
 ```js
-thunk(function(callback) {
+thunk(function (callback) {
   //...
-  callback(error, result);
-})(function(error, value) {
+  callback(error, result)
+})(function (error, value) {
   //...
-  return thunk.digest(error, value);
-})(function(error, value) {
+  return thunk.digest(error, value)
+})(function (error, value) {
   //...
-});
+})
 ```
 
 You may also write code with `this`：
 
 ```js
-var a = {x: 1};
-thunk.digest.call(a, null, 1, 2)(function(error, value1, value2) {
+var a = {x: 1}
+thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
   console.log(this, error, value1, value2) // { x: 1 } null 1 2
-});
+})
 ```
 
 ### thunk.thunkify(fn)
@@ -380,35 +392,35 @@ Transform a `fn` function which is in Node.js style into a new function.
 This new function does not accept `callback` as arguments, but accepts child thunk functions.
 
 ```js
-var thunk = require('../thunks.js')();
-var fs = require('fs');
-var fsStat = thunk.thunkify(fs.stat);
+var thunk = require('../thunks.js')()
+var fs = require('fs')
+var fsStat = thunk.thunkify(fs.stat)
 
-fsStat('thunks.js')(function(error, result) {
-  console.log('thunks.js: ', result);
-});
-fsStat('.gitignore')(function(error, result) {
-  console.log('.gitignore: ', result);
-});
+fsStat('thunks.js')(function (error, result) {
+  console.log('thunks.js: ', result)
+})
+fsStat('.gitignore')(function (error, result) {
+  console.log('.gitignore: ', result)
+})
 ```
 
 You may also write code with `this`:
 
 ```js
-var obj = {a: 8};
-function run(x, callback) {
+var obj = {a: 8}
+function run (x, callback) {
   //...
-  callback(null, this.a * x);
-};
+  callback(null, this.a * x)
+}
 
-var run = thunk.thunkify.call(obj, run);
+var run = thunk.thunkify.call(obj, run)
 
-run(1)(function(error, result) {
-  console.log('run 1: ', result);
-});
-run(2)(function(error, result) {
-  console.log('run 2: ', result);
-});
+run(1)(function (error, result) {
+  console.log('run 1: ', result)
+})
+run(2)(function (error, result) {
+  console.log('run 2: ', result)
+})
 ```
 
 ### thunk.lift(fn)
@@ -419,26 +431,26 @@ Transform a `fn` function into a new function.
 This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`.
 
 ```js
-var thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')()
 
-function calculator(a, b, c) {
-  return (a + b + c) * 10;
+function calculator (a, b, c) {
+  return (a + b + c) * 10
 }
 
-var calculatorT = thunk.lift(calculator);
+var calculatorT = thunk.lift(calculator)
 
-var value1 = thunk(2);
-var value2 = Promise.resolve(3);
+var value1 = thunk(2)
+var value2 = Promise.resolve(3)
 
-calculatorT(value1, value2, 5)(function(error, result) {
-  console.log(result); // 100
-});
+calculatorT(value1, value2, 5)(function (error, result) {
+  console.log(result) // 100
+})
 ```
 
 You may also write code with `this`:
 
 ```js
-var calculatorT = thunk.lift.call(context, calculator);
+var calculatorT = thunk.lift.call(context, calculator)
 ```
 
 ### thunk.delay(delay)
@@ -446,22 +458,22 @@ var calculatorT = thunk.lift.call(context, calculator);
 Return a child thunk function, this child thunk function will be called after `delay` milliseconds.
 
 ```js
-console.log('thunk.delay 500: ', Date.now());
-thunk.delay(500)(function() {
-  console.log('thunk.delay 1000: ', Date.now());
-  return thunk.delay(1000);
-})(function() {
-  console.log('thunk.delay end: ', Date.now());
-});
+console.log('thunk.delay 500: ', Date.now())
+thunk.delay(500)(function () {
+  console.log('thunk.delay 1000: ', Date.now())
+  return thunk.delay(1000)
+})(function () {
+  console.log('thunk.delay end: ', Date.now())
+})
 ```
 
 You may also write code with `this`:
 
 ```js
-console.log('thunk.delay start: ', Date.now());
-thunk.delay.call(this, 1000)(function() {
-  console.log('thunk.delay end: ', Date.now());
-});
+console.log('thunk.delay start: ', Date.now())
+thunk.delay.call(this, 1000)(function () {
+  console.log('thunk.delay end: ', Date.now())
+})
 ```
 
 ### thunk.stop([messagge])
@@ -471,34 +483,34 @@ Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP)
 
 ```js
 var thunk = require('thunks')({
-  debug: function(res) {
-    if (res) console.log(res); // { [Error: Stop now!] code: {}, status: 19 }
+  debug: function (res) {
+    if (res) console.log(res) // { [Error: Stop now!] code: {}, status: 19 }
   }
-});
+})
 
-thunk(function(callback) {
-  thunk.stop('Stop now!');
-  console.log('It will not be run!');
-})(function(error, value) {
-  console.log('It will not be run!');
-});
+thunk(function (callback) {
+  thunk.stop('Stop now!')
+  console.log('It will not be run!')
+})(function (error, value) {
+  console.log('It will not be run!')
+})
 ```
 
 ```js
-thunk.delay(100)(function() {
-  console.log('Hello');
-  return thunk.delay(100)(function() {
-    thunk.stop('Stop now!');
-    console.log('It will not be run!');
-  });
-})(function(error, value) {
-  console.log('It will not be run!');
-});
+thunk.delay(100)(function () {
+  console.log('Hello')
+  return thunk.delay(100)(function () {
+    thunk.stop('Stop now!')
+    console.log('It will not be run!')
+  })
+})(function (error, value) {
+  console.log('It will not be run!')
+})
 ```
 
 ## Who's using
 
-+ Teambition community: https://bbs.teambition.com/ use in server-side and client-side
++ Teambition community: https://www.teambition.com/ use in server-side and client-side
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg
@@ -508,3 +520,6 @@ thunk.delay(100)(function() {
 
 [talk-url]: https://guest.talk.ai/rooms/d1ccbf802n
 [talk-image]: https://img.shields.io/talk/t/d1ccbf802n.svg
+
+[js-standard-url]: https://github.com/feross/standard
+[js-standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat

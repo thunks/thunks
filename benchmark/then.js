@@ -1,47 +1,47 @@
-'use strict';
+'use strict'
 /*global */
 
-var Thenjs = require('thenjs');
+var Thenjs = require('thenjs')
 
-module.exports = function(len, syncMode) {
-  var task, list = [], tasks = [];
+module.exports = function (len, syncMode) {
+  var task, list = [], tasks = []
 
   if (syncMode) { // 模拟同步任务
-    task = function(x, callback) {
-      callback(null, x);
-    };
+    task = function (x, callback) {
+      callback(null, x)
+    }
   } else { // 模拟异步任务
-    task = function(x, callback) {
-      setImmediate(function() {
-        callback(null, x);
-      });
-    };
+    task = function (x, callback) {
+      setImmediate(function () {
+        callback(null, x)
+      })
+    }
   }
 
-  function toThunk(fn, x) {
-    return function(done) {
-      fn(x, done);
-    };
+  function toThunk (fn, x) {
+    return function (done) {
+      fn(x, done)
+    }
   }
 
   // 构造任务队列
   for (var i = 0; i < len; i++) {
-    list[i] = i;
-    tasks[i] = task;
+    list[i] = i
+    tasks[i] = task
   }
 
-  return function(callback) {
+  return function (callback) {
     // Thenjs 测试主体
-    Thenjs.each(list, function(cont, i) { // 并行 list 队列
-      task(i, cont);
+    Thenjs.each(list, function (cont, i) { // 并行 list 队列
+      task(i, cont)
     })
-    .eachSeries(list, function(cont, i) { // 串行 list 队列
-      task(i, cont);
-    })
-    .parallel(tasks.map(toThunk)) // 并行 tasks 队列
-    .series(tasks.map(toThunk)) // 串行 tasks 队列
-    .fin(function(cont, error) {
-      callback(error);
-    });
-  };
-};
+      .eachSeries(list, function (cont, i) { // 串行 list 队列
+        task(i, cont)
+      })
+      .parallel(tasks.map(toThunk)) // 并行 tasks 队列
+      .series(tasks.map(toThunk)) // 串行 tasks 队列
+      .fin(function (cont, error) {
+        callback(error)
+      })
+  }
+}

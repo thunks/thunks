@@ -1,29 +1,29 @@
-'use strict';
+'use strict'
 /*global console*/
 
-var thunk = require('../thunks.js')();
-var fs = require('fs');
-var fsStat = thunk.thunkify(fs.stat);
+var thunk = require('../thunks.js')()
+var fs = require('fs')
+var fsStat = thunk.thunkify(fs.stat)
 
-fsStat('thunks.js')(function(error, result) {
-  console.log('thunks.js: ', result);
-});
-fsStat('.gitignore')(function(error, result) {
-  console.log('.gitignore: ', result);
-});
+fsStat('thunks.js')(function (error, result) {
+  console.log('thunks.js: ', result, error)
+})
+fsStat('.gitignore')(function (error, result) {
+  console.log('.gitignore: ', result, error)
+})
 
-var obj = {a: 8};
+var obj = {a: 8}
 
-function run(x, callback) {
-	//...
-	callback(null, this.a * x);
+function run (x, callback) {
+  // ...
+  callback(null, this.a * x)
 }
 
-var run = thunk.thunkify.call(obj, run);
+var run = thunk.thunkify.call(obj, run)
 
-run(1)(function(error, result) {
-  console.log('run 1: ', result);
-});
-run(2)(function(error, result) {
-  console.log('run 2: ', result);
-});
+run(1)(function (error, result) {
+  console.log('run 1: ', result, error)
+})
+run(2)(function (error, result) {
+  console.log('run 2: ', result, error)
+})

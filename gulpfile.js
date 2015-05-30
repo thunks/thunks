@@ -1,21 +1,14 @@
-'use strict';
+'use strict'
 
 var gulp = require('gulp'),
   gulpSequence = require('gulp-sequence'),
-  jshint = require('gulp-jshint'),
-  mocha = require('gulp-mocha');
-
-gulp.task('jshint', function () {
-  return gulp.src(['thunks.js', 'gulpfile.js', 'examples/*.js', 'test/*.js', 'benchmark/*.js'])
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'));
-});
+  mocha = require('gulp-mocha')
 
 gulp.task('mocha', function () {
   return gulp.src('test/index.js', {read: false})
-    .pipe(mocha({timeout: 20000}));
-});
+    .pipe(mocha({timeout: 20000}))
+})
 
-gulp.task('default', ['test']);
+gulp.task('default', ['test'])
 
-gulp.task('test', gulpSequence('jshint', 'mocha'));
+gulp.task('test', gulpSequence('mocha'))

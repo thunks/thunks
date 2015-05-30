@@ -5,6 +5,7 @@ A small and magical async control flow tool, wrap promise, generator and anythin
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Talk topic][talk-image]][talk-url]
+[![js-standard-style][js-standard-image]][js-standard-url]
 
 ## [Toa](https://github.com/toajs/toa): A powerful web framework rely on thunks.
 
@@ -29,54 +30,65 @@ ES3+, support node.js and all browsers.
 ## Demo
 
 ```js
-var thunk = require('../thunks.js')();
-var fs = require('fs');
+var thunk = require('../thunks.js')()
+var fs = require('fs')
 
-var size = thunk.thunkify(fs.stat);
+var size = thunk.thunkify(fs.stat)
 
-// sequential
-size('.gitignore')(function(error, res) {
-  console.log(error, res);
-  return size('thunks.js');
+// generator
+thunk(function *() {
 
-})(function(error, res) {
-  console.log(error, res);
-  return size('package.json');
+  // sequential
+  console.log(yield size('.gitignore'))
+  console.log(yield size('thunks.js'))
+  console.log(yield size('package.json'))
 
-})(function(error, res) {
-  console.log(error, res);
-})
-
-// parallel
-thunk.all([size('.gitignore'), size('thunks.js'), size('package.json')])(function(error, res) {
-  console.log(error, res);
-})
-
-// sequential
-thunk.seq([size('.gitignore'), size('thunks.js'), size('package.json')])(function(error, res) {
-  console.log(error, res);
-})
+})(function *(error, res) {
+  //parallel
+  console.log(yield [
+    size('.gitignore'),
+    size('thunks.js'),
+    size('package.json')
+  ])
+})()
 ```
 
 ```js
-var thunk = require('../thunks.js')();
-var fs = require('fs');
+var thunk = require('../thunks.js')()
+var fs = require('fs')
 
-var size = thunk.thunkify(fs.stat);
+var size = thunk.thunkify(fs.stat)
 
+// sequential
+size('.gitignore')(function (error, res) {
+  console.log(error, res)
+  return size('thunks.js')
 
-// generator
-thunk(function*() {
+})(function (error, res) {
+  console.log(error, res)
+  return size('package.json')
 
-  // sequential
-  console.log(yield size('.gitignore'));
-  console.log(yield size('thunks.js'));
-  console.log(yield size('package.json'));
+})(function (error, res) {
+  console.log(error, res)
+})
 
-})(function*(error, res) {
-  //parallel
-  console.log(yield [size('.gitignore'), size('thunks.js'), size('package.json')]);
-})();
+// parallel
+thunk.all([
+  size('.gitignore'),
+  size('thunks.js'),
+  size('package.json')
+])(function (error, res) {
+  console.log(error, res)
+})
+
+// sequential
+thunk.seq([
+  size('.gitignore'),
+  size('thunks.js'),
+  size('package.json')
+])(function (error, res) {
+  console.log(error, res)
+})
 ```
 
 ## Install
@@ -102,7 +114,7 @@ bower install thunks
 ## API
 
 ```js
-var thunks = require('thunks');
+var thunks = require('thunks')
 ```
 
 ### thunks([options])
@@ -112,22 +124,22 @@ var thunks = require('thunks');
 1. 生成基本形式的 `thunk`，任何异常会输入到下一个子 thunk 函数：
 
   ```js
-  var thunk = thunks();
+  var thunk = thunks()
   ```
 
 2. 生成有 `onerror` 监听的 `thunk`，该 `thunk` 作用域内的任何异常都可被 `onerror` 捕捉，而不会进入下一个 子 thunk 函数，除非 `onerror` 返回 `true`：
 
   ```js
-  var thunk = thunks(function(error) { console.error(error); });
+  var thunk = thunks(function(error) { console.error(error) })
   ```
 
 3. 生成有 `onerror` 监听和 `debug` 监听的 `thunk`，`onerror` 同上，该 `thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个子 thunk 函数：
 
   ```js
   var thunk = thunks({
-    onerror: function(error) { console.error(error); },
-    debug: function() { console.log.apply(console, arguments); }
-  });
+    onerror: function(error) { console.error(error) },
+    debug: function() { console.log.apply(console, arguments) }
+  })
   ```
 
 拥有不同作用域的多个 `thunk` 生成器组合成复杂逻辑体时，各自的作用域仍然相互隔离，也就是说 `onerror` 监听和 `debug` 监听不会在其它作用域运行。
@@ -141,82 +153,82 @@ var thunks = require('thunks');
 1. 子 thunk 函数，执行该函数，结果进入新的子 thunk 函数
 
   ```js
-  var thunk1 = thunk(1);
-  var thunk2 = thunk(thunk1); // thunk2 等效于 thunk1;
+  var thunk1 = thunk(1)
+  var thunk2 = thunk(thunk1) // thunk2 等效于 thunk1
   ```
 
 2. function(callback) {}，执行该函数，callback收集结果进入新的子 thunk 函数
 
   ```js
-  thunk(function(callback) {
+  thunk(function (callback) {
     callback(null, 1)
-  })(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  })(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
 3. promise，promise的结果进入新的子 thunk 函数
 
   ```js
-  var promise = Promise.resolve(1);
+  var promise = Promise.resolve(1)
 
-  thunk(promise)(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  thunk(promise)(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
 4. 自带 `toThunk` 方法的对象
 
   ```js
-  var then = Thenjs(1); // then.toThunk() 能转换成 thunk 形式的函数，也能用于 `co`
+  var then = Thenjs(1) // then.toThunk() 能转换成 thunk 形式的函数，也能用于 `co`
 
-  thunk(then)(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  thunk(then)(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
 5. Generator 或 Generator Function, 与 `co` 类似，但更进一步，可以 `yield` 任何值，可以形成链式调用
 
   ```js
-  thunk(function*() {
-    var x = yield 10;
-    return 2 * x;
-  })(function*(error, res) {
-    console.log(error, res); // null, 20
+  thunk(function *() {
+    var x = yield 10
+    return 2 * x
+  })(function *(error, res) {
+    console.log(error, res) // null, 20
 
-    return yield [1, 2, thunk(3)];
-  })(function*(error, res) {
-    console.log(error, res); // null, [1, 2, 3]
+    return yield [1, 2, thunk(3)]
+  })(function *(error, res) {
+    console.log(error, res) // null, [1, 2, 3]
     return yield {
       name: 'test',
       value: thunk(1)
-    };
-  })(function(error, res) {
-    console.log(error, res); // null, {name: 'test', value: 1}
-  });
+    }
+  })(function (error, res) {
+    console.log(error, res) // null, {name: 'test', value: 1}
+  })
   ```
 
 6. 其它值，当作有效结果进入新的子 thunk 函数
 
   ```js
-  thunk(1)(function(error, value) {
-    console.log(error, value); // null 1
-  });
+  thunk(1)(function (error, value) {
+    console.log(error, value) // null 1
+  })
 
-  thunk([1, 2, 3])(function(error, value) {
-    console.log(error, value); // null [1, 2, 3]
-  });
+  thunk([1, 2, 3])(function (error, value) {
+    console.log(error, value) // null [1, 2, 3]
+  })
   ```
 
 还可以这样运行(this)：
 
 ```js
-thunk.call({x: 123}, 456)(function(error, value) {
-  console.log(error, this.x, value); // null 123 456
-  return 'thunk!';
-})(function(error, value) {
-  console.log(error, this.x, value); // null 123 'thunk!'
-});
+thunk.call({x: 123}, 456)(function (error, value) {
+  console.log(error, this.x, value) // null 123 456
+  return 'thunk!'
+})(function (error, value) {
+  console.log(error, this.x, value) // null 123 'thunk!'
+})
 ```
 
 
@@ -232,10 +244,10 @@ thunk.all([
   thunk(0),
   thunk(1),
   2,
-  thunk(function(callback) { callback(null, [3]); })
-])(function(error, value) {
-  console.log(error, value); // null [0, 1, 2, [3]]
-});
+  thunk(function (callback) { callback(null, [3]) })
+])(function (error, value) {
+  console.log(error, value) // null [0, 1, 2, [3]]
+})
 ```
 
 ```js
@@ -243,21 +255,21 @@ thunk.all({
   a: thunk(0),
   b: thunk(1),
   c: 2,
-  d: thunk(function(callback) { callback(null, [3]); })
-})(function(error, value) {
-  console.log(error, value); // null {a: 0, b: 1, c: 2, d: [3]}
-});
+  d: thunk(function (callback) { callback(null, [3]) })
+})(function (error, value) {
+  console.log(error, value) // null {a: 0, b: 1, c: 2, d: [3]}
+})
 ```
 
 还可以这样运行(this)：
 
 ```js
-thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
-  return 'thunk!';
-})(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
-});
+thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!'
+})(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] 'thunk!'
+})
 ```
 
 ### thunk.seq([thunk1, ..., thunkX])
@@ -269,56 +281,56 @@ thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function(error, value) {
 
 ```js
 thunk.seq([
-  function(callback) {
-    setTimeout(function() {
-      callback(null, 'a', 'b');
-    }, 100);
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b')
+    }, 100)
   },
-  thunk(function(callback) {
-    callback(null, 'c');
+  thunk(function (callback) {
+    callback(null, 'c')
   }),
   [thunk('d'), thunk('e')], // thunk in array will be excuted in parallel
-  function(callback) {
-    should(flag).be.eql([true, true]);
-    flag[2] = true;
-    callback(null, 'f');
+  function (callback) {
+    should(flag).be.eql([true, true])
+    flag[2] = true
+    callback(null, 'f')
   }
-])(function(error, value) {
-  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
-});
+])(function (error, value) {
+  console.log(error, value) // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+})
 ```
 or
 
 ```js
 thunk.seq(
-  function(callback) {
-    setTimeout(function() {
-      callback(null, 'a', 'b');
-    }, 100);
+  function (callback) {
+    setTimeout(function () {
+      callback(null, 'a', 'b')
+    }, 100)
   },
-  thunk(function(callback) {
-    callback(null, 'c');
+  thunk(function (callback) {
+    callback(null, 'c')
   }),
   [thunk('d'), thunk('e')], // thunk in array will be excuted in parallel
-  function(callback) {
-    should(flag).be.eql([true, true]);
-    flag[2] = true;
-    callback(null, 'f');
+  function (callback) {
+    should(flag).be.eql([true, true])
+    flag[2] = true
+    callback(null, 'f')
   }
-)(function(error, value) {
-  console.log(error, value); // null [['a', 'b'], 'c', ['d', 'e'], 'f']
-});
+)(function (error, value) {
+  console.log(error, value) // null [['a', 'b'], 'c', ['d', 'e'], 'f']
+})
 ```
 
 还可以这样运行(this)：
 
 ```js
-thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] [4, 5, 6]
-  return 'thunk!';
-})(function(error, value) {
-  console.log(error, this.x, value); // null [1, 2, 3] 'thunk!'
-});
+thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] [4, 5, 6]
+  return 'thunk!'
+})(function (error, value) {
+  console.log(error, this.x, value) // null [1, 2, 3] 'thunk!'
+})
 ```
 
 ### thunk.race([thunk1, ..., thunkX])
@@ -333,32 +345,32 @@ thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function(error, value) {
 将 nodejs callback 风格的输入值转换成一个新的子 thunk 函数，该子 thunk 函数的结果值为 `(error, val1, val2, ...)`，即直接将 `digest` 的参数传入到新的子 thunk 函数，相当于：
 
 ```js
-thunk(function(callback) {
-  callback(error, val1, val2, ...);
+thunk(function (callback) {
+  callback(error, val1, val2, ...)
 })
 ```
 
 使用场景：
 
 ```js
-thunk(function(callback) {
+thunk(function (callback) {
   //...
-  callback(error, result);
-})(function(error, value) {
+  callback(error, result)
+})(function (error, value) {
   //...
-  return thunk.digest(error, value);
-})(function(error, value) {
+  return thunk.digest(error, value)
+})(function (error, value) {
   //...
-});
+})
 ```
 
 还可以这样运行(this)：
 
 ```js
-var a = {x: 1};
-thunk.digest.call(a, null, 1, 2)(function(error, value1, value2) {
+var a = {x: 1}
+thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
   console.log(this, error, value1, value2) // { x: 1 } null 1 2
-});
+})
 ```
 
 ### thunk.thunkify(fn)
@@ -368,35 +380,35 @@ thunk.digest.call(a, null, 1, 2)(function(error, value1, value2) {
 将带 callback 参数的 nodejs 风格的函数 `fn` 转换成一个新的函数，新函数不再接收 `callback`，其输出为子 thunk 函数。
 
 ```js
-var thunk = require('../thunks.js')();
-var fs = require('fs');
-var fsStat = thunk.thunkify(fs.stat);
+var thunk = require('../thunks.js')()
+var fs = require('fs')
+var fsStat = thunk.thunkify(fs.stat)
 
-fsStat('thunks.js')(function(error, result) {
-  console.log('thunks.js: ', result);
-});
-fsStat('.gitignore')(function(error, result) {
-  console.log('.gitignore: ', result);
-});
+fsStat('thunks.js')(function (error, result) {
+  console.log('thunks.js: ', result)
+})
+fsStat('.gitignore')(function (error, result) {
+  console.log('.gitignore: ', result)
+})
 ```
 
 还可以这样运行(this)：
 
 ```js
-var obj = {a: 8};
-function run(x, callback) {
+var obj = {a: 8}
+function run (x, callback) {
   //...
-  callback(null, this.a * x);
-};
+  callback(null, this.a * x)
+}
 
-var run = thunk.thunkify.call(obj, run);
+var run = thunk.thunkify.call(obj, run)
 
-run(1)(function(error, result) {
-  console.log('run 1: ', result);
-});
-run(2)(function(error, result) {
-  console.log('run 2: ', result);
-});
+run(1)(function (error, result) {
+  console.log('run 1: ', result)
+})
+run(2)(function (error, result) {
+  console.log('run 2: ', result)
+})
 ```
 
 ### thunk.lift(fn)
@@ -407,26 +419,26 @@ Transform a `fn` function into a new function.
 This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`.
 
 ```js
-var thunk = require('../thunks.js')();
+var thunk = require('../thunks.js')()
 
-function calculator(a, b, c) {
-  return (a + b + c) * 10;
+function calculator (a, b, c) {
+  return (a + b + c) * 10
 }
 
-var calculatorT = thunk.lift(calculator);
+var calculatorT = thunk.lift(calculator)
 
-var value1 = thunk(2);
-var value2 = Promise.resolve(3);
+var value1 = thunk(2)
+var value2 = Promise.resolve(3)
 
-calculatorT(value1, value2, 5)(function(error, result) {
-  console.log(result); // 100
-});
+calculatorT(value1, value2, 5)(function (error, result) {
+  console.log(result) // 100
+})
 ```
 
 You may also write code with `this`:
 
 ```js
-var calculatorT = thunk.lift.call(context, calculator);
+var calculatorT = thunk.lift.call(context, calculator)
 ```
 
 ### thunk.delay(delay)
@@ -434,22 +446,22 @@ var calculatorT = thunk.lift.call(context, calculator);
 返回一个新的子 thunk 函数，该子 thunk 函数的主体将会在 `delay` 毫秒之后运行。
 
 ```js
-console.log('thunk.delay 500: ', Date.now());
-thunk.delay(500)(function() {
-  console.log('thunk.delay 1000: ', Date.now());
-  return thunk.delay(1000);
-})(function() {
-  console.log('thunk.delay end: ', Date.now());
-});
+console.log('thunk.delay 500: ', Date.now())
+thunk.delay(500)(function () {
+  console.log('thunk.delay 1000: ', Date.now())
+  return thunk.delay(1000)
+})(function () {
+  console.log('thunk.delay end: ', Date.now())
+})
 ```
 
 还可以这样运行(this)：
 
 ```js
-console.log('thunk.delay start: ', Date.now());
-thunk.delay.call(this, 1000)(function() {
-  console.log('thunk.delay end: ', Date.now());
-});
+console.log('thunk.delay start: ', Date.now())
+thunk.delay.call(this, 1000)(function () {
+  console.log('thunk.delay end: ', Date.now())
+})
 ```
 
 ### thunk.stop([messagge])
@@ -461,29 +473,29 @@ thunk.delay.call(this, 1000)(function() {
 
 ```js
 var thunk = require('thunks')({
-  debug: function(res) {
-    if (res) console.log(res); // { [Error: Stop now!] code: {}, status: 19 }
+  debug: function (res) {
+    if (res) console.log(res) // { [Error: Stop now!] code: {}, status: 19 }
   }
-});
+})
 
-thunk(function(callback) {
-  thunk.stop('Stop now!');
-  console.log('It will not be run!');
-})(function(error, value) {
-  console.log('It will not be run!');
-});
+thunk(function (callback) {
+  thunk.stop('Stop now!')
+  console.log('It will not be run!')
+})(function (error, value) {
+  console.log('It will not be run!')
+})
 ```
 
 ```js
-thunk.delay(100)(function() {
-  console.log('Hello');
-  return thunk.delay(100)(function() {
-    thunk.stop('Stop now!');
-    console.log('It will not be run!');
-  });
-})(function(error, value) {
-  console.log('It will not be run!');
-});
+thunk.delay(100)(function () {
+  console.log('Hello')
+  return thunk.delay(100)(function () {
+    thunk.stop('Stop now!')
+    console.log('It will not be run!')
+  })
+})(function (error, value) {
+  console.log('It will not be run!')
+})
 ```
 
 ## Who's using
@@ -498,3 +510,6 @@ thunk.delay(100)(function() {
 
 [talk-url]: https://guest.talk.ai/rooms/d1ccbf802n
 [talk-image]: https://img.shields.io/talk/t/d1ccbf802n.svg
+
+[js-standard-url]: https://github.com/feross/standard
+[js-standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat
