@@ -13,7 +13,7 @@ gulp.task('test', function (done) {
       gulp.src('test/index.js')
         .pipe(mocha({timeout: 60000}))
         .pipe(istanbul.writeReports()) // Creating the reports after tests runned
-        .pipe(istanbul.enforceThresholds({thresholds: {global: 90}})) // Enforce a coverage of at least 90%
+        .pipe(istanbul.enforceThresholds({thresholds: {global: 85}})) // Enforce a coverage of at least 85%
     )
 })
 

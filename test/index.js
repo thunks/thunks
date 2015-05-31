@@ -870,9 +870,11 @@ describe('thunks', function () {
       while (i--) {
         thunkFn = thunkFn(function (err, res) {
           if (err != null) throw err
-          return thunk.delay()(function () {
-            return ++res
-          })
+          return function (callback) {
+            setImmediate(function () {
+              callback(null, ++res)
+            })
+          }
         })
       }
       thunkFn(function (err, res) {
