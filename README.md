@@ -4,8 +4,10 @@ A small and magical async control flow tool, wrap promise, generator and anythin
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
-[![Talk topic][talk-image]][talk-url]
 [![js-standard-style][js-standard-image]][js-standard-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
+[![Downloads][downloads-image]][downloads-url]
+[![Talk topic][talk-image]][talk-url]
 
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
@@ -510,13 +512,19 @@ thunk.delay(100)(function () {
 
 ## Who's using
 
-+ Teambition community: https://www.teambition.com/ use in server-side and client-side
++ Teambition: https://www.teambition.com/ use in server-side and client-side
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg
 
 [travis-url]: https://travis-ci.org/thunks/thunks
 [travis-image]: http://img.shields.io/travis/thunks/thunks.svg
+
+[coveralls-url]: https://coveralls.io/r/thunks/thunks
+[coveralls-image]: https://coveralls.io/repos/thunks/thunks/badge.svg
+
+[downloads-url]: https://npmjs.org/package/thunks
+[downloads-image]: http://img.shields.io/npm/dm/thunks.svg?style=flat-square
 
 [talk-url]: https://guest.talk.ai/rooms/d1ccbf802n
 [talk-image]: https://img.shields.io/talk/t/d1ccbf802n.svg

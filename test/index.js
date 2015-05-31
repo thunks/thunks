@@ -304,6 +304,20 @@ describe('thunks', function () {
         should(this).be.equal(x)
       })(done)
     })
+
+    it('thunk() lazy evaluation', function (done) {
+      var thunk = thunks()
+      var called = 0
+      var lazy = thunk(function (callback) {
+        called += 1
+        callback()
+      })
+
+      should(called).be.equal(0)
+      lazy()
+      should(called).be.equal(1)
+      done()
+    })
   })
 
   describe('thunk.all()', function () {
@@ -428,6 +442,8 @@ describe('thunks', function () {
           c: 3,
           d: 4,
           e: [5]
+        }, function (callback) {
+          callback(null, 6, 7, 8)
         })
       })(function (error, value) {
         should(error).be.equal(null)
@@ -437,7 +453,7 @@ describe('thunks', function () {
           c: 3,
           d: 4,
           e: [5]
-        }])
+        }, [6, 7, 8]])
       })(done)
     })
 
@@ -528,7 +544,10 @@ describe('thunks', function () {
         })(function (error, value) {
           should(error).be.equal(null)
           should(value).be.eql([1])
-          return thunk(x)
+          return thunk.seq()
+        })(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.eql([])
         })
       })(done)
     })
@@ -753,6 +772,16 @@ describe('thunks', function () {
         should(this.x).be.equal(x)
       })(done)
     })
+
+    it('thunk.lift() with error', function (done) {
+      var thunk = thunks()
+      var testT = thunk.lift(test)
+      testT(thunk(1), function (callback) { throw new Error('some error') })(function (error, value) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error')
+        should(value).be.equal(undefined)
+      })(done)
+    })
   })
 
   describe('thunk.delay()', function () {
@@ -815,21 +844,10 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk(Generator)', function () {
-    try { // 检测是否支持 generator，是则加载 generator 测试
-      var check = new Function('return function*(){}') // eslint-disable-line
-      it('thunk(Generator)', function (done) {
-        require('./generator.js')(done)
-      })
-    } catch (e) {
-      console.log('Not support generator!')
-    }
-  })
+  describe('extremely control flow (100000)', function () {
+    var extreme = 100000
 
-  describe('extremely control flow (1000000)', function () {
-    var extreme = 1000000
-
-    it('extremely chain', function (done) {
+    it('extremely sync chain', function (done) {
       var thunk = thunks()
       var i = extreme
       var thunkFn = thunk(0)
@@ -837,6 +855,24 @@ describe('thunks', function () {
         thunkFn = thunkFn(function (err, res) {
           if (err != null) throw err
           return thunk(++res)
+        })
+      }
+      thunkFn(function (err, res) {
+        should(err).be.equal(null)
+        should(res).be.equal(extreme)
+      })(done)
+    })
+
+    it('extremely async chain', function (done) {
+      var thunk = thunks()
+      var i = extreme
+      var thunkFn = thunk(0)
+      while (i--) {
+        thunkFn = thunkFn(function (err, res) {
+          if (err != null) throw err
+          return thunk.delay()(function () {
+            return ++res
+          })
         })
       }
       thunkFn(function (err, res) {
@@ -869,4 +905,11 @@ describe('thunks', function () {
       })(done)
     })
   })
+
+  try { // 检测是否支持 generator，是则加载 generator 测试
+    var check = new Function('return function*(){}') // eslint-disable-line
+    require('./generator.js')
+  } catch (e) {
+    console.log('Not support generator!')
+  }
 })

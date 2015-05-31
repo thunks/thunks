@@ -4,12 +4,13 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "3.2.0",
+  "version": "3.3.0",
   "main": "thunks.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:thunks/thunks.git"
   },
+  "license": "MIT",
   "homepage": "https://github.com/thunks/thunks",
   "keywords": [
     "async",
@@ -24,22 +25,23 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "gulp": "^3.8.11",
-    "gulp-mocha": "^2.0.1",
-    "gulp-sequence": "^0.3.2",
-    "jsbench": "^0.5.1",
-    "mocha": "^2.2.4",
-    "should": "^6.0.1",
-    "thenjs": ">=1.5.0",
     "async": ">=0.9.0",
     "bluebird": ">=2.9.25",
     "co": ">=4.5.4",
+    "gulp": "^3.8.11",
+    "gulp-istanbul": "^0.9.0",
+    "gulp-mocha": "^2.0.1",
+    "jsbench": "^0.5.1",
+    "merge2": "^0.3.5",
+    "mocha": "^2.2.4",
     "rsvp": ">=3.0.18",
+    "should": "^6.0.1",
     "standard": "^4.0.0",
+    "thenjs": ">=1.5.0",
     "when": ">=3.7.3"
   },
   "scripts": {
-    "test": "standard && gulp test"
+    "test": "standard && node --harmony `which gulp` test"
   },
   "ignore": [
     "**/.*",

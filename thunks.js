@@ -5,7 +5,7 @@
 /* global module, define, setImmediate */
 ;(function (root, factory) {
   'use strict'
-
+  /* istanbul ignore next */
   if (typeof module === 'object' && module.exports) module.exports = factory()
   else if (typeof define === 'function' && define.amd) define([], factory)
   else root.thunks = factory()
@@ -14,16 +14,16 @@
 
   var maxTickDepth = 100
   var toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty
-  var isArray = Array.isArray || function (obj) {
+  var isArray = Array.isArray || /* istanbul ignore next */ function (obj) {
       return toString.call(obj) === '[object Array]'
     }
-  var nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
+  var nextTick = typeof setImmediate === 'function' ? setImmediate : /* istanbul ignore next */ function (fn) {
     setTimeout(fn, 0)
   }
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.2.0'
+  thunks.VERSION = '3.3.0'
   return thunks
 
   function thunks (options) {
@@ -157,7 +157,8 @@
       if (current.result[0] != null) {
         nextTick(function () {
           if (!current.result) return
-          if (scope.onerror && scope.onerror.call(null, current.result[0]) !== true) return
+          if (scope.onerror) return scope.onerror.call(null, current.result[0])
+          /* istanbul ignore next */
           noOp(current.result[0])
         })
       }
@@ -166,7 +167,7 @@
 
   function runThunk (ctx, value, callback, thunkObj, noTryRun) {
     var thunk = toThunk(value, thunkObj)
-    if (!isFunction(thunk)) return thunk == null ? callback(null) : callback(null, thunk)
+    if (!isFunction(thunk)) return thunk === void 0 ? callback(null) : callback(null, thunk)
     if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx))
     if (noTryRun) return thunk.call(ctx, callback)
     var err = tryRun(ctx, thunk, [callback])[0]
@@ -201,7 +202,7 @@
         if (err instanceof SigStop) return callback(err)
         var ret = err == null ? gen.next(res) : gen.throw(err)
         if (ret.done) return runThunk(ctx, ret.value, callback)
-        if (--tickDepth) return runThunk(ctx, ret.value, next, true, true)
+        if (--tickDepth) return runThunk(ctx, ret.value, next, true)
         return nextTick(function () {
           tickDepth = maxTickDepth
           return runThunk(ctx, ret.value, next, true)
@@ -286,7 +287,6 @@
   function apply (ctx, fn, args) {
     if (args.length === 2) return fn.call(ctx, args[0], args[1])
     if (args.length === 1) return fn.call(ctx, args[0])
-    if (args.length === 0) return fn.call(ctx)
     return fn.apply(ctx, args)
   }
 
@@ -308,6 +308,7 @@
 
   function noOp (err) {
     if (err == null) return
+    /* istanbul ignore next */
     nextTick(function () {
       throw err
     })

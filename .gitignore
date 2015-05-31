@@ -1,5 +1,6 @@
 node_modules/
 debug/
+coverage/
 test.js
 
 npm-debug.log

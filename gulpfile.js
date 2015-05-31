@@ -1,14 +1,20 @@
 'use strict'
 
-var gulp = require('gulp'),
-  gulpSequence = require('gulp-sequence'),
-  mocha = require('gulp-mocha')
+var gulp = require('gulp')
+var merge = require('merge2')
+var mocha = require('gulp-mocha')
+var istanbul = require('gulp-istanbul')
 
-gulp.task('mocha', function () {
-  return gulp.src('test/index.js', {read: false})
-    .pipe(mocha({timeout: 20000}))
+gulp.task('test', function (done) {
+  return merge(
+      gulp.src('thunks.js')
+        .pipe(istanbul()) // Covering files
+        .pipe(istanbul.hookRequire()), // Force `require` to return covered files
+      gulp.src('test/index.js')
+        .pipe(mocha({timeout: 60000}))
+        .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+        .pipe(istanbul.enforceThresholds({thresholds: {global: 90}})) // Enforce a coverage of at least 90%
+    )
 })
 
 gulp.task('default', ['test'])
-
-gulp.task('test', gulpSequence('mocha'))
