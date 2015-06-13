@@ -2,7 +2,8 @@
 /*global console*/
 
 var thunk = require('../thunks.js')()
-var result = [], thunkFn = thunk(1)
+var result = []
+var thunkFn = thunk(1)
 
 function callback (error, value) {
   if (error != null) throw error

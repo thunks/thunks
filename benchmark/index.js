@@ -1,10 +1,10 @@
 'use strict'
 /*global console, Promise*/
 
-var JSBench = require('jsbench'),
-  len = 1000, // 任务队列长度
-  cycles = 1000, // 每个测试体运行次数
-  syncMode = false // 用同步任务测试
+var JSBench = require('jsbench')
+var len = 1000 // 任务队列长度
+var cycles = 1000 // 每个测试体运行次数
+var syncMode = false // 用同步任务测试
 
 var jsbench = new JSBench()
 

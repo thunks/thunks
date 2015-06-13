@@ -4,7 +4,9 @@
 var When = require('when')
 
 module.exports = function (len, syncMode) {
-  var task, list = [], tasks = []
+  var task
+  var list = []
+  var tasks = []
 
   if (syncMode) { // 模拟同步任务
     task = function (x) {

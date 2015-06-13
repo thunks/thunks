@@ -13,24 +13,28 @@
   'use strict'
 
   var maxTickDepth = 100
-  var toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty
-  var isArray = Array.isArray || /* istanbul ignore next */ function (obj) {
+  var toString = Object.prototype.toString
+  var hasOwnProperty = Object.prototype.hasOwnProperty
+  /* istanbul ignore next */
+  var isArray = Array.isArray || function (obj) {
       return toString.call(obj) === '[object Array]'
     }
-  var nextTick = typeof setImmediate === 'function' ? setImmediate : /* istanbul ignore next */ function (fn) {
+  /* istanbul ignore next */
+  var nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
     setTimeout(fn, 0)
   }
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.3.0'
+  thunks.VERSION = '3.4.0'
   return thunks
 
   function thunks (options) {
-    var scope = {onerror: null, debug: null}
+    var scope = {onerror: null, debug: null, onstop: null}
     if (isFunction(options)) scope.onerror = options
     else if (options) {
       if (isFunction(options.debug)) scope.debug = options.debug
+      if (isFunction(options.onstop)) scope.onstop = options.onstop
       if (isFunction(options.onerror)) scope.onerror = options.onerror
     }
 
@@ -127,7 +131,9 @@
   }
 
   function continuation (parent, domain, tickDepth) {
-    var current = parent.next, scope = domain.scope, result = parent.result
+    var current = parent.next
+    var scope = domain.scope
+    var result = parent.result
     return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback)
 
     function callback (err) {
@@ -138,7 +144,7 @@
       if (!args.length) args = [null]
       else if (err == null) args[0] = null
       else {
-        if (err instanceof SigStop) return
+        if (err instanceof SigStop) return scope.onstop && scope.onstop(err)
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return
           err = null // if onerror return true then continue
@@ -195,7 +201,8 @@
 
   function generatorToThunk (gen) {
     return function (callback) {
-      var tickDepth = maxTickDepth, ctx = this
+      var ctx = this
+      var tickDepth = maxTickDepth
       return run()
 
       function run (err, res) {
@@ -221,7 +228,11 @@
 
   function objectToThunk (obj, thunkObj) {
     return function (callback) {
-      var result, pending = 1, finished = false, ctx = this
+      var ctx = this
+      var result
+      var pending = 1
+      var finished = false
+
       if (isArray(obj)) {
         result = Array(obj.length)
         for (var i = 0, l = obj.length; i < l; i++) next(obj[i], i)
@@ -251,7 +262,11 @@
 
   function sequenceToThunk (array) {
     return function (callback) {
-      var i = 0, end = array.length - 1, tickDepth = maxTickDepth, result = Array(array.length), ctx = this
+      var ctx = this
+      var i = 0
+      var end = array.length - 1
+      var tickDepth = maxTickDepth
+      var result = Array(array.length)
       return end < 0 ? callback(null, result) : runThunk(ctx, array[0], next, true)
 
       function next (err, res) {
@@ -277,9 +292,11 @@
 
   // fast slice for `arguments`.
   function slice (args, start) {
+    var len = args.length
     start = start || 0
-    if (start >= args.length) return []
-    var len = args.length, ret = Array(len - start)
+    if (start >= len) return []
+
+    var ret = Array(len - start)
     while (len-- > start) ret[len - start] = args[len]
     return ret
   }

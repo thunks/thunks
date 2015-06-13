@@ -75,6 +75,26 @@ describe('thunks', function () {
       })
     })
 
+    it('thunks({onstop: onstop})', function (done) {
+      var thunk = thunks({
+        onstop: function (msg) {
+          should(msg).not.be.instanceOf(Error)
+          should(msg.status).be.equal(19)
+          should(msg.code).be.equal('SIGSTOP')
+          should(msg.message).be.equal('stop')
+          done()
+        }
+      })
+      thunk(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        thunk.stop('stop')
+        should('It will not be run!').be.equal(true)
+      })(function () {
+        should('It will not be run!').be.equal(true)
+      })
+    })
+
     it('thunks({debug: debug})', function (done) {
       var _debug = null
       var thunk = thunks({
@@ -571,7 +591,8 @@ describe('thunks', function () {
 
   describe('thunk.race()', function () {
     it('thunk.race()', function (done) {
-      var thunk = thunks(), finish = 0
+      var thunk = thunks()
+      var finish = 0
       thunk.race(1, 2, 3, 4, 5)(function (error, value) {
         should(finish).be.equal(0)
         should(error).be.equal(null)
