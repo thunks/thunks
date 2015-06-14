@@ -25,10 +25,6 @@
   }
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick
 
-  thunks.NAME = 'thunks'
-  thunks.VERSION = '3.4.0'
-  return thunks
-
   function thunks (options) {
     var scope = {onerror: null, debug: null, onstop: null}
     if (isFunction(options)) scope.onerror = options
@@ -110,10 +106,10 @@
   }
 
   function SigStop (message) {
-    this.status = 19
-    this.code = 'SIGSTOP'
-    this.message = String(message || 'thunk stoped')
+    this.message = String(message == null ? 'process stopped' : message)
   }
+  SigStop.prototype.status = 19
+  SigStop.prototype.code = 'SIGSTOP'
 
   function childThunk (parent, domain) {
     parent.next = new Link(null, null)
@@ -330,4 +326,8 @@
       throw err
     })
   }
+
+  thunks.NAME = 'thunks'
+  thunks.VERSION = '3.4.1'
+  return thunks
 }))

@@ -144,11 +144,12 @@ and it will make sure the exeptions not being passed to the followed child thunk
   var thunk = thunks(function (error) { console.error(error) })
   ```
 
-3. Create a `thunk` with `onerror` and `debug` listeners.
+3. Create a `thunk` with `onerror`, `onstop` and `debug` listeners.
 Results of this `thunk` would be passed to `debug` function first before passing to the followed child thunk function.
 
   ```js
   var thunk = thunks({
+    onstop: function (sig) { console.log(sig) },
     onerror: function (error) { console.error(error) },
     debug: function () { console.log.apply(console, arguments) }
   })
@@ -156,7 +157,7 @@ Results of this `thunk` would be passed to `debug` function first before passing
 
 Even multiple `thunk` main functions with diferent scope are composed,
 each scope would be seperated from each other,
-which means, `onerror` and `debug` would not run in other scopes.
+which means, `onerror`, `onstop` and `debug` would not run in other scopes.
 
 ### thunk(start)
 
@@ -171,7 +172,7 @@ The parameter `start` could be:
   var thunk2 = thunk(thunk1) // thunk2 equals to thunk1
   ```
 
-2. `function(callback) {}`, by calling it, results woule be gathered and be passed to the next child thunk function
+2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next child thunk function
 
   ```js
   thunk(function (callback) {
@@ -427,10 +428,8 @@ run(2)(function (error, result) {
 
 ### thunk.lift(fn)
 
-Returns a new function that accept `thunkable` arguments, the new function return a child thunk function
-
-Transform a `fn` function into a new function.
-This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`.
+`lift` comes from Haskell, it transform a sync function `fn` into a new async  function.
+This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`. The new function return a child thunk function.
 
 ```js
 var thunk = require('../thunks.js')()
@@ -480,8 +479,8 @@ thunk.delay.call(this, 1000)(function () {
 
 ### thunk.stop([messagge])
 
-This will stop thunk function control flow with a message similar to Promise's cancelable(not implement yet). It will throw a stop signal object.
-Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code, stop signal can be caught by `debug`.
+This will stop control flow process with a message similar to Promise's cancelable(not implement yet). It will throw a stop signal object.
+Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code, stop signal can be caught by `onstop`.
 
 ```js
 var thunk = require('thunks')({

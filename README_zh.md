@@ -132,15 +132,16 @@ var thunks = require('thunks')
 2. 生成有 `onerror` 监听的 `thunk`，该 `thunk` 作用域内的任何异常都可被 `onerror` 捕捉，而不会进入下一个 子 thunk 函数，除非 `onerror` 返回 `true`：
 
   ```js
-  var thunk = thunks(function(error) { console.error(error) })
+  var thunk = thunks(function (error) { console.error(error) })
   ```
 
-3. 生成有 `onerror` 监听和 `debug` 监听的 `thunk`，`onerror` 同上，该 `thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个子 thunk 函数：
+3. 生成有 `onerror` 监听，`onstop` 监听和 `debug` 监听的 `thunk`，`onerror` 同上，该 `thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个子 thunk 函数：
 
   ```js
   var thunk = thunks({
-    onerror: function(error) { console.error(error) },
-    debug: function() { console.log.apply(console, arguments) }
+    onstop: function (sig) { console.log(sig) },
+    onerror: function (error) { console.error(error) },
+    debug: function () { console.log.apply(console, arguments) }
   })
   ```
 
@@ -159,7 +160,7 @@ var thunks = require('thunks')
   var thunk2 = thunk(thunk1) // thunk2 等效于 thunk1
   ```
 
-2. function(callback) {}，执行该函数，callback收集结果进入新的子 thunk 函数
+2. function (callback) {}，执行该函数，callback收集结果进入新的子 thunk 函数
 
   ```js
   thunk(function (callback) {
@@ -415,10 +416,7 @@ run(2)(function (error, result) {
 
 ### thunk.lift(fn)
 
-Returns a new function that accept `thunkable` arguments, the new function return a child thunk function
-
-Transform a `fn` function into a new function.
-This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`.
+`lift` 概念来自于 Haskell，它将一个同步函数转化成一个异步函数。该异步函数接受 `thunkable` 参数，等所有参数求得真实值后，再按照原函数逻辑运行。该异步函数返回子 thunk 函数。
 
 ```js
 var thunk = require('../thunks.js')()
@@ -469,7 +467,7 @@ thunk.delay.call(this, 1000)(function () {
 ### thunk.stop([messagge])
 
 终止 `thunk` 函数组合体的运行，类似于 `Promise` 的 `cancelable`(ES6 没有定义，原生 Promise 也未实现)。运行 `thunk.stop` 将抛出一个终止信号对象。
-终止信号能被作用域的 `debug` 捕获。
+终止信号能被作用域的 `onstop` 捕获。
 
 终止信号拥有 `message`、特殊的 `code` 和 `status === 19`（POSIX signal SIGSTOP）。
 
