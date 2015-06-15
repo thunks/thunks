@@ -192,6 +192,29 @@ describe('thunk with generator', function () {
     done()
   })
 
+  it('stop thunk with onstop', function (done) {
+    var thunk = thunks({
+      onstop: function (sig) {
+        should(sig.message).be.equal('generator')
+        done()
+      }
+    })
+    var thunk2 = thunks()
+
+    thunk2.delay(100)(function *() {
+      try {
+        yield function *() {
+          thunk.stop('generator')
+          should('It will not be run!').be.equal(true)
+        }
+      } catch (e) {
+        should('It will not be run!').be.equal(true)
+      }
+    })(function () {
+      should('It will not be run!').be.equal(true)
+    })
+  })
+
   it('extremely yield (100000)', function (done) {
     var thunk = thunks()
     thunk(function *() {

@@ -466,8 +466,7 @@ thunk.delay.call(this, 1000)(function () {
 
 ### thunk.stop([messagge])
 
-终止 `thunk` 函数组合体的运行，类似于 `Promise` 的 `cancelable`(ES6 没有定义，原生 Promise 也未实现)。运行 `thunk.stop` 将抛出一个终止信号对象。
-终止信号能被作用域的 `onstop` 捕获。
+终止 `thunk` 函数组合体的运行，类似于 `Promise` 的 `cancelable`(ES6 没有定义，原生 Promise 也未实现)。运行 `thunk.stop` 将抛出一个终止信号对象。终止信号能被作用域的 `onstop` 捕获，但也能被 `try catch` 捕获并屏蔽。
 
 终止信号拥有 `message`、特殊的 `code` 和 `status === 19`（POSIX signal SIGSTOP）。
 

@@ -77,11 +77,11 @@ describe('thunks', function () {
 
     it('thunks({onstop: onstop})', function (done) {
       var thunk = thunks({
-        onstop: function (msg) {
-          should(msg).not.be.instanceOf(Error)
-          should(msg.status).be.equal(19)
-          should(msg.code).be.equal('SIGSTOP')
-          should(msg.message).be.equal('stop')
+        onstop: function (sig) {
+          should(sig).not.be.instanceOf(Error)
+          should(sig.status).be.equal(19)
+          should(sig.code).be.equal('SIGSTOP')
+          should(sig.message).be.equal('stop')
           done()
         }
       })
@@ -89,6 +89,24 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(x)
         thunk.stop('stop')
+        should('It will not be run!').be.equal(true)
+      })(function () {
+        should('It will not be run!').be.equal(true)
+      })
+    })
+
+    it('thunks({onstop: onstop}) in nested', function (done) {
+      var thunk = thunks({
+        onstop: function (sig) {
+          should(sig.message).be.equal('nested')
+          done()
+        }
+      })
+      var thunk2 = thunks()
+      thunk2(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        thunk.stop('nested')
         should('It will not be run!').be.equal(true)
       })(function () {
         should('It will not be run!').be.equal(true)

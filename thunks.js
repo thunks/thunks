@@ -90,7 +90,11 @@
     }
 
     thunk.stop = function (message) {
-      throw new SigStop(message)
+      var sig = new SigStop(message)
+      nextTick(function () {
+        return scope.onstop && scope.onstop(sig)
+      })
+      throw sig
     }
 
     function Domain (ctx) {
@@ -140,7 +144,7 @@
       if (!args.length) args = [null]
       else if (err == null) args[0] = null
       else {
-        if (err instanceof SigStop) return scope.onstop && scope.onstop(err)
+        if (err instanceof SigStop) return
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return
           err = null // if onerror return true then continue
@@ -328,6 +332,6 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.4.1'
+  thunks.VERSION = '3.4.2'
   return thunks
 }))

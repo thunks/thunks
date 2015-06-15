@@ -480,7 +480,7 @@ thunk.delay.call(this, 1000)(function () {
 ### thunk.stop([messagge])
 
 This will stop control flow process with a message similar to Promise's cancelable(not implement yet). It will throw a stop signal object.
-Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code, stop signal can be caught by `onstop`.
+Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code. Stop signal can be caught by `onstop`, and aslo can be caught by `try catch`, in this case it will not trigger `onstop`.
 
 ```js
 var thunk = require('thunks')({
