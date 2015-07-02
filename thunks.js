@@ -12,6 +12,7 @@
 }(typeof window === 'object' ? window : this, function () {
   'use strict'
 
+  var undef = void 0
   var maxTickDepth = 100
   var toString = Object.prototype.toString
   var hasOwnProperty = Object.prototype.hasOwnProperty
@@ -26,12 +27,10 @@
   if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick
 
   function thunks (options) {
-    var scope = {onerror: null, debug: null, onstop: null}
-    if (isFunction(options)) scope.onerror = options
-    else if (options) {
-      if (isFunction(options.debug)) scope.debug = options.debug
-      if (isFunction(options.onstop)) scope.onstop = options.onstop
-      if (isFunction(options.onerror)) scope.onerror = options.onerror
+    var scope = Domain.prototype.scope = new Scope(options)
+
+    function Domain (ctx) {
+      this.ctx = ctx
     }
 
     function thunk (start) {
@@ -97,11 +96,17 @@
       throw sig
     }
 
-    function Domain (ctx) {
-      this.ctx = ctx
-    }
-    Domain.prototype.scope = scope
     return thunk
+  }
+
+  function Scope (options) {
+    this.onerror = this.onstop = this.debug = null
+    if (isFunction(options)) this.onerror = options
+    else if (options) {
+      if (isFunction(options.onerror)) this.onerror = options.onerror
+      if (isFunction(options.onstop)) this.onstop = options.onstop
+      if (isFunction(options.debug)) this.debug = options.debug
+    }
   }
 
   function Link (result, callback) {
@@ -173,7 +178,7 @@
 
   function runThunk (ctx, value, callback, thunkObj, noTryRun) {
     var thunk = toThunk(value, thunkObj)
-    if (!isFunction(thunk)) return thunk === void 0 ? callback(null) : callback(null, thunk)
+    if (!isFunction(thunk)) return thunk === undef ? callback(null) : callback(null, thunk)
     if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx))
     if (noTryRun) return thunk.call(ctx, callback)
     var err = tryRun(ctx, thunk, [callback])[0]
@@ -332,6 +337,6 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.4.2'
+  thunks.VERSION = '3.4.3'
   return thunks
 }))

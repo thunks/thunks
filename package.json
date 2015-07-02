@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "3.4.2",
+  "version": "3.4.3",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -25,19 +25,19 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "async": ">=1.2.1",
-    "bluebird": ">=2.9.27",
+    "async": ">=1.3.0",
+    "bluebird": ">=2.9.30",
     "co": ">=4.5.4",
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.0",
-    "gulp-mocha": "^2.1.1",
+    "gulp-mocha": "^2.1.2",
     "jsbench": "^0.5.3",
-    "merge2": "^0.3.5",
+    "merge2": "^0.3.6",
     "mocha": "^2.2.5",
     "rsvp": ">=3.0.18",
-    "should": "^6.0.3",
-    "standard": "^4.2.1",
-    "thenjs": ">=1.5.0",
+    "should": "^7.0.1",
+    "standard": "^4.5.1",
+    "thenjs": ">=2.0.0",
     "when": ">=3.7.3"
   },
   "scripts": {
