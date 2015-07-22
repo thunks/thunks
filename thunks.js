@@ -17,6 +17,14 @@
   var toString = Object.prototype.toString
   var hasOwnProperty = Object.prototype.hasOwnProperty
   /* istanbul ignore next */
+  var objectKeys = Object.keys || function (obj) {
+    var keys = []
+    for (var key in obj) {
+      if (hasOwnProperty.call(obj, key)) keys.push(key)
+    }
+    return keys
+  }
+  /* istanbul ignore next */
   var isArray = Array.isArray || function (obj) {
       return toString.call(obj) === '[object Array]'
     }
@@ -234,18 +242,19 @@
   function objectToThunk (obj, thunkObj) {
     return function (callback) {
       var ctx = this
+      var i = 0
+      var len = 0
       var result
       var pending = 1
       var finished = false
 
       if (isArray(obj)) {
         result = Array(obj.length)
-        for (var i = 0, l = obj.length; i < l; i++) next(obj[i], i)
+        for (len = obj.length; i < len; i++) next(obj[i], i)
       } else if (isObject(obj)) {
         result = {}
-        for (var key in obj) {
-          if (hasOwnProperty.call(obj, key)) next(obj[key], key)
-        }
+        var keys = objectKeys(obj)
+        for (len = keys.length; i < len; i++) next(obj[keys[i]], keys[i])
       } else throw new Error('Not array or object')
       return --pending || callback(null, result)
 
@@ -337,6 +346,6 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.4.3'
+  thunks.VERSION = '3.4.4'
   return thunks
 }))

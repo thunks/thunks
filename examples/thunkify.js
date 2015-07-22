@@ -14,12 +14,12 @@ fsStat('.gitignore')(function (error, result) {
 
 var obj = {a: 8}
 
-function run (x, callback) {
+var run = function (x, callback) {
   // ...
   callback(null, this.a * x)
 }
 
-var run = thunk.thunkify.call(obj, run)
+run = thunk.thunkify.call(obj, run)
 
 run(1)(function (error, result) {
   console.log('run 1: ', result, error)
