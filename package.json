@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "3.4.4",
+  "version": "3.5.0",
   "main": "thunks.js",
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "mocha": "^2.2.5",
     "rsvp": ">=3.0.18",
     "should": "^7.0.2",
-    "standard": "^4.5.2",
+    "standard": "^4.5.4",
     "thenjs": ">=2.0.0",
     "when": ">=3.7.3"
   },

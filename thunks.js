@@ -41,8 +41,8 @@
       this.ctx = ctx
     }
 
-    function thunk (start) {
-      return childThunk(new Link([null, start], null), new Domain(this === thunk ? null : this))
+    function thunk (thunkable) {
+      return childThunk(new Link([null, thunkable], null), new Domain(this === thunk ? null : this))
     }
 
     thunk.all = function (obj) {
@@ -102,6 +102,24 @@
         return scope.onstop && scope.onstop(sig)
       })
       throw sig
+    }
+
+    thunk.persist = function (thunkable) {
+      var ctx = this === thunk ? null : this
+      var result
+      var queue = []
+
+      thunk.call(ctx, thunkable)(function () {
+        result = slice(arguments)
+        while (queue.length) apply(null, queue.shift(), result)
+      })
+
+      return function (callback) {
+        return thunk.call(ctx || this, function (done) {
+          if (result) return apply(null, done, result)
+          else queue.push(done)
+        })(callback)
+      }
     }
 
     return thunk
@@ -346,6 +364,6 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.4.4'
+  thunks.VERSION = '3.5.0'
   return thunks
 }))

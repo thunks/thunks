@@ -159,11 +159,11 @@ Even multiple `thunk` main functions with diferent scope are composed,
 each scope would be seperated from each other,
 which means, `onerror`, `onstop` and `debug` would not run in other scopes.
 
-### thunk(start)
+### thunk(thunkable)
 
 This is the main function, named `thunk generator`, to create new child thunk functions.
 
-The parameter `start` could be:
+The parameter `thunkable` value could be:
 
 1. a child thunk function, by calling this function a new child thunk function will be returned
 
@@ -452,6 +452,32 @@ You may also write code with `this`:
 
 ```js
 var calculatorT = thunk.lift.call(context, calculator)
+```
+
+### thunk.persist(thunkable)
+
+it transform `thunkable` value to a persist thunk function, which can be called more than once with the same result(like as promise). The new function return a child thunk function.
+
+```js
+var thunk = require('../thunks.js')()
+
+var persistThunk = thunk.persist(thunk(x))
+
+persistThunk(function (error, result) {
+  console.log(1, result) // x
+  return persistThunk(function (error, result) {
+    console.log(2, result) // x
+    return persistThunk
+  })
+})(function (error, result) {
+  console.log(3, result) // x
+})
+```
+
+You may also write code with `this`:
+
+```js
+var persistThunk = thunk.persist.call(context, thunkable)
 ```
 
 ### thunk.delay(delay)

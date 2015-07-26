@@ -823,6 +823,86 @@ describe('thunks', function () {
     })
   })
 
+  describe('thunk.persist()', function () {
+    it('thunk.persist()', function (done) {
+      var thunk = thunks()
+      var test = thunk.persist(thunk(x))
+      thunk.all(
+        test(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.equal(x)
+          return x
+        }),
+        test(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.equal(x)
+          return test
+        }),
+        test(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.equal(x)
+          return thunk(x)
+        }),
+        test(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.equal(x)
+        })(function () {
+          return x
+        }),
+        test,
+        thunk(test),
+        thunk.persist(x)
+      )(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.eql([x, x, x, x, x, x, x])
+        var test2 = thunk.persist(thunk.delay(100)(function () {
+          return x
+        }))
+        return thunk.all(test2, test2, test2)
+      })(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.eql([x, x, x])
+      })(done)
+    })
+
+    it('thunk.persist.call()', function (done) {
+      var thunk = thunks()
+      var obj = {x: x}
+      var test = thunk.persist.call(obj, thunk(x))
+      test(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        should(this.x).be.equal(x)
+        return test
+      })(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        should(this.x).be.equal(x)
+      })(done)
+    })
+
+    it('thunk.persist() with error', function (done) {
+      var thunk = thunks()
+      var test = thunk.persist(thunk(function () { noneFn() }))
+      test(function (error, value) {
+        should(error).be.instanceOf(Error)
+        should(value).be.equal(undefined)
+        return test(function (error2) {
+          should(error2).be.equal(error)
+        })
+      })(function () {
+        return thunk.persist(1)(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.equal(1)
+          throw new Error('some error')
+        })
+      })(function (error, value) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error')
+      })(done)
+    })
+  })
+
   describe('thunk.delay()', function () {
     it('thunk.delay()', function (done) {
       var thunk = thunks()

@@ -215,6 +215,20 @@ describe('thunk with generator', function () {
     })
   })
 
+  it('generator in thunk.persist', function (done) {
+    var x = {}
+    var thunk = thunks()
+    var test = thunk.persist(thunk(x))
+    test(function *(error, value) {
+      should(error).be.equal(null)
+      should(value).be.equal(x)
+      return yield test
+    })(function (error, value) {
+      should(error).be.equal(null)
+      should(value).be.equal(x)
+    })(done)
+  })
+
   it('extremely yield (100000)', function (done) {
     var thunk = thunks()
     thunk(function *() {

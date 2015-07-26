@@ -147,11 +147,11 @@ var thunks = require('thunks')
 
 拥有不同作用域的多个 `thunk` 生成器组合成复杂逻辑体时，各自的作用域仍然相互隔离，也就是说 `onerror` 监听和 `debug` 监听不会在其它作用域运行。
 
-### thunk(start)
+### thunk(thunkable)
 
 生成器，生成一个新的子 thunk 函数。
 
-其中 `start` 可以是：
+其中 `thunkable` 可以是：
 
 1. 子 thunk 函数，执行该函数，结果进入新的子 thunk 函数
 
@@ -439,6 +439,32 @@ You may also write code with `this`:
 
 ```js
 var calculatorT = thunk.lift.call(context, calculator)
+```
+
+### thunk.persist(thunkable)
+
+将 `thunkable` 值转换成一个可以持久化的 thunk 函数，可以无限次运行该函数而取得其值。
+
+```js
+var thunk = require('../thunks.js')()
+
+var persistThunk = thunk.persist(thunk(x))
+
+persistThunk(function (error, result) {
+  console.log(1, result) // x
+  return persistThunk(function (error, result) {
+    console.log(2, result) // x
+    return persistThunk
+  })
+})(function (error, result) {
+  console.log(3, result) // x
+})
+```
+
+You may also write code with `this`:
+
+```js
+var persistThunk = thunk.persist.call(context, thunkable)
 ```
 
 ### thunk.delay(delay)
