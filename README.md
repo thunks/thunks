@@ -35,10 +35,10 @@ And a mountain of applications in server-side or client-side.
 
 3. **`thunk`** returns another **`thunk`** function after being called, for chaining operations.
 
-4. **`thunk`** would passing the results into a `callback` function after excuted.
+4. **`thunk`** passes the results into a `callback` function after being excuted.
 
-5. If `callback` returns a new **`thunk`** function, then it would be send to another **`thunk`** to excute,
-or it would be send to another new **`thunk`** function as the value of the computation.
+5. If the return value of `callback` is a **`thunk`** function, then it will be executed first and its result will be send to another **`thunk`** for excution,
+or it will be send to another new **`thunk`** function as the value of the computation.
 
 ## Demo
 
