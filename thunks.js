@@ -99,7 +99,7 @@
     thunk.stop = function (message) {
       var sig = new SigStop(message)
       nextTick(function () {
-        return scope.onstop && scope.onstop(sig)
+        return scope.onstop && scope.onstop.call(null, sig)
       })
       throw sig
     }
@@ -136,6 +136,7 @@
   }
 
   function Link (result, callback) {
+    this.next = null
     this.result = result
     this.callback = callback
   }
@@ -359,7 +360,8 @@
     if (err == null) return
     /* istanbul ignore next */
     nextTick(function () {
-      throw err
+      if (isFunction(thunks.onerror)) thunks.onerror(err)
+      else throw err
     })
   }
 
