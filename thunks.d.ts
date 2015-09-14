@@ -1,80 +1,168 @@
-// Type definitions for thunks
-//
-// https://github.com/thunks/thunks
-// Definitions by: zensh <https://github.com/zensh>
-// Definitions: https://github.com/borisyankov/DefinitelyTyped
+/**
+ *  Type definitions for thunks
+ *  https://github.com/thunks/thunks
+ *  Definitions by: zensh <https://github.com/zensh>
+ *  Definitions: https://github.com/borisyankov/DefinitelyTyped
+ */
 
-// declare var thunks: Thunks;
+declare var thunks: Thunks.IThunks;
 
-declare module "thunks" {
-  export = Thunks;
+declare module Thunks {
 
-  interface ErrorHandler {
-    (error: any): boolean | void;
+  interface IThunks {
+    (): Ithunk;
   }
 
-  interface CallbackHandler {
-    (error?: any, ...rest: any[]): void;
+  interface IThunks {
+    (options?: IThunksOptions): Ithunk
   }
 
-  interface Thunk {
-    (callback: CallbackHandler): Thunk | void;
+  interface IThunks {
+    (errorHandler: (error: Error) => any): Ithunk
   }
 
-// // PromiseLike
-// interface Thenable<R> {
-//   then<U>(onFulfilled?: (value: R) => U | Thenable<U>, onRejected?: (error: any) => U | Thenable<U>): Thenable<U>;
-//   then<U>(onFulfilled?: (value: R) => U | Thenable<U>, onRejected?: (error: any) => void): Thenable<U>;
-// }
-
-  interface ThunkableObject {
-    toThunk(): Thunk;
+  interface Ithunk extends IThunk {
+    all(...args: Array<Ithunk | any>): Ithunk,
+    all(ThunkSequence: Array<Ithunk | any>): Ithunk,
+    all(Object: any): Ithunk,
+    seq(...args: Array<any>): Ithunk,
+    seq(ThunkSequence: Array<Ithunk | any>): Ithunk,
+    race(ThunkSequence: Array<Ithunk>): Ithunk,
+    race(...args: Array<Ithunk | any>): Ithunk,
+    digest(error: Error, ...args: any[]): Ithunk,
+    thunkify(FunctionWithCallback: IFunctionWithCallback): Ithunk,
+    lift(thunkable: Ithunk): Ithunk,
+    persist(thunkable: Ithunk): Ithunk,
+    delay(Time: number): Ithunk,
+    stop(message?: string): void
   }
 
-  // https://github.com/Microsoft/TypeScript/issues/2873
-  interface Generator<T> {
-
+  interface IThunk {
+    (thunkable: Ithunk): Ithunk
   }
 
-  type Thunkable = Generator<any> | PromiseLike<any> | ThunkableObject | Thunk;
-
-  interface ThunksOptions {
-    onerror?: ErrorHandler;
-    onstop?: (sig: any) => void;
-    debug?: (error: any, ...rest: any[]) => void;
+  interface IThunk {
+    (thunkable: IThunkFn): Ithunk
   }
 
-  interface Thunk {
-    (error: any, ...rest: any[]): Thunk;
+  interface IThunk {
+    (thunkable: IPromise<any>): Ithunk
   }
 
-  interface ThunkGenerater {
-    (thunkable: any): Thunk;
-
-    all(object: Object): Thunk;
-    all(array: Array<any>): Thunk;
-    all(...rest: any[]): Thunk;
-
-    seq(array: Array<any>): Thunk;
-    seq(...rest: any[]): Thunk;
-
-    race(array: Array<any>): Thunk;
-    race(...rest: any[]): Thunk;
-
-    digest(...rest: any[]): Thunk;
-
-    thunkify(fn: Function): Thunk;
-    lift(fn: Function): Thunk;
-    delay(number: number): Thunk;
-    stop(message: string): Thunk;
-    persist(thunkable: any): Thunk;
+  interface IThunk {
+    (thunkable: IToThunkFn): Ithunk
   }
 
-  interface Thunks {
-    (err: ErrorHandler): ThunkGenerater;
-    (options: ThunksOptions): ThunkGenerater;
-    NAME: string;
-    VERSION: string;
+  interface IThunk {
+    (thunkable: IIterator<any>): Ithunk
+  }
+
+  interface IThunk {
+    (thunkable?: any): Ithunk
+  }
+
+  interface IThunkFn {
+    (callback: (error?: Error, value?: any) => any): any
+  }
+
+  interface IToThunkFn {
+    (...params: any[]): any
+    toThunk:() => Ithunk
+  }
+
+  interface IThunksOptions {
+    onstop: (sig: ISigStop) => any,
+    onerror: (error: Error) => any,
+    debug: (value: any) => any
+  }
+
+  interface ISigStop {
+    (message: string): void;
+    status: number,
+    code: string
+  }
+  // https://github.com/Microsoft/TypeScript/issues/1360
+  interface IFunctionWithCallback {
+    (callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, arg4: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, arg4: any, arg5: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, arg4: any, arg5: any, arg6: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, arg4: any, arg5: any, arg6: any, arg7: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, arg4: any, arg5: any, arg6: any, arg7: any, arg8: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IFunctionWithCallback {
+    (arg1: any, arg2: any, arg3: any, arg4: any, arg5: any, arg6: any, arg7: any, arg8: any, arg9: any, callback: (...args: any[]) => any): any
+  }
+
+  interface IPromiseLike<T> {
+   /**
+    * Attaches callbacks for the resolution and/or rejection of the Promise.
+    * @param onfulfilled The callback to execute when the Promise is resolved.
+    * @param onrejected The callback to execute when the Promise is rejected.
+    * @returns A Promise for the completion of which ever callback is executed.
+    */
+    then<TResult>(onfulfilled?: (value: T) => TResult | IPromiseLike<TResult>, onrejected?: (reason: any) => TResult | IPromiseLike<TResult>): IPromiseLike<TResult>;
+    then<TResult>(onfulfilled?: (value: T) => TResult | IPromiseLike<TResult>, onrejected?: (reason: any) => void): IPromiseLike<TResult>;
+  }
+
+ /**
+  * Represents the completion of an asynchronous operation
+  */
+  interface IPromise<T> {
+   /**
+    * Attaches callbacks for the resolution and/or rejection of the Promise.
+    * @param onfulfilled The callback to execute when the Promise is resolved.
+    * @param onrejected The callback to execute when the Promise is rejected.
+    * @returns A Promise for the completion of which ever callback is executed.
+    */
+    then<TResult>(onfulfilled?: (value: T) => TResult | IPromiseLike<TResult>, onrejected?: (reason: any) => TResult | IPromiseLike<TResult>): IPromise<TResult>;
+    then<TResult>(onfulfilled?: (value: T) => TResult | IPromiseLike<TResult>, onrejected?: (reason: any) => void): IPromise<TResult>;
+
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch(onrejected?: (reason: any) => T | IPromiseLike<T>): IPromise<T>;
+  }
+
+  interface IIteratorResult<T> {
+    done: boolean;
+    value?: T;
+  }
+
+  interface IIterator<T> {
+    next(value?: any): IIteratorResult<T>;
+    return?(value?: any): IIteratorResult<T>;
+    throw?(e?: any): IIteratorResult<T>;
   }
 
 }
