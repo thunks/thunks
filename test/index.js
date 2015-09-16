@@ -945,7 +945,7 @@ describe('thunks', function () {
 
     it('thunk.stop("stop message")', function (done) {
       var thunk = thunks({
-        debug: function (res) {
+        onstop: function (res) {
           if (res && res.status === 19) {
             should(res.message).be.equal('stop message')
             done()
