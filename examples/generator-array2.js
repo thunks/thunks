@@ -28,7 +28,6 @@ thunk(function *() {
 
   var c = yield latency('http://weibo.com', 5)
   console.log(c)
-
 })(function *() {
   // run each test in parallel, order is retained
   var a = latency('http://baidu.com', 5)

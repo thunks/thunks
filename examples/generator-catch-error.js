@@ -12,11 +12,9 @@ thunk(function *() {
   }
 
   yield function (callback) { throw new Error('some error') }
-
 })(function (error, res) {
   // catch the second error by Thunk
   console.log(error, res)
-
 })(function *() {
   yield function (callback) { throw new Error('some error2') }
 })()

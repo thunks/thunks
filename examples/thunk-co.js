@@ -11,8 +11,8 @@ var thunkFn = thunk(function (callback) {
 co(function *() {
   var a = yield thunkFn
   return yield [a, thunk(2), thunk(function (callback) {
-      setTimeout(function () { callback(null, 3) })
-    })]
+    setTimeout(function () { callback(null, 3) })
+  })]
 })(function (error, value) {
   console.log(error, value) // null [1, 2, 3]
 })

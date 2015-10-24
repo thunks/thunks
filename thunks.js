@@ -26,13 +26,14 @@
   }
   /* istanbul ignore next */
   var isArray = Array.isArray || function (obj) {
-      return toString.call(obj) === '[object Array]'
-    }
-  /* istanbul ignore next */
-  var nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) {
-    setTimeout(fn, 0)
+    return toString.call(obj) === '[object Array]'
   }
-  if (typeof process === 'object' && process.nextTick) nextTick = process.nextTick
+  /* istanbul ignore next */
+  var nextTick = nextTick = (typeof process === 'object' && process.nextTick)
+    ? process.nextTick : typeof setImmediate === 'function'
+    ? setImmediate : function (fn) {
+      setTimeout(fn, 0)
+    }
 
   function thunks (options) {
     var scope = Domain.prototype.scope = new Scope(options)
@@ -356,16 +357,16 @@
     return fn.constructor.name === 'GeneratorFunction'
   }
 
-  function noOp (err) {
-    if (err == null) return
+  function noOp (error) {
+    if (error == null) return
     /* istanbul ignore next */
     nextTick(function () {
-      if (isFunction(thunks.onerror)) thunks.onerror(err)
-      else throw err
+      if (isFunction(thunks.onerror)) thunks.onerror(error)
+      else throw error
     })
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.5.0'
+  thunks.VERSION = '3.5.1'
   return thunks
 }))

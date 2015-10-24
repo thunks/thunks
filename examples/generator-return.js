@@ -12,7 +12,6 @@ thunk(function *() {
   var b = yield read('thunks.js')
   var c = yield read('package.json')
   return [a.length, b.length, c.length]
-
 })(function *(error, res) {
   console.log(error, res)
   // parallel
@@ -25,7 +24,6 @@ thunk(function *() {
     (yield b).length,
     (yield c).length
   ]
-
 })(function *(error, res) {
   console.log(error, res)
   yield read('.gitignore')

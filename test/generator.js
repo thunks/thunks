@@ -36,18 +36,18 @@ describe('thunk with generator', function () {
       }).be.eql([1, 2, 3])
 
       return yield [
-          1,
-          function (cb) {
-            setTimeout(function () {
-              cb(null, 2)
-            })
-          },
-          thunk(3),
-          Promise.resolve(4),
-          thunk(function *() {
-            return yield 5
+        1,
+        function (cb) {
+          setTimeout(function () {
+            cb(null, 2)
           })
-        ]
+        },
+        thunk(3),
+        Promise.resolve(4),
+        thunk(function *() {
+          return yield 5
+        })
+      ]
     })(function (err, res) {
       should(err).be.equal(null)
       should(res).be.eql([1, 2, 3, 4, 5])
@@ -96,11 +96,12 @@ describe('thunk with generator', function () {
         function (callback) {
           should(this).be.equal(x)
           callback(null, 1)
-        },
-        [function (callback) {
-          should(this).be.equal(x)
-          callback(null, 1)
-        }]
+        }, [
+          function (callback) {
+            should(this).be.equal(x)
+            callback(null, 1)
+          }
+        ]
       ]
     })(function (err, res) {
       should(err).be.equal(null)
@@ -137,26 +138,26 @@ describe('thunk with generator', function () {
     var thunk = thunks()
     thunk(function *() {
       return yield [
-          thunk.all([
-            function *() {
-              return yield 1
-            }, (function *() {
-              return yield 2
-            }())
-          ]),
-          thunk.seq([
-            function *() {
-              return yield 3
-            },
-            (function *() {
-              return yield 4
-            }())
-          ]),
-          {
-            a: thunk(5),
-            b: yield 6
-          }
-        ]
+        thunk.all([
+          function *() {
+            return yield 1
+          }, (function *() {
+            return yield 2
+          }())
+        ]),
+        thunk.seq([
+          function *() {
+            return yield 3
+          },
+          (function *() {
+            return yield 4
+          }())
+        ]),
+        {
+          a: thunk(5),
+          b: yield 6
+        }
+      ]
     })(function (error, res) {
       should(error).be.equal(null)
       should(res).be.eql([

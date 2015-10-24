@@ -9,11 +9,9 @@ var size = thunk.thunkify(fs.stat)
 size('.gitignore')(function (error, res) {
   console.log(error, res)
   return size('thunks.js')
-
 })(function (error, res) {
   console.log(error, res)
   return size('package.json')
-
 })(function *(error, res) {
   console.log(error, res)
   // generator

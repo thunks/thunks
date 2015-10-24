@@ -335,7 +335,7 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(2)
         should(this).be.equal(x)
-        return thunk.call(null, 10)
+        return thunk(10)
       })(function (error, value) {
         should(error).be.equal(null)
         should(value).be.equal(10)
@@ -509,10 +509,12 @@ describe('thunks', function () {
             should(this).be.equal(x)
             callback(null, 4)
           },
-          e: [function (callback) {
-            should(this).be.equal(x)
-            callback(null, 5)
-          }]
+          e: [
+            function (callback) {
+              should(this).be.equal(x)
+              callback(null, 5)
+            }
+          ]
         })
       })(function (error, value) {
         should(error).be.equal(null)
@@ -595,16 +597,17 @@ describe('thunks', function () {
       thunk.seq.call(x, 1, 2, 3, 4, function (callback) {
         should(this).be.equal(x)
         callback(null, 5)
-      }, [function (callback) {
-        should(this).be.equal(x)
-        callback(null, 6)
-      }])(function (error, value) {
+      }, [
+        function (callback) {
+          should(this).be.equal(x)
+          callback(null, 6)
+        }
+      ])(function (error, value) {
         should(error).be.equal(null)
         should(value).be.eql([1, 2, 3, 4, 5, [6]])
         should(this).be.equal(x)
       })(done)
     })
-
   })
 
   describe('thunk.race()', function () {
@@ -682,7 +685,6 @@ describe('thunks', function () {
         should(value).be.equal('b')
       })(done)
     })
-
   })
 
   describe('thunk.digest()', function () {
@@ -702,7 +704,6 @@ describe('thunks', function () {
         should(value2).be.equal(2)
         should(value3).be.equal(x)
       })(done)
-
     })
 
     it('thunk.digest.call()', function (done) {
@@ -717,7 +718,6 @@ describe('thunks', function () {
         should(value).be.equal(x)
         should(this).be.equal(x)
       })(done)
-
     })
   })
 
@@ -925,7 +925,6 @@ describe('thunks', function () {
         should(Date.now() - time >= 99).be.equal(true)
         should(this).be.equal(x)
       })(done)
-
     })
   })
 

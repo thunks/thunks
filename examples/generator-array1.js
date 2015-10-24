@@ -14,7 +14,6 @@ thunk(function *() {
   console.log(a)
   console.log(b)
   console.log(c)
-
 })(function *() {
   // 9 concurrent stat()s
   var a = [size('.gitignore'), size('thunks.js'), size('package.json')]
@@ -22,12 +21,10 @@ thunk(function *() {
   var c = [size('.gitignore'), size('thunks.js'), size('package.json')]
   var d = yield [a, b, c]
   console.log(d)
-
 })(function *() {
   var a = size('.gitignore')
   var b = size('thunks.js')
   var c = size('package.json')
   var res = yield [a, b, c]
   console.log(res)
-
 })()
