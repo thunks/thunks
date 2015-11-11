@@ -2,7 +2,7 @@
   "name": "thunks",
   "description": "A small and magical async control flow tool, wrap promise, generator and anything to thunk.",
   "main": "thunks.js",
-  "version": "3.5.2",
+  "version": "4.0.0",
   "homepage": "https://github.com/thunks/thunks",
   "authors": [
     "Yan Qing <admin@zensh.com>"

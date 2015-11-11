@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "3.5.2",
+  "version": "4.0.0",
   "main": "thunks.js",
   "jsnext:main": "thunks.es6.js",
   "repository": {
@@ -26,8 +26,8 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "async": ">=1.4.2",
-    "bluebird": ">=2.10.2",
+    "async": ">=1.5.0",
+    "bluebird": ">=3.0.5",
     "co": ">=4.6.0",
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.2",
@@ -39,10 +39,10 @@
     "should": "^7.1.1",
     "standard": "^5.3.1",
     "thenjs": ">=2.0.1",
-    "when": ">=3.7.3"
+    "when": ">=3.7.4"
   },
   "scripts": {
-    "test": "standard && node --harmony `which gulp` test"
+    "test": "standard && gulp test"
   },
   "ignore": [
     "**/.*",
@@ -57,8 +57,7 @@
   "eslintConfig": {
     "env": {
       "browser": true,
-      "node": true,
-      "es6": true
+      "node": true
     }
   },
   "standard": {

@@ -172,17 +172,21 @@
     function callback (err) {
       if (parent.result === null) return
       parent.result = null
-      var args = slice(arguments)
-      if (scope.debug) apply(null, scope.debug, args)
-      if (!args.length) args = [null]
-      else if (err == null) args[0] = null
-      else {
+      if (scope.debug) apply(null, scope.debug, arguments)
+
+      var args = [err]
+      if (err != null) {
         if (err instanceof SigStop) return
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return
-          err = null // if onerror return true then continue
+          // if onerror return true then continue
+          args[0] = null
         }
-        args = [err]
+      } else {
+        args[0] = null
+        // transform two or more results to a array of results
+        if (arguments.length === 2) args.push(arguments[1])
+        else if (arguments.length > 2) args.push(slice(arguments, 1))
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args)
@@ -367,6 +371,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '3.5.1'
+  thunks.VERSION = '4.0.0'
+  thunks['default'] = thunks
   return thunks
 }))

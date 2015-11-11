@@ -13,6 +13,31 @@ A small and magical async control flow tool, wrap promise, generator and anythin
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
 
+## Break Change: the thunk result will no more than 2
+There is a break change in V4.x relative to V3.x, two or more results will become a array of results.
+
+**v3.x:**
+```js
+thunk(function (done) {
+  done(null, 1, 2, 3)
+})(function (error, res) {
+  console.log.apply(console, arguments)
+  // output: `null, 1, 2, 3`
+})
+```
+
+**v4.x:**
+```js
+thunk(function (done) {
+  done(null, 1, 2, 3)
+})(function (error, res) {
+  console.log.apply(console, arguments)
+  // output: `null, [1, 2, 3]`
+})
+```
+
+if there is a `error`, the arguments will be explicitly `error`, otherwise the `error` will always be `null`(In all version).
+
 ## Compatibility
 
 ES3+, support node.js and all browsers.

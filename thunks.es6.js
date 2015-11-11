@@ -7,13 +7,10 @@ const maxTickDepth = 100
 /* istanbul ignore next */
 const nextTick = (typeof process === 'object' && process.nextTick)
   ? process.nextTick : typeof setImmediate === 'function'
-  ? setImmediate : function (fn) {
-    setTimeout(fn, 0)
-  }
+  ? setImmediate : (fn) => setTimeout(fn, 0)
 
 export const NAME = 'thunks'
-export const VERSION = '3.5.2'
-
+export const VERSION = '4.0.0'
 export default function thunks (options) {
   const scope = Domain.prototype.scope = new Scope(options)
 
@@ -78,9 +75,7 @@ export default function thunks (options) {
 
   thunk.stop = function (message) {
     let sig = new SigStop(message)
-    nextTick(function () {
-      return scope.onstop && scope.onstop.call(null, sig)
-    })
+    nextTick(() => scope.onstop && scope.onstop.call(null, sig))
     throw sig
   }
 
@@ -95,7 +90,7 @@ export default function thunks (options) {
     })
 
     return function (callback) {
-      return thunk.call(ctx || this, function (done) {
+      return thunk.call(ctx || this, (done) => {
         if (result) return apply(null, done, result)
         else queue.push(done)
       })(callback)
@@ -151,29 +146,31 @@ function continuation (parent, domain, tickDepth) {
   function callback (err) {
     if (parent.result === null) return
     parent.result = null
-    let args = slice(arguments)
-    if (scope.debug) apply(null, scope.debug, args)
-    if (!args.length) args = [null]
-    else if (err == null) args[0] = null
-    else {
+    if (scope.debug) apply(null, scope.debug, arguments)
+
+    let args = [err]
+    if (err != null) {
       if (err instanceof SigStop) return
       if (scope.onerror) {
         if (scope.onerror.call(null, err) !== true) return
-        err = null // if onerror return true then continue
+        // if onerror return true then continue
+        args[0] = null
       }
-      args = [err]
+    } else {
+      args[0] = null
+      // transform two or more results to a array of results
+      if (arguments.length === 2) args.push(arguments[1])
+      else if (arguments.length > 2) args.push(slice(arguments, 1))
     }
 
     current.result = tryRun(domain.ctx, parent.callback, args)
     if (current.callback) {
       tickDepth = tickDepth || maxTickDepth
       if (--tickDepth) return continuation(current, domain, tickDepth)
-      return nextTick(function () {
-        continuation(current, domain, 0)
-      })
+      return nextTick(() => continuation(current, domain, 0))
     }
     if (current.result[0] != null) {
-      nextTick(function () {
+      nextTick(() => {
         if (!current.result) return
         if (scope.onerror) return scope.onerror.call(null, current.result[0])
         /* istanbul ignore next */
@@ -222,7 +219,7 @@ function generatorToThunk (gen) {
       let ret = err == null ? gen.next(res) : gen.throw(err)
       if (ret.done) return runThunk(ctx, ret.value, callback)
       if (--tickDepth) return runThunk(ctx, ret.value, next, true)
-      return nextTick(function () {
+      return nextTick(() => {
         tickDepth = maxTickDepth
         return runThunk(ctx, ret.value, next, true)
       })
@@ -287,7 +284,7 @@ function sequenceToThunk (array) {
       result[i] = arguments.length > 2 ? slice(arguments, 1) : res
       if (++i > end) return callback(null, result)
       if (--tickDepth) return runThunk(ctx, array[i], next, true)
-      nextTick(function () {
+      nextTick(() => {
         tickDepth = maxTickDepth
         runThunk(ctx, array[i], next, true)
       })
@@ -339,7 +336,7 @@ function isGeneratorFunction (fn) {
 function noOp (error) {
   if (error == null) return
   /* istanbul ignore next */
-  nextTick(function () {
+  nextTick(() => {
     if (isFunction(thunks.onerror)) thunks.onerror(error)
     else throw error
   })

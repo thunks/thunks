@@ -191,11 +191,11 @@ describe('thunks', function () {
         return thunk(thunk(thunk(function (callback) {
           callback(null, 1, x)
         })))
-      })(function (error, value1, value2, value3) {
+      })(function (error, value) {
         should(error).be.equal(null)
-        should(value1).be.equal(1)
-        should(value2).be.equal(x)
-        should(value3).be.equal(undefined)
+        should(value[0]).be.equal(1)
+        should(value[1]).be.equal(x)
+        should(arguments.length).be.equal(2)
       })(done)
     })
 
@@ -232,12 +232,13 @@ describe('thunks', function () {
         return thunk(function (callback) {
           callback(null, 1, 2, 3, x)
         })
-      })(function (error, value1, value2, value3, value4) {
+      })(function (error, value) {
         should(error).be.equal(null)
-        should(value1).be.equal(1)
-        should(value2).be.equal(2)
-        should(value3).be.equal(3)
-        should(value4).be.equal(x)
+        should(value[0]).be.equal(1)
+        should(value[1]).be.equal(2)
+        should(value[2]).be.equal(3)
+        should(value[3]).be.equal(x)
+        should(arguments.length).be.equal(2)
         return thunk(function (callback) {
           setImmediate(function () {
             callback(null, 1)
@@ -698,11 +699,12 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(x)
         return thunk.digest(error, 1, 2, x)
-      })(function (error, value1, value2, value3) {
+      })(function (error, value) {
         should(error).be.equal(null)
-        should(value1).be.equal(1)
-        should(value2).be.equal(2)
-        should(value3).be.equal(x)
+        should(value[0]).be.equal(1)
+        should(value[1]).be.equal(2)
+        should(value[2]).be.equal(x)
+        should(arguments.length).be.equal(2)
       })(done)
     })
 
@@ -733,11 +735,12 @@ describe('thunks', function () {
         should(error).be.equal(1)
         should(value).be.equal(undefined)
         return thunkTest(null, 2, x)
-      })(function (error, value1, value2, value3) {
+      })(function (error, value) {
         should(error).be.equal(null)
-        should(value1).be.equal(2)
-        should(value2).be.equal(x)
-        should(value3).be.equal(this)
+        should(value[0]).be.equal(2)
+        should(value[1]).be.equal(x)
+        should(value[2]).be.equal(this)
+        should(arguments.length).be.equal(2)
       })(done)
     })
 
@@ -749,12 +752,13 @@ describe('thunks', function () {
         should(value).be.equal(undefined)
         should(this).be.equal(x)
         return thunkTest(null, 2, x)
-      })(function (error, value1, value2, value3) {
+      })(function (error, value) {
         should(error).be.equal(null)
-        should(value1).be.equal(2)
-        should(value2).be.equal(x)
-        should(value3).be.equal(x)
+        should(value[0]).be.equal(2)
+        should(value[1]).be.equal(x)
+        should(value[2]).be.equal(x)
         should(this).be.equal(x)
+        should(arguments.length).be.equal(2)
       })(done)
     })
   })
