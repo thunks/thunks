@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.0.0",
+  "version": "4.0.1",
   "main": "thunks.js",
   "jsnext:main": "thunks.es6.js",
   "repository": {
@@ -44,22 +44,12 @@
   "scripts": {
     "test": "standard && gulp test"
   },
-  "ignore": [
-    "**/.*",
-    "benchmark",
-    "test",
-    "examples",
-    "docs",
-    "gulpfile.js",
-    "bower.json",
-    "component.json"
+  "files": [
+    "README.md",
+    "thunks.js",
+    "thunks.d.ts",
+    "thunks.es6.js"
   ],
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true
-    }
-  },
   "standard": {
     "ignore": [
       "**/debug/**"
