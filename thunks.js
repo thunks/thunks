@@ -176,6 +176,7 @@
 
       var args = [err]
       if (err != null) {
+        pruneErrorStack(err)
         if (err instanceof SigStop) return
         if (scope.onerror) {
           if (scope.onerror.call(null, err) !== true) return
@@ -370,8 +371,18 @@
     })
   }
 
+  function pruneErrorStack (error) {
+    if (thunks.pruneErrorStack && error.stack) {
+      error.stack = error.stack
+        .replace(/^\s*at.*thunks\.js.*$/gm, '')
+        .replace(/\n+/g, '\n')
+    }
+    return error
+  }
+
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.0.0'
+  thunks.VERSION = '4.1.0'
   thunks['default'] = thunks
+  thunks.pruneErrorStack = true
   return thunks
 }))
