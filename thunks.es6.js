@@ -10,7 +10,7 @@ const nextTick = (typeof process === 'object' && process.nextTick)
   ? setImmediate : (fn) => setTimeout(fn, 0)
 
 export const NAME = 'thunks'
-export const VERSION = '4.1.0'
+export const VERSION = '4.1.1'
 export default function thunks (options) {
   const scope = Domain.prototype.scope = new Scope(options)
 
