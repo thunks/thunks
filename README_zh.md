@@ -1,6 +1,6 @@
 thunks
 ====
-A small and magical async control flow tool, wrap promise, generator and anything to thunk.
+A small and magical tool that compose all the asynchronous logic.
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]

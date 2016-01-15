@@ -1,10 +1,10 @@
 {
   "name": "thunks",
-  "description": "A small and magical async control flow tool, wrap promise, generator and anything to thunk.",
+  "description": "A small and magical tool that compose all the asynchronous.",
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.1.1",
+  "version": "4.1.2",
   "main": "thunks.js",
   "typings": "./thunks.d.ts",
   "jsnext:main": "thunks.es6.js",
@@ -27,7 +27,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "async": ">=1.5.0",
+    "async": ">=1.5.2",
     "bluebird": ">=3.1.1",
     "co": ">=4.6.0",
     "gulp": "^3.9.0",
@@ -37,10 +37,10 @@
     "merge2": "^0.3.6",
     "mocha": "^2.3.4",
     "rsvp": ">=3.1.0",
-    "should": "^8.0.2",
+    "should": "^8.1.1",
     "standard": "^5.4.1",
-    "thenjs": ">=2.0.1",
-    "when": ">=3.7.5"
+    "thenjs": ">=2.0.2",
+    "when": ">=3.7.7"
   },
   "scripts": {
     "test": "standard && gulp test"

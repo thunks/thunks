@@ -1,8 +1,8 @@
 {
   "name": "thunks",
-  "description": "A small and magical async control flow tool, wrap promise, generator and anything to thunk.",
+  "description": "A small and magical tool that compose all the asynchronous logic.",
   "main": "thunks.js",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "homepage": "https://github.com/thunks/thunks",
   "authors": [
     "Yan Qing <admin@zensh.com>"

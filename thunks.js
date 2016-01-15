@@ -29,7 +29,7 @@
     return toString.call(obj) === '[object Array]'
   }
   /* istanbul ignore next */
-  var nextTick = nextTick = (typeof process === 'object' && process.nextTick)
+  var nextTick = (typeof process === 'object' && process.nextTick)
     ? process.nextTick : typeof setImmediate === 'function'
     ? setImmediate : function (fn) {
       setTimeout(fn, 0)
@@ -106,9 +106,9 @@
     }
 
     thunk.persist = function (thunkable) {
-      var ctx = this === thunk ? null : this
       var result
       var queue = []
+      var ctx = this === thunk ? null : this
 
       thunk.call(ctx, thunkable)(function () {
         result = slice(arguments)
@@ -164,8 +164,8 @@
   }
 
   function continuation (parent, domain, tickDepth) {
-    var current = parent.next
     var scope = domain.scope
+    var current = parent.next
     var result = parent.result
     return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback)
 
@@ -266,11 +266,11 @@
 
   function objectToThunk (obj, thunkObj) {
     return function (callback) {
-      var ctx = this
+      var result
       var i = 0
       var len = 0
-      var result
       var pending = 1
+      var ctx = this
       var finished = false
 
       if (isArray(obj)) {
@@ -301,8 +301,8 @@
 
   function sequenceToThunk (array) {
     return function (callback) {
-      var ctx = this
       var i = 0
+      var ctx = this
       var end = array.length - 1
       var tickDepth = maxTickDepth
       var result = Array(array.length)
@@ -381,7 +381,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.1.1'
+  thunks.VERSION = '4.1.2'
   thunks['default'] = thunks
   thunks.pruneErrorStack = true
   return thunks
