@@ -63,7 +63,7 @@ And a mountain of applications in server-side or client-side.
 4. **`thunk`** passes the results into a `callback` function after being excuted.
 
 5. If the return value of `callback` is a **`thunk`** function, then it will be executed first and its result will be send to another **`thunk`** for excution,
-or it will be send to another new **`thunk`** function as the value of the computation.
+or it will be sent to another new **`thunk`** function as the value of the computation.
 
 ## Demo
 
