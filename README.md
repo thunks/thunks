@@ -1,6 +1,6 @@
 thunks
 ====
-A small and magical tool that compose all the asynchronous logic.
+A small and magical tool that compose all the asynchronous.
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
@@ -553,10 +553,10 @@ thunk.delay(100)(function () {
   console.log('Hello')
   return thunk.delay(100)(function () {
     thunk.stop('Stop now!')
-    console.log('It will not be run!')
+    console.log('It will not run!')
   })
 })(function (error, value) {
-  console.log('It will not be run!')
+  console.log('It will not run!')
 })
 ```
 

@@ -1,6 +1,6 @@
 thunks
 ====
-A small and magical tool that compose all the asynchronous logic.
+A small and magical tool that compose all the asynchronous.
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]

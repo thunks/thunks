@@ -20,7 +20,7 @@ describe('thunks', function () {
         should(value).be.equal(undefined)
         throw new Error('some error!')
       })(function () {
-        should('this function will not run').be.equal('')
+        should('this function will not run').be.equal(true)
       })
     })
 
@@ -89,9 +89,9 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(x)
         thunk.stop('stop')
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })(function () {
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })
     })
 
@@ -107,9 +107,9 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(x)
         thunk.stop('nested')
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })(function () {
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })
     })
 
@@ -576,7 +576,7 @@ describe('thunks', function () {
             noneFn()
           }),
           thunk(function (callback) {
-            should('It will not be run!').be.equal('')
+            should('It will not run!').be.equal('')
           })
         )(function (error, value) {
           should(error).be.instanceOf(Error)
@@ -939,9 +939,9 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(1)
         thunk.stop()
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })(function () {
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })
       done()
     })
@@ -959,9 +959,9 @@ describe('thunks', function () {
         should(error).be.equal(null)
         should(value).be.equal(1)
         thunk.stop('stop message')
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })(function () {
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       })
     })
   })

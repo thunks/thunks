@@ -173,22 +173,22 @@ describe('thunk with generator', function () {
 
     thunk(function *() {
       thunk.stop()
-      should('It will not be run!').be.equal(true)
+      should('It will not run!').be.equal('')
     })(function () {
-      should('It will not be run!').be.equal(true)
+      should('It will not run!').be.equal('')
     })
 
     thunk(function *() {
       try {
         yield function *() {
           thunk.stop()
-          should('It will not be run!').be.equal(true)
+          should('It will not run!').be.equal('')
         }
       } catch (e) {
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       }
     })(function () {
-      should('It will not be run!').be.equal(true)
+      should('It will not run!').be.equal('')
     })
     done()
   })
@@ -206,13 +206,13 @@ describe('thunk with generator', function () {
       try {
         yield function *() {
           thunk.stop('generator')
-          should('It will not be run!').be.equal(true)
+          should('It will not run!').be.equal('')
         }
       } catch (e) {
-        should('It will not be run!').be.equal(true)
+        should('It will not run!').be.equal('')
       }
     })(function () {
-      should('It will not be run!').be.equal(true)
+      should('It will not run!').be.equal('')
     })
   })
 
