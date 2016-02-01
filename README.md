@@ -7,7 +7,6 @@ A small and magical tool that compose all the asynchronous.
 [![js-standard-style][js-standard-image]][js-standard-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Downloads][downloads-image]][downloads-url]
-[![Talk topic][talk-image]][talk-url]
 
 [中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
 
@@ -575,9 +574,6 @@ thunk.delay(100)(function () {
 
 [downloads-url]: https://npmjs.org/package/thunks
 [downloads-image]: http://img.shields.io/npm/dm/thunks.svg?style=flat-square
-
-[talk-url]: https://guest.talk.ai/rooms/d1ccbf802n
-[talk-image]: https://img.shields.io/talk/t/d1ccbf802n.svg
 
 [js-standard-url]: https://github.com/feross/standard
 [js-standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat
