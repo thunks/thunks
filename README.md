@@ -43,10 +43,14 @@ ES3+, support node.js and all browsers.
 
 ## Implementations:
 
-- [Toa](https://github.com/toajs/toa): A powerful web framework rely on thunks.
-- [thunk-redis](https://github.com/thunks/thunk-redis) A thunk/promise-based redis client with pipelining and cluster.
+- [Toa](https://github.com/toajs/toa) A powerful web framework rely on thunks.
+- [thunk-redis](https://github.com/thunks/thunk-redis) The fastest thunk/promise-based redis client, support all redis features.
+- [thunk-disque](https://github.com/thunks/thunk-disque) A thunk/promise-based disque client.
 - [thunk-stream](https://github.com/thunks/thunk-stream) Wrap a readable/writable/duplex/transform stream to a thunk.
 - [thunk-queue](https://github.com/thunks/thunk-queue) A thunk queue for uncertainty tasks evaluation.
+- [thunk-mocha](https://github.com/thunks/thunk-mocha) Enable support for generators in Mocha with backward compatibility.
+- [thunk-ratelimiter](https://github.com/thunks/thunk-ratelimiter) The fastest abstract rate limiter.
+- [thunk-workers](https://github.com/thunks/thunk-workers) Thunk-based task scheduler that executes synchrounous and/or asynchronous tasks under concurrency control.
 - [file-cache](https://github.com/thunks/file-cache) Read file with caching, rely on thunks.
 
 And a mountain of applications in server-side or client-side.
