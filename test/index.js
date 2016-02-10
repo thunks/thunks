@@ -3,7 +3,7 @@
 
 var should = require('should')
 var thenjs = require('thenjs')
-var thunks = require('../thunks.js')
+var thunks = require('..')
 var x = {}
 
 describe('thunks', function () {

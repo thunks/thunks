@@ -9,9 +9,7 @@ const nextTick = (typeof process === 'object' && process.nextTick)
   ? process.nextTick : typeof setImmediate === 'function'
   ? setImmediate : (fn) => setTimeout(fn, 0)
 
-export const NAME = 'thunks'
-export const VERSION = '4.1.2'
-export default function thunks (options) {
+function thunks (options) {
   const scope = Domain.prototype.scope = new Scope(options)
 
   function Domain (ctx) {
@@ -346,9 +344,11 @@ function noOp (error) {
 thunks.pruneErrorStack = true
 function pruneErrorStack (error) {
   if (thunks.pruneErrorStack && error.stack) {
-    error.stack = error.stack
-      .replace(/^\s*at.*thunks\.js.*$/gm, '')
-      .replace(/\n+/g, '\n')
+    error.stack = error.stack.replace(/^\s*at.*thunks\.js.*$/gm, '').replace(/\n+/g, '\n')
   }
   return error
 }
+
+thunks.NAME = 'thunks'
+thunks.VERSION = '4.1.3'
+export default thunks
