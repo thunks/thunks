@@ -1,6 +1,6 @@
 {
   "name": "thunks",
-  "description": "A small and magical tool that compose all the asynchronous logic.",
+  "description": "A small and magical composer for all JavaScript asynchronous.",
   "main": "thunks.js",
   "version": "4.1.3",
   "homepage": "https://github.com/thunks/thunks",
@@ -12,12 +12,15 @@
     "async",
     "thunk",
     "thunks",
-    "Promise",
+    "promise",
+    "future",
     "flow",
     "yield",
     "generator",
     "coro",
-    "coroutine"
+    "compose",
+    "coroutine",
+    "orchestrate"
   ],
   "ignore": [
     "**/.*",

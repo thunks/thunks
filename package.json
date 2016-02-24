@@ -1,6 +1,6 @@
 {
   "name": "thunks",
-  "description": "A small and magical tool that compose all the asynchronous.",
+  "description": "A small and magical composer for all JavaScript asynchronous.",
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
@@ -18,12 +18,15 @@
     "async",
     "thunk",
     "thunks",
-    "Promise",
+    "promise",
+    "future",
     "flow",
     "yield",
     "generator",
     "coro",
-    "coroutine"
+    "compose",
+    "coroutine",
+    "orchestrate"
   ],
   "dependencies": {},
   "devDependencies": {

@@ -1,6 +1,6 @@
 thunks
 ====
-A small and magical tool that compose all the asynchronous.
+A small and magical composer for all JavaScript asynchronous.
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
