@@ -20,7 +20,7 @@ var bar = thunk(function *() {
 })
 
 thunk(function *() {
-  return yield [foo, bar]
+  return yield thunk.all([foo, bar])
 })(function (error, res) {
   console.log(error, res)
 })

@@ -191,6 +191,7 @@
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args)
+
       if (current.callback) {
         tickDepth = tickDepth || maxTickDepth
         if (--tickDepth) return continuation(current, domain, tickDepth)

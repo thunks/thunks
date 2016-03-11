@@ -21,9 +21,9 @@ thunk(function *() {
   }
 })(function *() {
   // parallel
-  var res = yield urls.map(function (url) {
+  var res = yield thunk.all(urls.map(function (url) {
     return get(url)
-  })
+  }))
 
   return res.map(function (r) {
     return r[0].statusCode

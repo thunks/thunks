@@ -34,7 +34,7 @@ thunk(function *() {
   var b = latency('http://github.com', 5)
   var c = latency('http://weibo.com', 5)
 
-  return yield [a, b, c]
+  return yield thunk.all(a, b, c)
 })(function (error, res) {
   console.log(error, res)
 })

@@ -86,11 +86,11 @@ thunk(function *() {
 
 })(function *(error, res) {
   //parallel
-  console.log(yield [
+  console.log(yield thunk.all([
     size('.gitignore'),
     size('thunks.js'),
     size('package.json')
-  ])
+  ]))
 })()
 ```
 
@@ -239,13 +239,13 @@ The parameter `thunkable` value could be:
   })(function *(error, res) {
     console.log(error, res) // null, 20
 
-    return yield [1, 2, thunk(3)]
+    return yield thunk.all([1, 2, thunk(3)])
   })(function *(error, res) {
     console.log(error, res) // null, [1, 2, 3]
-    return yield {
+    return yield thunk.all({
       name: 'test',
       value: thunk(1)
-    }
+    })
   })(function (error, res) {
     console.log(error, res) // null, {name: 'test', value: 1}
   })

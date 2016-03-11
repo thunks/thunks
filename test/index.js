@@ -288,7 +288,7 @@ describe('thunks', function () {
           should(error).be.instanceOf(Error)
           should(error.message).be.equal('some error!')
           should(value).be.equal(undefined)
-          return new Promise(function (resolve, rejecct) {
+          return new Promise(function (resolve, reject) {
             setImmediate(function () {
               resolve(x)
             })
