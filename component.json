@@ -2,7 +2,7 @@
   "name": "thunks",
   "description": "A small and magical composer for all JavaScript asynchronous.",
   "main": "thunks.js",
-  "version": "4.1.4",
+  "version": "4.1.5",
   "homepage": "https://github.com/thunks/thunks",
   "authors": [
     "Yan Qing <admin@zensh.com>"

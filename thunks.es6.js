@@ -350,5 +350,5 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.1.3'
+thunks.VERSION = '4.1.5'
 export default thunks

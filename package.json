@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.1.4",
+  "version": "4.1.5",
   "main": "thunks.js",
   "typings": "./thunks.d.ts",
   "jsnext:main": "thunks.es6.js",
@@ -35,16 +35,16 @@
     "co": ">=4.6.0",
     "istanbul": "^0.4.2",
     "jsbench": "^1.0.0",
-    "mocha": "^2.4.5",
     "rsvp": ">=3.2.1",
-    "should": "^8.2.2",
+    "should": "^8.3.0",
     "standard": "^6.0.8",
     "thenjs": ">=2.0.2",
+    "tman": "^0.5.0",
     "when": ">=3.7.7"
   },
   "scripts": {
-    "test": "standard && mocha -t 10000 test/index",
-    "test-cov": "standard && node node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -t 20000 test/index"
+    "test": "standard && tman -t 10000 test/index",
+    "test-cov": "istanbul cover tman -- -t 20000 test/index"
   },
   "files": [
     "README.md",

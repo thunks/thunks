@@ -382,7 +382,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.1.2'
+  thunks.VERSION = '4.1.5'
   thunks['default'] = thunks
   thunks.pruneErrorStack = true
   return thunks
