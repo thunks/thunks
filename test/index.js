@@ -1,14 +1,15 @@
 'use strict'
-/*global describe, it, noneFn*/
+/*global noneFn*/
 
+var tman = require('tman')
 var should = require('should')
 var thenjs = require('thenjs')
 var thunks = require('..')
 var x = {}
 
-describe('thunks', function () {
-  describe('thunks()', function () {
-    it('thunks(onerror) 1', function (done) {
+tman.suite('thunks', function () {
+  tman.suite('thunks()', function () {
+    tman.it('thunks(onerror) 1', function (done) {
       var thunk = thunks(function (error) {
         should(error).be.instanceOf(Error)
         should(error.message).be.equal('some error!')
@@ -24,7 +25,7 @@ describe('thunks', function () {
       })
     })
 
-    it('thunks(onerror) 2', function (done) {
+    tman.it('thunks(onerror) 2', function (done) {
       var thunk = thunks(function (error) {
         should(error).be.instanceOf(Error)
         should(error.message).be.equal('some error 2!')
@@ -38,7 +39,7 @@ describe('thunks', function () {
       })
     })
 
-    it('thunks(onerror) [return true]', function (done) {
+    tman.it('thunks(onerror) [return true]', function (done) {
       var thunk = thunks({
         onerror: function (error) {
           should(error).be.instanceOf(Error)
@@ -58,7 +59,7 @@ describe('thunks', function () {
       })
     })
 
-    it('thunks({onerror: onerror})', function (done) {
+    tman.it('thunks({onerror: onerror})', function (done) {
       var thunk = thunks({
         onerror: function (error) {
           should(error).be.instanceOf(Error)
@@ -75,7 +76,7 @@ describe('thunks', function () {
       })
     })
 
-    it('thunks({onstop: onstop})', function (done) {
+    tman.it('thunks({onstop: onstop})', function (done) {
       var thunk = thunks({
         onstop: function (sig) {
           should(sig).not.be.instanceOf(Error)
@@ -95,7 +96,7 @@ describe('thunks', function () {
       })
     })
 
-    it('thunks({onstop: onstop}) in nested', function (done) {
+    tman.it('thunks({onstop: onstop}) in nested', function (done) {
       var thunk = thunks({
         onstop: function (sig) {
           should(sig.message).be.equal('nested')
@@ -113,7 +114,7 @@ describe('thunks', function () {
       })
     })
 
-    it('thunks({debug: debug})', function (done) {
+    tman.it('thunks({debug: debug})', function (done) {
       var _debug = null
       var thunk = thunks({
         debug: function () {
@@ -135,7 +136,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('Throw err while fill repeatedly', function (done) {
+    tman.it('Throw err while fill repeatedly', function (done) {
       var thunk = thunks()
       var thunkFn = thunk(1)
       thunkFn(function (error, value) {
@@ -151,7 +152,7 @@ describe('thunks', function () {
       done()
     })
 
-    it('Throw err while fill with non function', function (done) {
+    tman.it('Throw err while fill with non function', function (done) {
       var thunk = thunks()
       should(function () {
         thunk(1)('abc')
@@ -166,8 +167,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk()', function () {
-    it('thunk(value)', function (done) {
+  tman.suite('thunk()', function () {
+    tman.it('thunk(value)', function (done) {
       var thunk = thunks()
       thunk(1)(function (error, value) {
         should(error).be.equal(null)
@@ -183,7 +184,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk(thunkFn)', function (done) {
+    tman.it('thunk(thunkFn)', function (done) {
       var thunk = thunks()
       thunk(thunk(x))(function (error, value) {
         should(error).be.equal(null)
@@ -199,7 +200,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk(function)', function (done) {
+    tman.it('thunk(function)', function (done) {
       var thunk = thunks()
       var thunkFn1 = thunk(function (callback) {
         callback(null, 1)
@@ -277,7 +278,24 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk(promise)', function (done) {
+    tman.it('thunk(non-thunk-function)', function (done) {
+      function nonThunk1 () {}
+      function nonThunk2 (a, b) {}
+
+      var thunk = thunks()
+      thunk(nonThunk1)(function (err) {
+        should(err).be.instanceOf(Error)
+        should(err.message).containEql('Not thunk function')
+        should(err.message).containEql('nonThunk1')
+        return thunk(nonThunk2)(function (err) {
+          should(err).be.instanceOf(Error)
+          should(err.message).containEql('Not thunk function')
+          should(err.message).containEql('nonThunk2')
+        })
+      })(done)
+    })
+
+    tman.it('thunk(promise)', function (done) {
       var thunk = thunks()
       if (typeof Promise === 'function') {
         thunk(Promise.resolve(x))(function (error, value) {
@@ -302,7 +320,7 @@ describe('thunks', function () {
       }
     })
 
-    it('thunk(toThunk)', function (done) {
+    tman.it('thunk(toThunk)', function (done) {
       var thunk = thunks()
       thunk(thenjs(x))(function (error, value) {
         should(error).be.equal(null)
@@ -325,7 +343,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.call()', function (done) {
+    tman.it('thunk.call()', function (done) {
       var thunk = thunks()
       thunk.call(x, 1)(function (error, value) {
         should(error).be.equal(null)
@@ -344,7 +362,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk() lazy evaluation', function (done) {
+    tman.it('thunk() lazy evaluation', function (done) {
       var thunk = thunks()
       var called = 0
       var lazy = thunk(function (callback) {
@@ -359,8 +377,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.all()', function () {
-    it('thunk.all(array)', function (done) {
+  tman.suite('thunk.all()', function () {
+    tman.it('thunk.all(array)', function (done) {
       var thunk = thunks()
       thunk.all([])(function (error, value) {
         should(error).be.equal(null)
@@ -414,7 +432,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.all(object)', function (done) {
+    tman.it('thunk.all(object)', function (done) {
       var thunk = thunks()
       thunk.all({})(function (error, value) {
         should(error).be.equal(null)
@@ -470,7 +488,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.all(arg1, arg2, ...)', function (done) {
+    tman.it('thunk.all(arg1, arg2, ...)', function (done) {
       var thunk = thunks()
       thunk.all(1, 2, 3, 4, 5)(function (error, value) {
         should(error).be.equal(null)
@@ -496,7 +514,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.all.call()', function (done) {
+    tman.it('thunk.all.call()', function (done) {
       var thunk = thunks()
       thunk.all.call(x, [1, 2, 3, 4, 5])(function (error, value) {
         should(error).be.equal(null)
@@ -531,8 +549,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.seq()', function () {
-    it('thunk.seq()', function (done) {
+  tman.suite('thunk.seq()', function () {
+    tman.it('thunk.seq()', function (done) {
       var thunk = thunks()
       thunk.seq(1, 2, [3, 4], '5')(function (error, value) {
         should(error).be.equal(null)
@@ -593,7 +611,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.seq.call()', function (done) {
+    tman.it('thunk.seq.call()', function (done) {
       var thunk = thunks()
       thunk.seq.call(x, 1, 2, 3, 4, function (callback) {
         should(this).be.equal(x)
@@ -611,8 +629,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.race()', function () {
-    it('thunk.race()', function (done) {
+  tman.suite('thunk.race()', function () {
+    tman.it('thunk.race()', function (done) {
       var thunk = thunks()
       var finish = 0
       thunk.race(1, 2, 3, 4, 5)(function (error, value) {
@@ -662,7 +680,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.race.call()', function (done) {
+    tman.it('thunk.race.call()', function (done) {
       var thunk = thunks()
       thunk.race.call(x, 1, 2, 3, 4)(function (error, value) {
         should(error).be.equal(null)
@@ -688,8 +706,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.digest()', function () {
-    it('thunk.digest()', function (done) {
+  tman.suite('thunk.digest()', function () {
+    tman.it('thunk.digest()', function (done) {
       var thunk = thunks()
       thunk.digest(1, 2)(function (error, value) {
         should(error).be.equal(1)
@@ -708,7 +726,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.digest.call()', function (done) {
+    tman.it('thunk.digest.call()', function (done) {
       var thunk = thunks()
       thunk.digest.call(x, 1, 2)(function (error, value) {
         should(error).be.equal(1)
@@ -723,12 +741,12 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.thunkify()', function () {
+  tman.suite('thunk.thunkify()', function () {
     function test (a, b, c, callback) {
       callback(a, b, c, this)
     }
 
-    it('thunk.thunkify()', function (done) {
+    tman.it('thunk.thunkify()', function (done) {
       var thunk = thunks()
       var thunkTest = thunk.thunkify(test)
       thunkTest(1, 2, 3)(function (error, value) {
@@ -744,7 +762,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.thunkify.call()', function (done) {
+    tman.it('thunk.thunkify.call()', function (done) {
       var thunk = thunks()
       var thunkTest = thunk.thunkify.call(x, test)
       thunkTest(1, 2, 3)(function (error, value) {
@@ -763,12 +781,12 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.lift()', function () {
+  tman.suite('thunk.lift()', function () {
     function test (a, b) {
       return a === b
     }
 
-    it('thunk.lift()', function (done) {
+    tman.it('thunk.lift()', function (done) {
       var thunk = thunks()
       var testT = thunk.lift(test)
 
@@ -800,7 +818,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.lift.call()', function (done) {
+    tman.it('thunk.lift.call()', function (done) {
       var thunk = thunks()
       var obj = {
         x: x,
@@ -816,7 +834,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.lift() with error', function (done) {
+    tman.it('thunk.lift() with error', function (done) {
       var thunk = thunks()
       var testT = thunk.lift(test)
       testT(thunk(1), function (callback) { throw new Error('some error') })(function (error, value) {
@@ -827,8 +845,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.persist()', function () {
-    it('thunk.persist()', function (done) {
+  tman.suite('thunk.persist()', function () {
+    tman.it('thunk.persist()', function (done) {
       var thunk = thunks()
       var test = thunk.persist(thunk(x))
       thunk.all(
@@ -869,7 +887,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.persist.call()', function (done) {
+    tman.it('thunk.persist.call()', function (done) {
       var thunk = thunks()
       var obj = {x: x}
       var test = thunk.persist.call(obj, thunk(x))
@@ -885,7 +903,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.persist() with error', function (done) {
+    tman.it('thunk.persist() with error', function (done) {
       var thunk = thunks()
       var test = thunk.persist(thunk(function () { noneFn() }))
       test(function (error, value) {
@@ -907,8 +925,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.delay()', function () {
-    it('thunk.delay()', function (done) {
+  tman.suite('thunk.delay()', function () {
+    tman.it('thunk.delay()', function (done) {
       var thunk = thunks()
       var time = Date.now()
       thunk.delay(100)(function (error, value) {
@@ -921,7 +939,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('thunk.delay.call()', function (done) {
+    tman.it('thunk.delay.call()', function (done) {
       var thunk = thunks()
       var time = Date.now()
       thunk.delay.call(x, 100)(function (error, value) {
@@ -932,8 +950,8 @@ describe('thunks', function () {
     })
   })
 
-  describe('thunk.stop()', function () {
-    it('thunk.stop()', function (done) {
+  tman.suite('thunk.stop()', function () {
+    tman.it('thunk.stop()', function (done) {
       var thunk = thunks()
       thunk(1)(function (error, value) {
         should(error).be.equal(null)
@@ -946,7 +964,7 @@ describe('thunks', function () {
       done()
     })
 
-    it('thunk.stop("stop message")', function (done) {
+    tman.it('thunk.stop("stop message")', function (done) {
       var thunk = thunks({
         onstop: function (res) {
           if (res && res.status === 19) {
@@ -966,10 +984,11 @@ describe('thunks', function () {
     })
   })
 
-  describe('extremely control flow (100000)', function () {
+  tman.suite('extremely control flow (100000)', function () {
     var extreme = 100000
+    this.timeout(10000)
 
-    it('extremely sync chain', function (done) {
+    tman.it('extremely sync chain', function (done) {
       var thunk = thunks()
       var i = extreme
       var thunkFn = thunk(0)
@@ -985,7 +1004,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('extremely async chain', function (done) {
+    tman.it('extremely async chain', function (done) {
       var thunk = thunks()
       var i = extreme
       var thunkFn = thunk(0)
@@ -1005,7 +1024,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('extremely sequence', function (done) {
+    tman.it('extremely sequence', function (done) {
       var thunk = thunks()
       var i = extreme
       var list = []
@@ -1017,7 +1036,7 @@ describe('thunks', function () {
       })(done)
     })
 
-    it('extremely parallel', function (done) {
+    tman.it('extremely parallel', function (done) {
       var thunk = thunks()
       var i = extreme
       var list = []

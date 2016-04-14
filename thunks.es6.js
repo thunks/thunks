@@ -183,6 +183,7 @@ function runThunk (ctx, value, callback, thunkObj, noTryRun) {
   let thunk = toThunk(value, thunkObj)
   if (!isFunction(thunk)) return thunk === undef ? callback(null) : callback(null, thunk)
   if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx))
+  else if (thunk.length !== 1) return callback(new Error('Not thunk function: ' + thunk))
   if (noTryRun) return thunk.call(ctx, callback)
   let err = tryRun(ctx, thunk, [callback])[0]
   return err && callback(err)
@@ -350,5 +351,5 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.1.5'
+thunks.VERSION = '4.1.6'
 export default thunks

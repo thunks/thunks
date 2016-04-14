@@ -1,11 +1,11 @@
 'use strict'
-/*global describe, it*/
 
+var tman = require('tman')
 var should = require('should')
-var thunks = require('../thunks.js')
+var thunks = require('..')
 
-describe('thunk with generator', function () {
-  it('yield any value', function (done) {
+tman.suite('thunk with generator', function () {
+  tman.it('yield any value', function (done) {
     var thunk = thunks()
 
     thunk(function *() {
@@ -54,12 +54,12 @@ describe('thunk with generator', function () {
     })(done)
   })
 
-  it('catch error', function (done) {
+  tman.it('catch error', function (done) {
     var thunk = thunks()
     var error = null
     thunk(function *() {
       try {
-        yield function () {
+        yield function (cb) {
           throw new Error('catch error 1')
         }
       } catch (err) {
@@ -86,7 +86,7 @@ describe('thunk with generator', function () {
     })(done)
   })
 
-  it('call with context', function (done) {
+  tman.it('call with context', function (done) {
     var thunk = thunks()
     var x = {}
 
@@ -109,7 +109,7 @@ describe('thunk with generator', function () {
     })(done)
   })
 
-  it('nested yield and chained generator', function (done) {
+  tman.it('nested yield and chained generator', function (done) {
     var thunk = thunks()
 
     thunk(function *() {
@@ -134,7 +134,7 @@ describe('thunk with generator', function () {
     })(done)
   })
 
-  it('nested yield 2', function (done) {
+  tman.it('nested yield 2', function (done) {
     var thunk = thunks()
     thunk(function *() {
       return yield [
@@ -168,7 +168,7 @@ describe('thunk with generator', function () {
     })(done)
   })
 
-  it('stop thunk', function (done) {
+  tman.it('stop thunk', function (done) {
     var thunk = thunks()
 
     thunk(function *() {
@@ -193,7 +193,7 @@ describe('thunk with generator', function () {
     done()
   })
 
-  it('stop thunk with onstop', function (done) {
+  tman.it('stop thunk with onstop', function (done) {
     var thunk = thunks({
       onstop: function (sig) {
         should(sig.message).be.equal('generator')
@@ -216,7 +216,7 @@ describe('thunk with generator', function () {
     })
   })
 
-  it('generator in thunk.persist', function (done) {
+  tman.it('generator in thunk.persist', function (done) {
     var x = {}
     var thunk = thunks()
     var test = thunk.persist(thunk(x))
@@ -230,7 +230,7 @@ describe('thunk with generator', function () {
     })(done)
   })
 
-  it('extremely yield (100000)', function (done) {
+  tman.it('extremely yield (100000)', function (done) {
     var thunk = thunks()
     thunk(function *() {
       var result = 100000

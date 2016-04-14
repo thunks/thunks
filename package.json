@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.1.5",
+  "version": "4.1.6",
   "main": "thunks.js",
   "typings": "./thunks.d.ts",
   "jsnext:main": "thunks.es6.js",
@@ -30,21 +30,21 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "async": ">=1.5.2",
-    "bluebird": ">=3.3.4",
-    "co": ">=4.6.0",
-    "istanbul": "^0.4.2",
+    "async": "^1.5.2",
+    "bluebird": "^3.3.5",
+    "co": "^4.6.0",
+    "istanbul": "^0.4.3",
     "jsbench": "^1.0.0",
-    "rsvp": ">=3.2.1",
+    "rsvp": "^3.2.1",
     "should": "^8.3.0",
     "standard": "^6.0.8",
-    "thenjs": ">=2.0.2",
-    "tman": "^0.5.0",
-    "when": ">=3.7.7"
+    "thenjs": "^2.0.3",
+    "tman": "^0.6.0",
+    "when": "^3.7.7"
   },
   "scripts": {
-    "test": "standard && tman -t 10000 test/index",
-    "test-cov": "istanbul cover tman -- -t 20000 test/index"
+    "test": "standard && tman test/index",
+    "test-cov": "istanbul cover tman test/index"
   },
   "files": [
     "README.md",
