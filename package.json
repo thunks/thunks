@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.1.6",
+  "version": "4.1.7",
   "main": "thunks.js",
   "typings": "./thunks.d.ts",
   "jsnext:main": "thunks.es6.js",
@@ -36,10 +36,10 @@
     "istanbul": "^0.4.3",
     "jsbench": "^1.0.0",
     "rsvp": "^3.2.1",
-    "should": "^8.3.0",
+    "should": "^8.3.1",
     "standard": "^6.0.8",
     "thenjs": "^2.0.3",
-    "tman": "^0.6.0",
+    "tman": "^0.8.0",
     "when": "^3.7.7"
   },
   "scripts": {
