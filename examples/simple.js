@@ -12,7 +12,7 @@ size('.gitignore')(function (error, res) {
 })(function (error, res) {
   console.log(error, res)
   return size('package.json')
-})(function *(error, res) {
+})(function * (error, res) {
   console.log(error, res)
   // generator
   var a = yield size('.gitignore')

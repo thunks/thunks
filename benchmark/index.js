@@ -18,7 +18,7 @@ if (typeof Promise === 'function') {
 }
 
 try { // 检测是否支持 generator
-  var check = new Function('return function*(){}') // eslint-disable-line
+  var check = new Function('return function* (){}') // eslint-disable-line
   jsbench.add('co', require('./co.js')(len, syncMode))
   jsbench.add('thunks-generator', require('./thunks-gen.js')(len, syncMode))
 } catch (e) {

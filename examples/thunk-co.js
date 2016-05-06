@@ -8,7 +8,7 @@ var thunkFn = thunk(function (callback) {
   setTimeout(function () { callback(null, 1) })
 })
 
-co(function *() {
+co(function * () {
   var a = yield thunkFn
   return yield [a, thunk(2), thunk(function (callback) {
     setTimeout(function () { callback(null, 3) })
@@ -22,7 +22,7 @@ thunk(123)(function (err, res) {
   return Promise.resolve(456)
 })(function (err, res) {
   console.log(err, res) // null, 456
-  return co(function *() {
+  return co(function * () {
     return yield [thunk('a'), Promise.resolve('b')]
   })
 })(function (err, res) {

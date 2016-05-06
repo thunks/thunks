@@ -8,7 +8,7 @@ tman.suite('thunk with generator', function () {
   tman.it('yield any value', function (done) {
     var thunk = thunks()
 
-    thunk(function *() {
+    thunk(function * () {
       should(yield 1).be.equal(1)
       should(yield null).be.equal(null)
       should(yield thunk(1)).be.equal(1)
@@ -44,7 +44,7 @@ tman.suite('thunk with generator', function () {
         },
         thunk(3),
         Promise.resolve(4),
-        thunk(function *() {
+        thunk(function * () {
           return yield 5
         })
       ]
@@ -57,7 +57,7 @@ tman.suite('thunk with generator', function () {
   tman.it('catch error', function (done) {
     var thunk = thunks()
     var error = null
-    thunk(function *() {
+    thunk(function * () {
       try {
         yield function (cb) {
           throw new Error('catch error 1')
@@ -69,7 +69,7 @@ tman.suite('thunk with generator', function () {
       should(error.message).be.equal('catch error 1')
 
       try {
-        yield function *() {
+        yield function * () {
           throw new Error('catch error 2')
         }
       } catch (err) {
@@ -90,7 +90,7 @@ tman.suite('thunk with generator', function () {
     var thunk = thunks()
     var x = {}
 
-    thunk.call(x, function *() {
+    thunk.call(x, function * () {
       should(this).be.equal(x)
       return yield [
         function (callback) {
@@ -112,23 +112,23 @@ tman.suite('thunk with generator', function () {
   tman.it('nested yield and chained generator', function (done) {
     var thunk = thunks()
 
-    thunk(function *() {
-      should(yield function *() {
+    thunk(function * () {
+      should(yield function * () {
         return yield 1
       }).be.equal(1)
 
-      return function *() {
+      return function * () {
         return yield [1, 2, 3, 4, 5]
       }
-    })(function *(err, res) {
+    })(function * (err, res) {
       should(err).be.equal(null)
       should(res).be.eql([1, 2, 3, 4, 5])
       should(yield res).be.eql([1, 2, 3, 4, 5])
 
-      return (function *() {
+      return (function * () {
         return yield [1, 2, 3, 4, 5]
       })()
-    })(function *(err, res) {
+    })(function * (err, res) {
       should(err).be.equal(null)
       should(res).be.eql([1, 2, 3, 4, 5])
     })(done)
@@ -136,20 +136,20 @@ tman.suite('thunk with generator', function () {
 
   tman.it('nested yield 2', function (done) {
     var thunk = thunks()
-    thunk(function *() {
+    thunk(function * () {
       return yield [
         thunk.all([
-          function *() {
+          function * () {
             return yield 1
-          }, (function *() {
+          }, (function * () {
             return yield 2
           }())
         ]),
         thunk.seq([
-          function *() {
+          function * () {
             return yield 3
           },
-          (function *() {
+          (function * () {
             return yield 4
           }())
         ]),
@@ -171,16 +171,16 @@ tman.suite('thunk with generator', function () {
   tman.it('stop thunk', function (done) {
     var thunk = thunks()
 
-    thunk(function *() {
+    thunk(function * () {
       thunk.stop()
       should('It will not run!').be.equal('')
     })(function () {
       should('It will not run!').be.equal('')
     })
 
-    thunk(function *() {
+    thunk(function * () {
       try {
-        yield function *() {
+        yield function * () {
           thunk.stop()
           should('It will not run!').be.equal('')
         }
@@ -202,9 +202,9 @@ tman.suite('thunk with generator', function () {
     })
     var thunk2 = thunks()
 
-    thunk2.delay(100)(function *() {
+    thunk2.delay(100)(function * () {
       try {
-        yield function *() {
+        yield function * () {
           thunk.stop('generator')
           should('It will not run!').be.equal('')
         }
@@ -220,7 +220,7 @@ tman.suite('thunk with generator', function () {
     var x = {}
     var thunk = thunks()
     var test = thunk.persist(thunk(x))
-    test(function *(error, value) {
+    test(function * (error, value) {
       should(error).be.equal(null)
       should(value).be.equal(x)
       return yield test
@@ -232,7 +232,7 @@ tman.suite('thunk with generator', function () {
 
   tman.it('extremely yield (100000)', function (done) {
     var thunk = thunks()
-    thunk(function *() {
+    thunk(function * () {
       var result = 100000
       var i = result
 

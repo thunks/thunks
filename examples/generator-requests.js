@@ -12,14 +12,14 @@ var urls = [
   'http://bing.com'
 ]
 
-thunk(function *() {
+thunk(function * () {
   // sequential
   for (var i = 0; i < urls.length; i++) {
     var url = urls[i]
     var res = yield get(url)
     console.log('%s -> %s', url, res[0].statusCode)
   }
-})(function *() {
+})(function * () {
   // parallel
   var res = yield thunk.all(urls.map(function (url) {
     return get(url)

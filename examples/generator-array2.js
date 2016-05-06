@@ -18,7 +18,7 @@ function * latency (url, times) {
   return ret
 }
 
-thunk(function *() {
+thunk(function * () {
   // run each test in sequence
   var a = yield latency('http://baidu.com', 5)
   console.log(a)
@@ -28,7 +28,7 @@ thunk(function *() {
 
   var c = yield latency('http://weibo.com', 5)
   console.log(c)
-})(function *() {
+})(function * () {
   // run each test in parallel, order is retained
   var a = latency('http://baidu.com', 5)
   var b = latency('http://github.com', 5)

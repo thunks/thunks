@@ -12,7 +12,6 @@ A small and magical composer for all JavaScript asynchronous.
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
 
-## Break Change: the thunk result will no more than 2
 There is a break change in V4.x relative to V3.x, two or more results will become a array of results.
 
 **v3.x:**

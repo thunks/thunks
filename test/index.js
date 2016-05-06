@@ -1050,7 +1050,7 @@ tman.suite('thunks', function () {
   })
 
   try { // 检测是否支持 generator，是则加载 generator 测试
-    var check = new Function('return function*(){}') // eslint-disable-line
+    var check = new Function('return function* (){}') // eslint-disable-line
     require('./generator.js')
   } catch (e) {
     console.log('Not support generator!')

@@ -4,7 +4,7 @@
 var redis = require('thunk-redis')
 var db = redis.createClient()
 
-db.select(1)(function *(error, res) {
+db.select(1)(function * (error, res) {
   console.log(error, res)
   yield this.set('foo', 'bar')
   yield this.set('bar', 'baz')
