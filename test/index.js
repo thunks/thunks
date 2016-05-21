@@ -592,21 +592,21 @@ tman.suite('thunks', function () {
           }),
           thunk(function (callback) {
             noneFn()
+            callback()
           }),
           thunk(function (callback) {
             should('It will not run!').be.equal('')
+            callback()
           })
         )(function (error, value) {
-          should(error).be.instanceOf(Error)
+          should(error).be.instanceOf(ReferenceError)
           should(value).be.equal(undefined)
           return thunk.seq(1)
         })(function (error, value) {
-          should(error).be.equal(null)
-          should(value).be.eql([1])
+          should(error).be.instanceOf(TypeError)
           return thunk.seq()
         })(function (error, value) {
-          should(error).be.equal(null)
-          should(value).be.eql([])
+          should(error).be.instanceOf(TypeError)
         })
       })(done)
     })
@@ -676,6 +676,16 @@ tman.suite('thunks', function () {
           should(error).be.equal(null)
           should(value).be.equal(4)
           finish = 3
+          return thunk.race([])
+        })(function (error, value) {
+          should(error).be.equal(null)
+          should(value).be.equal(undefined)
+          return thunk.race({})
+        })(function (error, value) {
+          should(error).be.instanceOf(TypeError)
+          return thunk.race()
+        })(function (error, value) {
+          should(error).be.instanceOf(TypeError)
         })
       })(done)
     })

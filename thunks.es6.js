@@ -1,8 +1,8 @@
+'use strict'
 // **Github:** https://github.com/thunks/thunks
 //
 // **License:** MIT
 
-const undef = void 0
 const maxTickDepth = 100
 /* istanbul ignore next */
 const nextTick = (typeof process === 'object' && process.nextTick)
@@ -26,13 +26,15 @@ function thunks (options) {
   }
 
   thunk.seq = function (array) {
-    if (arguments.length !== 1 || !Array.isArray(array)) array = slice(arguments)
+    if (arguments.length > 1) array = slice(arguments)
     return thunk.call(this, sequenceToThunk(array))
   }
 
   thunk.race = function (array) {
     if (arguments.length > 1) array = slice(arguments)
     return thunk.call(this, function (done) {
+      if (!Array.isArray(array)) throw new TypeError(String(array) + ' is not array')
+      if (!array.length) return thunk.call(this)(done)
       for (let i = 0, l = array.length; i < l; i++) thunk.call(this, array[i])(done)
     })
   }
@@ -181,11 +183,11 @@ function continuation (parent, domain, tickDepth) {
 
 function runThunk (ctx, value, callback, thunkObj, noTryRun) {
   let thunk = toThunk(value, thunkObj)
-  if (!isFunction(thunk)) return thunk === undef ? callback(null) : callback(null, thunk)
+  if (!isFunction(thunk)) return thunk === undefined ? callback(null) : callback(null, thunk)
   if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx))
   else if (thunk.length !== 1) {
     if (!thunks.strictMode) return callback(null, thunk)
-    err = new Error('Not thunk function: ' + thunk)
+    let err = new Error('Not thunk function: ' + thunk)
     err.fn = thunk
     return callback(err)
   }
@@ -277,6 +279,7 @@ function objectToThunk (obj, thunkObj) {
 
 function sequenceToThunk (array) {
   return function (callback) {
+    if (!Array.isArray(array)) throw new TypeError(String(array) + ' is not array')
     let ctx = this
     let i = 0
     let end = array.length - 1
@@ -356,6 +359,6 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.1.8'
+thunks.VERSION = '4.2.0'
 thunks.strictMode = true
 export default thunks

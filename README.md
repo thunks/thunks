@@ -229,7 +229,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-5. Generator and Generator Function, like `co`, and `yield` anything
+5. Generator and Generator Function, like `co`, but `yield` anything
 
   ```js
   thunk(function *() {

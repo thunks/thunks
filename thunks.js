@@ -52,13 +52,15 @@
     }
 
     thunk.seq = function (array) {
-      if (arguments.length !== 1 || !isArray(array)) array = slice(arguments)
+      if (arguments.length > 1) array = slice(arguments)
       return thunk.call(this, sequenceToThunk(array))
     }
 
     thunk.race = function (array) {
       if (arguments.length > 1) array = slice(arguments)
       return thunk.call(this, function (done) {
+        if (!Array.isArray(array)) throw new TypeError(String(array) + ' is not array')
+        if (!array.length) return thunk.call(this)(done)
         for (var i = 0, l = array.length; i < l; i++) thunk.call(this, array[i])(done)
       })
     }
@@ -309,6 +311,7 @@
 
   function sequenceToThunk (array) {
     return function (callback) {
+      if (!Array.isArray(array)) throw new TypeError(String(array) + ' is not array')
       var i = 0
       var ctx = this
       var end = array.length - 1
@@ -379,6 +382,7 @@
     })
   }
 
+  thunks.pruneErrorStack = false
   function pruneErrorStack (error) {
     if (thunks.pruneErrorStack && error.stack) {
       error.stack = error.stack
@@ -389,9 +393,8 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.1.8'
-  thunks['default'] = thunks
-  thunks.pruneErrorStack = true
+  thunks.VERSION = '4.2.0'
   thunks.strictMode = true
+  thunks['default'] = thunks
   return thunks
 }))
