@@ -32,7 +32,7 @@ ES3+, support node.js and all browsers.
 ## Demo
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 var fs = require('fs')
 
 var size = thunk.thunkify(fs.stat)
@@ -56,7 +56,7 @@ thunk(function *() {
 ```
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 var fs = require('fs')
 
 var size = thunk.thunkify(fs.stat)
@@ -236,7 +236,7 @@ thunk.call({x: 123}, 456)(function (error, value) {
 
 
 ### thunk.all(obj)
-### thunk.all(thunk1, ..., thunkX)
+### thunk.all(thunkable1, ..., thunkableN)
 
 返回一个新的子 thunk 函数。
 
@@ -275,8 +275,8 @@ thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
 })
 ```
 
-### thunk.seq([thunk1, ..., thunkX])
-### thunk.seq(thunk1, ..., thunkX)
+### thunk.seq([thunkable1, ..., thunkableN])
+### thunk.seq(thunkable1, ..., thunkableN)
 
 返回一个新的子 thunk 函数。
 
@@ -336,45 +336,10 @@ thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
 })
 ```
 
-### thunk.race([thunk1, ..., thunkX])
-### thunk.race(thunk1, ..., thunkX)
+### thunk.race([thunkable1, ..., thunkableN])
+### thunk.race(thunkable1, ..., thunkableN)
 
 返回一个新的子 thunk 函数。迭代数组所有子 thunk 函数最先完成的运算结果会传入其中，无论正确或错误。
-
-### thunk.digest(error, val1, val2, ...)
-
-返回一个新的子 thunk 函数。
-
-将 nodejs callback 风格的输入值转换成一个新的子 thunk 函数，该子 thunk 函数的结果值为 `(error, val1, val2, ...)`，即直接将 `digest` 的参数传入到新的子 thunk 函数，相当于：
-
-```js
-thunk(function (callback) {
-  callback(error, val1, val2, ...)
-})
-```
-
-使用场景：
-
-```js
-thunk(function (callback) {
-  //...
-  callback(error, result)
-})(function (error, value) {
-  //...
-  return thunk.digest(error, value)
-})(function (error, value) {
-  //...
-})
-```
-
-还可以这样运行(this)：
-
-```js
-var a = {x: 1}
-thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
-  console.log(this, error, value1, value2) // { x: 1 } null 1 2
-})
-```
 
 ### thunk.thunkify(fn)
 
@@ -383,7 +348,7 @@ thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
 将带 callback 参数的 nodejs 风格的函数 `fn` 转换成一个新的函数，新函数不再接收 `callback`，其输出为子 thunk 函数。
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 var fs = require('fs')
 var fsStat = thunk.thunkify(fs.stat)
 
@@ -419,7 +384,7 @@ run(2)(function (error, result) {
 `lift` 概念来自于 Haskell，它将一个同步函数转化成一个异步函数。该异步函数接受 `thunkable` 参数，等所有参数求得真实值后，再按照原函数逻辑运行。该异步函数返回子 thunk 函数。
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 
 function calculator (a, b, c) {
   return (a + b + c) * 10
@@ -446,7 +411,7 @@ var calculatorT = thunk.lift.call(context, calculator)
 将 `thunkable` 值转换成一个可以持久化的 thunk 函数，可以无限次运行该函数而取得其值。
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 
 var persistThunk = thunk.persist(thunk(x))
 
@@ -522,10 +487,6 @@ thunk.delay(100)(function () {
   console.log('It will not be run!')
 })
 ```
-
-## Who's using
-
-+ Teambition: https://www.teambition.com/ use in server-side and client-side
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg

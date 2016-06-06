@@ -56,6 +56,8 @@ And a mountain of applications in server-side or client-side.
 
 ## What is a thunk?
 
+0. [ALGOL thunks in 1961](http://archive.computerhistory.org/resources/text/algol/ACM_Algol_bulletin/1064045/frontmatter.pdf)
+
 1. **`thunk`** is a function that encapsulates synchronous or asynchronous code inside.
 
 2. **`thunk`** accepts only one `callback` function as an arguments, which is a CPS function.
@@ -70,7 +72,7 @@ or it will be sent to another new **`thunk`** function as the value of the compu
 ## Demo
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 var fs = require('fs')
 
 var size = thunk.thunkify(fs.stat)
@@ -94,7 +96,7 @@ thunk(function *() {
 ```
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 var fs = require('fs')
 
 var size = thunk.thunkify(fs.stat)
@@ -274,7 +276,7 @@ You can also run with `this`:
   ```
 
 ### thunk.all(obj)
-### thunk.all(thunk1, ..., thunkX)
+### thunk.all(thunkable1, ..., thunkableN)
 
 Returns a child thunk function.
 
@@ -311,8 +313,8 @@ thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
 })
 ```
 
-### thunk.seq([thunk1, ..., thunkX])
-### thunk.seq(thunk1, ..., thunkX)
+### thunk.seq([thunkable1, ..., thunkableN])
+### thunk.seq(thunkable1, ..., thunkableN)
 
 Returns a child thunk function.
 
@@ -372,47 +374,10 @@ thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
 })
 ```
 
-### thunk.race([thunk1, ..., thunkX])
-### thunk.race(thunk1, ..., thunkX)
+### thunk.race([thunkable1, ..., thunkableN])
+### thunk.race(thunkable1, ..., thunkableN)
 
 Returns a child thunk function with the value or error from one first completed.
-
-### thunk.digest(error, val1, val2, ...)
-
-Returns a child thunk function.
-
-Transform a Node.js callback function into a child thunk function.
-This child thunk function retuslts in `(error, val1, val2, ...)`, which is just being passed to a new child thunk function,
-like:
-
-```js
-thunk(function (callback) {
-  callback(error, val1, val2, ...)
-})
-```
-
-One use case:
-
-```js
-thunk(function (callback) {
-  //...
-  callback(error, result)
-})(function (error, value) {
-  //...
-  return thunk.digest(error, value)
-})(function (error, value) {
-  //...
-})
-```
-
-You may also write code with `this`：
-
-```js
-var a = {x: 1}
-thunk.digest.call(a, null, 1, 2)(function (error, value1, value2) {
-  console.log(this, error, value1, value2) // { x: 1 } null 1 2
-})
-```
 
 ### thunk.thunkify(fn)
 
@@ -422,7 +387,7 @@ Transform a `fn` function which is in Node.js style into a new function.
 This new function does not accept `callback` as arguments, but accepts child thunk functions.
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 var fs = require('fs')
 var fsStat = thunk.thunkify(fs.stat)
 
@@ -459,7 +424,7 @@ run(2)(function (error, result) {
 This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`. The new function return a child thunk function.
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 
 function calculator (a, b, c) {
   return (a + b + c) * 10
@@ -486,7 +451,7 @@ var calculatorT = thunk.lift.call(context, calculator)
 it transform `thunkable` value to a persist thunk function, which can be called more than once with the same result(like as promise). The new function return a child thunk function.
 
 ```js
-var thunk = require('../thunks.js')()
+var thunk = require('thunks')()
 
 var persistThunk = thunk.persist(thunk(x))
 
@@ -536,7 +501,7 @@ This will stop control flow process with a message similar to Promise's cancelab
 Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code. Stop signal can be caught by `onstop`, and aslo can be caught by `try catch`, in this case it will not trigger `onstop`.
 
 ```js
-var thunk = require('../thunks.js')({
+var thunk = require('thunks')({
   onstop: function (res) {
     if (res) console.log(res.code, res.status, res) // SIGSTOP 19 { message: 'Stop now!' }
   }
@@ -561,10 +526,6 @@ thunk.delay(100)(function () {
   console.log('It will not run!')
 })
 ```
-
-## Who's using
-
-+ Teambition: https://www.teambition.com/ use in server-side and client-side
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg
