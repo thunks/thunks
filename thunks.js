@@ -43,7 +43,8 @@
     }
 
     function thunk (thunkable) {
-      return childThunk(new Link([null, thunkable], null), new Domain(this === thunk ? null : this))
+      return childThunk(new Link([null, thunkable], null),
+                        new Domain(this === thunk ? null : this))
     }
 
     thunk.all = function (obj) {
@@ -64,7 +65,7 @@
         for (var i = 0, l = array.length; i < l; i++) thunk.call(this, array[i])(done)
       })
     }
-
+    // DEPRECATED, we don't need it.
     thunk.digest = function () {
       var args = slice(arguments)
       return thunk.call(this, function (callback) {
@@ -86,7 +87,8 @@
     thunk.lift = function (fn) {
       var ctx = this === thunk ? null : this
       return function () {
-        return thunk.call(ctx || this, objectToThunk(slice(arguments), false))(function (err, res) {
+        var thunkable = objectToThunk(slice(arguments), false)
+        return thunk.call(ctx || this, thunkable)(function (err, res) {
           if (err != null) throw err
           return apply(this, fn, res)
         })
@@ -100,11 +102,11 @@
     }
 
     thunk.stop = function (message) {
-      var sig = new SigStop(message)
+      var signal = new SigStop(message)
       nextTick(function () {
-        return scope.onstop && scope.onstop.call(null, sig)
+        return scope.onstop && scope.onstop.call(null, signal)
       })
-      throw sig
+      throw signal
     }
 
     thunk.persist = function (thunkable) {
@@ -159,7 +161,9 @@
 
   function child (parent, domain, callback) {
     if (parent.callback) throw new Error('The thunk already filled')
-    if (callback && !isFunction(callback)) throw new TypeError(String(callback) + ' is not a function')
+    if (callback && !isFunction(callback)) {
+      throw new TypeError(String(callback) + ' is not a function')
+    }
     parent.callback = callback || noOp
     if (parent.result) continuation(parent, domain)
     return childThunk(parent.next, domain)
@@ -193,7 +197,6 @@
       }
 
       current.result = tryRun(domain.ctx, parent.callback, args)
-
       if (current.callback) {
         tickDepth = tickDepth || maxTickDepth
         if (--tickDepth) return continuation(current, domain, tickDepth)
@@ -382,19 +385,17 @@
     })
   }
 
-  thunks.pruneErrorStack = false
   function pruneErrorStack (error) {
     if (thunks.pruneErrorStack && error.stack) {
-      error.stack = error.stack
-        .replace(/^\s*at.*thunks\.js.*$/gm, '')
-        .replace(/\n+/g, '\n')
+      error.stack = error.stack.replace(/^\s*at.*thunks\.js.*$/gm, '').replace(/\n+/g, '\n')
     }
     return error
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.2.0'
+  thunks.VERSION = '4.2.1'
   thunks.strictMode = true
   thunks['default'] = thunks
+  thunks.pruneErrorStack = true
   return thunks
 }))

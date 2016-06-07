@@ -17,7 +17,9 @@ A small and magical composer for all JavaScript asynchronous.
 
 ES3+, support node.js and all browsers.
 
-## thunk?
+## `thunk` 是什么?
+
+0. [ALGOL thunks in 1961](http://archive.computerhistory.org/resources/text/algol/ACM_Algol_bulletin/1064045/frontmatter.pdf)
 
 1. **`thunk`** 是一个被封装了同步或异步任务的函数；
 

@@ -74,9 +74,9 @@ function thunks (options) {
   }
 
   thunk.stop = function (message) {
-    let sig = new SigStop(message)
-    nextTick(() => scope.onstop && scope.onstop.call(null, sig))
-    throw sig
+    let signal = new SigStop(message)
+    nextTick(() => scope.onstop && scope.onstop.call(null, signal))
+    throw signal
   }
 
   thunk.persist = function (thunkable) {
@@ -350,7 +350,6 @@ function noOp (error) {
   })
 }
 
-thunks.pruneErrorStack = true
 function pruneErrorStack (error) {
   if (thunks.pruneErrorStack && error.stack) {
     error.stack = error.stack.replace(/^\s*at.*thunks\.js.*$/gm, '').replace(/\n+/g, '\n')
@@ -359,6 +358,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.2.0'
+thunks.VERSION = '4.2.1'
 thunks.strictMode = true
+thunks.pruneErrorStack = true
 export default thunks

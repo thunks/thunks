@@ -12,30 +12,6 @@ A small and magical composer for all JavaScript asynchronous.
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
 
-There is a break change in V4.x relative to V3.x, two or more results will become a array of results.
-
-**v3.x:**
-```js
-thunk(function (done) {
-  done(null, 1, 2, 3)
-})(function (error, res) {
-  console.log.apply(console, arguments)
-  // output: `null, 1, 2, 3`
-})
-```
-
-**v4.x:**
-```js
-thunk(function (done) {
-  done(null, 1, 2, 3)
-})(function (error, res) {
-  console.log.apply(console, arguments)
-  // output: `null, [1, 2, 3]`
-})
-```
-
-if there is a `error`, the arguments will be explicitly `error`, otherwise the `error` will always be `null`(In all version).
-
 ## Compatibility
 
 ES3+, support node.js and all browsers.
@@ -43,10 +19,12 @@ ES3+, support node.js and all browsers.
 ## Implementations:
 
 - [Toa](https://github.com/toajs/toa) A powerful web framework rely on thunks.
+- [T-man](https://github.com/thunks/tman) Super test manager for JavaScript.
 - [thunk-redis](https://github.com/thunks/thunk-redis) The fastest thunk/promise-based redis client, support all redis features.
 - [thunk-disque](https://github.com/thunks/thunk-disque) A thunk/promise-based disque client.
 - [thunk-stream](https://github.com/thunks/thunk-stream) Wrap a readable/writable/duplex/transform stream to a thunk.
 - [thunk-queue](https://github.com/thunks/thunk-queue) A thunk queue for uncertainty tasks evaluation.
+- [thunk-loop](https://github.com/thunks/thunk-loop) Asynchronous tasks loop (while (true) { ... }).
 - [thunk-mocha](https://github.com/thunks/thunk-mocha) Enable support for generators in Mocha with backward compatibility.
 - [thunk-ratelimiter](https://github.com/thunks/thunk-ratelimiter) The fastest abstract rate limiter.
 - [thunk-workers](https://github.com/thunks/thunk-workers) Thunk-based task scheduler that executes synchrounous and/or asynchronous tasks under concurrency control.
@@ -132,6 +110,30 @@ thunk.seq([
   console.log(error, res)
 })
 ```
+
+### There is a break change in V4.x relative to V3.x, two or more results will become a array of results.
+
+**v3.x:**
+```js
+thunk(function (done) {
+  done(null, 1, 2, 3)
+})(function (error, res) {
+  console.log.apply(console, arguments)
+  // output: `null, 1, 2, 3`
+})
+```
+
+**v4.x:**
+```js
+thunk(function (done) {
+  done(null, 1, 2, 3)
+})(function (error, res) {
+  console.log.apply(console, arguments)
+  // output: `null, [1, 2, 3]`
+})
+```
+
+if there is a `error`, the arguments will be explicitly `error`, otherwise the `error` will always be `null`(In all version).
 
 ## Installation
 
