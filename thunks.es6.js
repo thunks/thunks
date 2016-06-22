@@ -344,6 +344,7 @@ function isGeneratorFunction (fn) {
 function noOp (error) {
   if (error == null) return
   /* istanbul ignore next */
+  error = pruneErrorStack(error)
   nextTick(() => {
     if (isFunction(thunks.onerror)) thunks.onerror(error)
     else throw error
@@ -358,7 +359,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.2.1'
+thunks.VERSION = '4.2.2'
 thunks.strictMode = true
 thunks.pruneErrorStack = true
 export default thunks

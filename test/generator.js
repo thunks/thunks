@@ -1,8 +1,8 @@
 'use strict'
 
-var tman = require('tman')
-var should = require('should')
-var thunks = require('..')
+const tman = require('tman')
+const should = require('should')
+const thunks = require('..')
 
 tman.suite('thunk with generator', function () {
   tman.it('yield any value', function (done) {
