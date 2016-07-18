@@ -10,7 +10,8 @@ const nextTick = (typeof process === 'object' && process.nextTick)
   ? setImmediate : (fn) => setTimeout(fn, 0)
 
 function thunks (options) {
-  const scope = Domain.prototype.scope = new Scope(options)
+  const scope = options instanceof Scope ? options : new Scope(options)
+  Domain.prototype.scope = scope
 
   function Domain (ctx) {
     this.ctx = ctx
@@ -75,7 +76,7 @@ function thunks (options) {
 
   thunk.stop = function (message) {
     let signal = new SigStop(message)
-    nextTick(() => scope.onstop && scope.onstop.call(null, signal))
+    nextTick(() => scope.onstop && scope.onstop(signal))
     throw signal
   }
 
@@ -101,7 +102,6 @@ function thunks (options) {
 }
 
 function Scope (options) {
-  this.onerror = this.onstop = this.debug = null
   if (isFunction(options)) this.onerror = options
   else if (options) {
     if (isFunction(options.onerror)) this.onerror = options.onerror
@@ -109,6 +109,9 @@ function Scope (options) {
     if (isFunction(options.debug)) this.debug = options.debug
   }
 }
+Scope.prototype.onerror = null
+Scope.prototype.onstop = null
+Scope.prototype.debug = null
 
 function Link (result, callback) {
   this.next = null
@@ -146,14 +149,14 @@ function continuation (parent, domain, tickDepth) {
   function callback (err) {
     if (parent.result === null) return
     parent.result = null
-    if (scope.debug) apply(null, scope.debug, arguments)
+    if (scope.debug) apply(scope, scope.debug, arguments)
 
     let args = [err]
     if (err != null) {
       pruneErrorStack(err)
       if (err instanceof SigStop) return
       if (scope.onerror) {
-        if (scope.onerror.call(null, err) !== true) return
+        if (scope.onerror(err) !== true) return
         // if onerror return true then continue
         args[0] = null
       }
@@ -173,7 +176,7 @@ function continuation (parent, domain, tickDepth) {
     if (current.result[0] != null) {
       nextTick(() => {
         if (!current.result) return
-        if (scope.onerror) return scope.onerror.call(null, current.result[0])
+        if (scope.onerror) return scope.onerror(current.result[0])
         /* istanbul ignore next */
         noOp(current.result[0])
       })
@@ -343,7 +346,6 @@ function isGeneratorFunction (fn) {
 
 function noOp (error) {
   if (error == null) return
-  /* istanbul ignore next */
   error = pruneErrorStack(error)
   nextTick(() => {
     if (isFunction(thunks.onerror)) thunks.onerror(error)
@@ -359,7 +361,8 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.2.2'
+thunks.VERSION = '4.3.0'
 thunks.strictMode = true
 thunks.pruneErrorStack = true
+thunks.Scope = Scope
 export default thunks

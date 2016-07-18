@@ -16,6 +16,31 @@ A small and magical composer for all JavaScript asynchronous.
 
 ES3+, support node.js and all browsers.
 
+## Summary
+- [Implementations](#implementations)
+- [What is a thunk?](#what-is-a-thunk)
+- [Demo](#demo)
+- [Installation](#installation)
+- [API](#api)
+  - [thunks([scope])](#thunksscope)
+  - [thunks.strictMode](#thunksstrictmode)
+  - [thunks.pruneErrorStack](#thunkspruneerrorstack)
+  - [thunks.onerror\(error\)](#thunksonerrorerror)
+  - [Class thunks.Scope](#class-thunksscope)
+  - [thunk(thunkable)](#thunkthunkable)
+  - [thunk.all(obj)](#thunkallobj)
+  - [thunk.all(thunkable1, ..., thunkableN)](thunkallthunkable1--thunkablen)
+  - [thunk.seq([thunkable1, ..., thunkableN])](#thunkseqthunkable1--thunkablen)
+  - [thunk.seq(thunkable1, ..., thunkableN)](#thunkseqthunkable1--thunkablen-1)
+  - [thunk.race([thunkable1, ..., thunkableN])](#thunkracethunkable1--thunkablen)
+  - [thunk.race(thunkable1, ..., thunkableN)](#thunkracethunkable1--thunkablen-1)
+  - [thunk.thunkify(fn)](#thunkthunkifyfn)
+  - [thunk.lift(fn)](#thunkliftfn)
+  - [thunk.persist(thunkable)](#thunkpersistthunkable)
+  - [thunk.delay(delay)](#thunkdelaydelay)
+  - [thunk.stop([messagge])](#thunkstopmessagge)
+- [License MIT](#license)
+
 ## Implementations:
 
 - [Toa](https://github.com/toajs/toa) A powerful web framework rely on thunks.
@@ -157,7 +182,7 @@ if there is a `error`, the arguments will be explicitly `error`, otherwise the `
 var thunks = require('thunks')
 ```
 
-### thunks([options])
+### thunks([scope])
 
 Matrix of `thunk`, it generates a `thunk` generator function with it's scope.
 "scope" refers to the running evironments `thunk` generated(directly or indirectly) for all child thunk functions.
@@ -175,6 +200,12 @@ and it will make sure the exeptions not being passed to the followed child thunk
   var thunk = thunks(function (error) { console.error(error) })
   ```
 
+  **Equals:**
+  ```js
+  var scope = new thunks.Scope(function (error) { console.error(error) })
+  var thunk = thunks(scope)
+  ```
+
 3. Create a `thunk` with `onerror`, `onstop` and `debug` listeners.
 Results of this `thunk` would be passed to `debug` function first before passing to the followed child thunk function.
 
@@ -186,9 +217,39 @@ Results of this `thunk` would be passed to `debug` function first before passing
   })
   ```
 
-Even multiple `thunk` main functions with diferent scope are composed,
-each scope would be seperated from each other,
+  **Equals:**
+  ```js
+  var scope = new thunks.Scope({
+    onstop: function (sig) { console.log(sig) },
+    onerror: function (error) { console.error(error) },
+    debug: function () { console.log.apply(console, arguments) }
+  })
+  var thunk = thunks(scope)
+  ```
+The context of `onerror`, `onstop` and `debug` is a `scope`.
+Even multiple `thunk` main functions with different scope are composed,
+each scope would be separated from each other,
 which means, `onerror`, `onstop` and `debug` would not run in other scopes.
+
+### thunks.strictMode
+Default to `true`, means it will validate thunkable function.
+
+### thunks.pruneErrorStack
+Default to `true`, means it will prune error stack message.
+
+### thunks.onerror(error)
+Default to `null`, it is a global error handler.
+
+### Class thunks.Scope
+
+```js
+var scope = new thunks.Scope({
+  onstop: function (sig) { assert.strictEqual(this, scope) },
+  onerror: function (error) { assert.strictEqual(this, scope) },
+  debug: function () { assert.strictEqual(this, scope) }
+})
+var thunk = thunks(scope)
+```
 
 ### thunk(thunkable)
 
@@ -528,6 +589,10 @@ thunk.delay(100)(function () {
   console.log('It will not run!')
 })
 ```
+
+## License
+thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.  
+Copyright &copy; 2016 thunks.
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg

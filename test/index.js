@@ -2,13 +2,14 @@
 /*global noneFn*/
 
 var tman = require('tman')
+var util = require('util')
 var should = require('should')
 var thenjs = require('thenjs')
 var thunks = require('..')
 var x = {}
 
 tman.suite('thunks', function () {
-  tman.suite('thunks()', function () {
+  tman.suite('thunks(scope)', function () {
     tman.it('thunks(onerror) 1', function (done) {
       var thunk = thunks(function (error) {
         should(error).be.instanceOf(Error)
@@ -134,6 +135,116 @@ tman.suite('thunks', function () {
         should(_debug[0]).be.equal(error)
         should(_debug.length).be.equal(1)
       })(done)
+    })
+
+    tman.it('thunks(Scope {onerror}) 1', function (done) {
+      var scope = new thunks.Scope(function (error) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error!')
+        should(this).be.equal(scope)
+        should(this.ctx).be.equal(scope.ctx)
+        done()
+      })
+      scope.ctx = {}
+      var thunk = thunks(scope)
+      thunk(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        throw new Error('some error!')
+      })(function () {
+        throw new Error('this function will not run')
+      })
+    })
+
+    tman.it('thunks(Scope {onerror}) 2', function (done) {
+      var scope = new thunks.Scope()
+      scope.ctx = {}
+      scope.onerror = function (error) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error!')
+        should(this).be.equal(scope)
+        should(this.ctx).be.equal(scope.ctx)
+        done()
+      }
+      var thunk = thunks(scope)
+      thunk(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        throw new Error('some error!')
+      })(function () {
+        throw new Error('this function will not run')
+      })
+    })
+
+    tman.it('thunks(Scope {onstop})', function (done) {
+      var scope = new thunks.Scope({
+        onstop: function (sig) {
+          should(sig).not.be.instanceOf(Error)
+          should(sig.status).be.equal(19)
+          should(sig.code).be.equal('SIGSTOP')
+          should(sig.message).be.equal('stop')
+          should(this).be.equal(scope)
+          done()
+        }
+      })
+      var thunk = thunks(scope)
+      thunk(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        thunk.stop('stop')
+        should('It will not run!').be.equal('')
+      })(function () {
+        should('It will not run!').be.equal('')
+      })
+    })
+
+    tman.it('thunks(Scope {debug})', function (done) {
+      var _debug = null
+      var scope = new thunks.Scope({
+        debug: function () {
+          _debug = arguments
+          should(this).be.equal(scope)
+        }
+      })
+      var thunk = thunks(scope)
+      thunk(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        should(_debug[0]).be.equal(null)
+        should(_debug[1]).be.equal(x)
+        throw new Error('some error!')
+      })(function (error, value) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error!')
+        should(value).be.equal(undefined)
+        should(_debug[0]).be.equal(error)
+        should(_debug.length).be.equal(1)
+      })(done)
+    })
+
+    tman.it('thunks(inheritScope)', function (done) {
+      function Scope () {
+        thunks.Scope.call(this)
+      }
+      util.inherits(Scope, thunks.Scope)
+      var ctx = Scope.prototype.ctx = {}
+      Scope.prototype.onerror = function (error) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error!')
+        should(this).be.equal(scope)
+        should(this.ctx).be.equal(ctx)
+        done()
+      }
+
+      var scope = new Scope()
+      var thunk = thunks(scope)
+      thunk(x)(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        throw new Error('some error!')
+      })(function () {
+        throw new Error('this function will not run')
+      })
     })
 
     tman.it('Throw err while fill repeatedly', function (done) {
