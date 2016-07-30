@@ -344,7 +344,10 @@
     return function (callback) {
       return promise.then(function (res) {
         callback(null, res)
-      }, callback)
+      }, function (err) {
+        if (err == null) err = new Error('unknown error: ' + err)
+        callback(err)
+      })
     }
   }
 
@@ -403,7 +406,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.4.0'
+  thunks.VERSION = '4.4.1'
   thunks.strictMode = true
   thunks['default'] = thunks
   thunks.pruneErrorStack = true

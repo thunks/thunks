@@ -315,7 +315,25 @@ The parameter `thunkable` value could be:
   })
   ```
 
-6. values in other types would be valid results passing to a new child thunk function
+6. async/await function
+
+  ```js
+  thunk(async function () {
+    console.log(await Promise.resolve('await promise in a async function'))
+
+    try {
+      await new Promise((resolve, reject) => {
+        setTimeout(() => reject('catch promise error in async function'), 1000)
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  })(function * () {
+    console.log(yield async () => 'yield a async function in generator function')
+  })()
+  ```
+
+7. values in other types would be valid results passing to a new child thunk function
 
   ```js
   thunk(1)(function (error, value) {

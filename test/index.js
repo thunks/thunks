@@ -425,6 +425,14 @@ tman.suite('thunks', function () {
         })(function (error, value) {
           should(error).be.equal(null)
           should(value).be.equal(x)
+          return Promise.reject(null)
+        })(function (error, value) {
+          should(error).be.instanceof(Error)
+          should(value).be.equal(undefined)
+          return Promise.reject()
+        })(function (error, value) {
+          should(error).be.instanceof(Error)
+          should(value).be.equal(undefined)
         })(done)
       } else {
         done()

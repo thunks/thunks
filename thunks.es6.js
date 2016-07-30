@@ -366,7 +366,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.4.0'
+thunks.VERSION = '4.4.1'
 thunks.strictMode = true
 thunks.pruneErrorStack = true
 thunks.Scope = Scope

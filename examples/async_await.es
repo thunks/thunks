@@ -1,7 +1,7 @@
 'use strict'
 /*global module, process, thunk */
 
-// Try it in Chrome 54.0.2813.0 canary (64-bit)
+// Try it in Chrome 54.0.2813.0 canary (64-bit) with `enable-javascript-harmony`
 const thunk = thunks()
 
 thunk.call({test: 'Test a async function in thunks'}, async function () {
@@ -13,7 +13,7 @@ thunk.call({test: 'Test a async function in thunks'}, async function () {
       setTimeout(() => reject('catch promise error in async function'), 1000)
     })
   } catch (err) {
-    console.log(333, err, err.stack)
+    console.log(333, err)
   }
 })(function * () {
   console.log(444, yield async () => 'yield a async function in generator function')
