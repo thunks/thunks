@@ -222,7 +222,8 @@
     var err
     var thunk = toThunk(value, thunkObj)
     if (!isFunction(thunk)) return thunk === undef ? callback(null) : callback(null, thunk)
-    if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx))
+    if (isGeneratorFn(thunk)) thunk = generatorToThunk(thunk.call(ctx))
+    else if (isAsyncFn(thunk)) thunk = promiseToThunk(thunk.call(ctx))
     else if (thunk.length !== 1) {
       /* istanbul ignore next */
       if (!thunks.strictMode) return callback(null, thunk)
@@ -376,8 +377,12 @@
     return isFunction(obj.next) && isFunction(obj.throw)
   }
 
-  function isGeneratorFunction (fn) {
+  function isGeneratorFn (fn) {
     return fn.constructor.name === 'GeneratorFunction'
+  }
+
+  function isAsyncFn (fn) {
+    return fn.constructor.name === 'AsyncFunction'
   }
 
   /* istanbul ignore next */
@@ -398,10 +403,16 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.3.0'
+  thunks.VERSION = '4.4.0'
   thunks.strictMode = true
   thunks['default'] = thunks
   thunks.pruneErrorStack = true
   thunks.Scope = Scope
+  thunks.isGeneratorFn = function (fn) {
+    return fn && fn.constructor && isGeneratorFn(fn)
+  }
+  thunks.isAsyncFn = function (fn) {
+    return fn && fn.constructor && isAsyncFn(fn)
+  }
   return thunks
 }))

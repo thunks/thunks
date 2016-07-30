@@ -187,7 +187,8 @@ function continuation (parent, domain, tickDepth) {
 function runThunk (ctx, value, callback, thunkObj, noTryRun) {
   let thunk = toThunk(value, thunkObj)
   if (!isFunction(thunk)) return thunk === undefined ? callback(null) : callback(null, thunk)
-  if (isGeneratorFunction(thunk)) thunk = generatorToThunk(thunk.call(ctx))
+  if (isGeneratorFn(thunk)) thunk = generatorToThunk(thunk.call(ctx))
+  else if (isAsyncFn(thunk)) thunk = promiseToThunk(thunk.call(ctx))
   else if (thunk.length !== 1) {
     if (!thunks.strictMode) return callback(null, thunk)
     let err = new Error('Not thunk function: ' + thunk)
@@ -340,8 +341,12 @@ function isGenerator (obj) {
   return isFunction(obj.next) && isFunction(obj.throw)
 }
 
-function isGeneratorFunction (fn) {
+function isGeneratorFn (fn) {
   return fn.constructor.name === 'GeneratorFunction'
+}
+
+function isAsyncFn (fn) {
+  return fn.constructor.name === 'AsyncFunction'
 }
 
 function noOp (error) {
@@ -361,8 +366,10 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.3.0'
+thunks.VERSION = '4.4.0'
 thunks.strictMode = true
 thunks.pruneErrorStack = true
 thunks.Scope = Scope
+thunks.isGeneratorFn = (fn) => fn && fn.constructor && isGeneratorFn(fn)
+thunks.isAsyncFn = (fn) => fn && fn.constructor && isAsyncFn(fn)
 export default thunks
