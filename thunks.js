@@ -377,15 +377,15 @@
   }
 
   function isGenerator (obj) {
-    return isFunction(obj.next) && isFunction(obj.throw)
+    return obj.constructor && isGeneratorFn(obj.constructor)
   }
 
   function isGeneratorFn (fn) {
-    return fn.constructor.name === 'GeneratorFunction'
+    return fn.constructor && fn.constructor.name === 'GeneratorFunction'
   }
 
   function isAsyncFn (fn) {
-    return fn.constructor.name === 'AsyncFunction'
+    return fn.constructor && fn.constructor.name === 'AsyncFunction'
   }
 
   /* istanbul ignore next */
@@ -406,16 +406,19 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.4.1'
+  thunks.VERSION = '4.4.2'
   thunks.strictMode = true
   thunks['default'] = thunks
   thunks.pruneErrorStack = true
   thunks.Scope = Scope
   thunks.isGeneratorFn = function (fn) {
-    return fn && fn.constructor && isGeneratorFn(fn)
+    return isFunction(fn) && isGeneratorFn(fn)
   }
   thunks.isAsyncFn = function (fn) {
-    return fn && fn.constructor && isAsyncFn(fn)
+    return isFunction(fn) && isAsyncFn(fn)
+  }
+  thunks.isThunkableFn = function (fn) {
+    return isFunction(fn) && (fn.length === 1 || isAsyncFn(fn) || isGeneratorFn(fn))
   }
   return thunks
 }))

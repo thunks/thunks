@@ -7,6 +7,16 @@ var should = require('should')
 var thenjs = require('thenjs')
 var thunks = require('..')
 var x = {}
+var supportGeneratorFn = false
+var supportAsyncFn = false
+
+try {
+  supportGeneratorFn = new Function('return function * () {}') // eslint-disable-line
+} catch (e) {}
+
+try {
+  supportAsyncFn = new Function('return async function () {}') // eslint-disable-line
+} catch (e) {}
 
 tman.suite('thunks', function () {
   tman.suite('thunks(scope)', function () {
@@ -1178,10 +1188,39 @@ tman.suite('thunks', function () {
     })
   })
 
-  try { // 检测是否支持 generator，是则加载 generator 测试
-    var check = new Function('return function* (){}') // eslint-disable-line
-    require('./generator.js')
-  } catch (e) {
-    console.log('Not support generator!')
-  }
+  tman.suite('thunks in es-next', function () {
+    if (supportGeneratorFn) require('./generator.js')
+    else {
+      var fileName = './test/generator.js'
+      var fs = require('fs')
+      var regenerator = require('regenerator')
+
+      var content = fs.readFileSync(fileName, 'utf8')
+      content = regenerator.compile(content, {includeRuntime: true}).code
+      module._compile(content, fileName)
+    }
+
+    if (supportAsyncFn) require('./async.js')
+  })
+
+  tman.suite('thunks module functions', function () {
+    tman.it('thunks.isGeneratorFn', function () {
+      should(thunks.isGeneratorFn()).be.false()
+      should(thunks.isGeneratorFn({})).be.false()
+      should(thunks.isGeneratorFn(function () {})).be.false()
+    })
+
+    tman.it('thunks.isAsyncFn', function () {
+      should(thunks.isAsyncFn()).be.false()
+      should(thunks.isAsyncFn({})).be.false()
+      should(thunks.isAsyncFn(function () {})).be.false()
+    })
+
+    tman.it('thunks.isThunkableFn', function () {
+      should(thunks.isThunkableFn()).be.false()
+      should(thunks.isThunkableFn({})).be.false()
+      should(thunks.isThunkableFn(function () {})).be.false()
+      should(thunks.isThunkableFn(function (done) { done() })).be.true()
+    })
+  })
 })

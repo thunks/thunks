@@ -1,8 +1,8 @@
 'use strict'
 
-const tman = require('tman')
-const should = require('should')
-const thunks = require('..')
+var tman = require('tman')
+var should = require('should')
+var thunks = require('..')
 
 tman.suite('thunk with generator', function () {
   tman.it('yield any value', function (done) {
@@ -241,5 +241,17 @@ tman.suite('thunk with generator', function () {
       while (i--) result -= yield thunk(1)
       should(result).be.equal(0)
     })(done)
+  })
+
+  tman.it('thunks.isGeneratorFn', function () {
+    should(thunks.isGeneratorFn(function * () {})).be.true()
+  })
+
+  tman.it('thunks.isAsyncFn', function () {
+    should(thunks.isAsyncFn(function * () {})).be.false()
+  })
+
+  tman.it('thunks.isThunkableFn', function () {
+    should(thunks.isThunkableFn(function * () {})).be.true()
   })
 })
