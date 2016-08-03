@@ -184,7 +184,7 @@ var thunks = require('thunks')
 
 ### thunks([scope])
 
-Matrix of `thunk`, it generates a `thunk` generator function with it's scope.
+Matrix of `thunk`, it generates a `thunkFunction` factory (named `thunk`) with it's scope.
 "scope" refers to the running evironments `thunk` generated(directly or indirectly) for all child thunk functions.
 
 1. Here's how you create a basic `thunk`, any exceptions would be passed the next child thunk function:
@@ -253,18 +253,18 @@ var thunk = thunks(scope)
 
 ### thunk(thunkable)
 
-This is the main function, named `thunk generator`, to create new child thunk functions.
+This is the `thunkFunction` factory, to create new `thunkFunction` functions.
 
 The parameter `thunkable` value could be:
 
-1. a child thunk function, by calling this function a new child thunk function will be returned
+1. a `thunkFunction` function, by calling this function a new `thunkFunction` function will be returned
 
   ```js
   var thunk1 = thunk(1)
   var thunk2 = thunk(thunk1) // thunk2 equals to thunk1
   ```
 
-2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next child thunk function
+2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunkFunction` function
 
   ```js
   thunk(function (callback) {
@@ -274,7 +274,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-3. a Promise object, results of Promise would be passed to a new child thunk function
+3. a Promise object, results of Promise would be passed to a new `thunkFunction` function
 
   ```js
   var promise = Promise.resolve(1)
@@ -294,7 +294,16 @@ The parameter `thunkable` value could be:
   })
   ```
 
-5. Generator and Generator Function, like `co`, but `yield` anything
+5. objects which implements methods of `toPromise`
+
+  ```js
+  var Rx = require('rxjs')
+  thunk(Rx.Observable.fromPromise(Promise.resolve(123)))(function (error, value) {
+    console.log(error, value) // null 123
+  })
+  ```
+
+6. Generator and Generator Function, like `co`, but `yield` anything
 
   ```js
   thunk(function *() {
@@ -315,7 +324,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-6. async/await function
+7. async/await function
 
   ```js
   thunk(async function () {
@@ -333,7 +342,7 @@ The parameter `thunkable` value could be:
   })()
   ```
 
-7. values in other types would be valid results passing to a new child thunk function
+8. values in other types would be valid results passing to a new child thunk function
 
   ```js
   thunk(1)(function (error, value) {

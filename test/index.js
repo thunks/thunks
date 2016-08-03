@@ -5,6 +5,7 @@ var tman = require('tman')
 var util = require('util')
 var should = require('should')
 var thenjs = require('thenjs')
+var Promise = global.Promise || require('promise')
 var thunks = require('..')
 var x = {}
 var supportGeneratorFn = false
@@ -418,35 +419,31 @@ tman.suite('thunks', function () {
 
     tman.it('thunk(promise)', function (done) {
       var thunk = thunks()
-      if (typeof Promise === 'function') {
-        thunk(Promise.resolve(x))(function (error, value) {
-          should(error).be.equal(null)
-          should(value).be.equal(x)
-          return thunk(Promise.reject(new Error('some error!')))
-        })(function (error, value) {
-          should(error).be.instanceOf(Error)
-          should(error.message).be.equal('some error!')
-          should(value).be.equal(undefined)
-          return new Promise(function (resolve, reject) {
-            setImmediate(function () {
-              resolve(x)
-            })
+      thunk(Promise.resolve(x))(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        return thunk(Promise.reject(new Error('some error!')))
+      })(function (error, value) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error!')
+        should(value).be.equal(undefined)
+        return new Promise(function (resolve, reject) {
+          setImmediate(function () {
+            resolve(x)
           })
-        })(function (error, value) {
-          should(error).be.equal(null)
-          should(value).be.equal(x)
-          return Promise.reject(null)
-        })(function (error, value) {
-          should(error).be.instanceof(Error)
-          should(value).be.equal(undefined)
-          return Promise.reject()
-        })(function (error, value) {
-          should(error).be.instanceof(Error)
-          should(value).be.equal(undefined)
-        })(done)
-      } else {
-        done()
-      }
+        })
+      })(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        return Promise.reject(null)
+      })(function (error, value) {
+        should(error).be.instanceof(Error)
+        should(value).be.equal(undefined)
+        return Promise.reject()
+      })(function (error, value) {
+        should(error).be.instanceof(Error)
+        should(value).be.equal(undefined)
+      })(done)
     })
 
     tman.it('thunk(toThunk)', function (done) {
@@ -464,6 +461,27 @@ tman.suite('thunks', function () {
         return thenjs(function (cont) {
           setImmediate(function () {
             cont(null, x)
+          })
+        })
+      })(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+      })(done)
+    })
+
+    tman.it('thunk(toPromise)', function (done) {
+      var thunk = thunks()
+      thunk(Promise.resolve(x))(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        return Promise.reject(new Error('some error!'))
+      })(function (error, value) {
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('some error!')
+        should(value).be.equal(undefined)
+        return new Promise(function (resolve, reject) {
+          setImmediate(function () {
+            resolve(x)
           })
         })
       })(function (error, value) {
@@ -585,7 +603,7 @@ tman.suite('thunks', function () {
         return thunk.all({
           a: 1,
           b: thunk(2),
-          c: typeof Promise === 'function' ? Promise.resolve(3) : 3,
+          c: Promise.resolve(3),
           d: thunk(function (callback) {
             setImmediate(function () {
               callback(null, 4)

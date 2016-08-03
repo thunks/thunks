@@ -49,6 +49,10 @@ interface IThunk {
 }
 
 interface IThunk {
+  (thunkable: IToPromiseFn): Ithunk
+}
+
+interface IThunk {
   (thunkable: IIterator<any>): Ithunk
 }
 
@@ -61,8 +65,11 @@ interface IThunkFn {
 }
 
 interface IToThunkFn {
-  (...params: any[]): any
   toThunk:() => Ithunk
+}
+
+interface IToPromiseFn {
+  toPromise:() => IPromise<any>
 }
 
 interface IThunksOptions {

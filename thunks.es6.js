@@ -127,7 +127,7 @@ SigStop.prototype.code = 'SIGSTOP'
 
 function childThunk (parent, domain) {
   parent.next = new Link(null, null)
-  return function (callback) {
+  return function thunkFunction (callback) {
     return child(parent, domain, callback)
   }
 }
@@ -215,6 +215,7 @@ function toThunk (obj, thunkObj) {
   if (isGenerator(obj)) return generatorToThunk(obj)
   if (isFunction(obj.toThunk)) return obj.toThunk()
   if (isFunction(obj.then)) return promiseToThunk(obj)
+  if (isFunction(obj.toPromise)) return promiseToThunk(obj.toPromise())
   if (thunkObj && (Array.isArray(obj) || isObject(obj))) return objectToThunk(obj, thunkObj)
   return obj
 }
