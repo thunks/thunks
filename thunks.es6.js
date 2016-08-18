@@ -5,9 +5,9 @@
 
 const maxTickDepth = 100
 /* istanbul ignore next */
-const nextTick = (typeof process === 'object' && process.nextTick)
-  ? process.nextTick : typeof setImmediate === 'function'
-  ? setImmediate : (fn) => setTimeout(fn, 0)
+const nextTick = typeof setImmediate === 'function'
+  ? setImmediate : typeof Promise === 'function'
+  ? function (fn) { Promise.resolve().then(fn) } : function (fn) { setTimeout(fn, 0) }
 
 function thunks (options) {
   const scope = options instanceof Scope ? options : new Scope(options)
@@ -191,7 +191,7 @@ function runThunk (ctx, value, callback, thunkObj, noTryRun) {
   else if (isAsyncFn(thunk)) thunk = promiseToThunk(thunk.call(ctx))
   else if (thunk.length !== 1) {
     if (!thunks.strictMode) return callback(null, thunk)
-    let err = new Error('Not thunk function: ' + thunk)
+    let err = new Error('Not thunkable function: ' + thunk)
     err.fn = thunk
     return callback(err)
   }
@@ -367,7 +367,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.4.2'
+thunks.VERSION = '4.5.0'
 thunks.strictMode = true
 thunks.pruneErrorStack = true
 thunks.Scope = Scope

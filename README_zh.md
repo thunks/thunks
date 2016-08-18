@@ -15,7 +15,7 @@ A small and magical composer for all JavaScript asynchronous.
 
 ## Compatibility
 
-ES3+, support node.js and all browsers.
+ES5+, support node.js and browsers.
 
 ## `thunk` 是什么?
 
@@ -34,20 +34,19 @@ ES3+, support node.js and all browsers.
 ## Demo
 
 ```js
-var thunk = require('thunks')()
-var fs = require('fs')
-
-var size = thunk.thunkify(fs.stat)
+const thunk = require('thunks')()
+const fs = require('fs')
+const size = thunk.thunkify(fs.stat)
 
 // generator
-thunk(function *() {
+thunk(function * () {
 
   // sequential
   console.log(yield size('.gitignore'))
   console.log(yield size('thunks.js'))
   console.log(yield size('package.json'))
 
-})(function *(error, res) {
+})(function * (error, res) {
   //parallel
   console.log(yield [
     size('.gitignore'),
@@ -58,10 +57,9 @@ thunk(function *() {
 ```
 
 ```js
-var thunk = require('thunks')()
-var fs = require('fs')
-
-var size = thunk.thunkify(fs.stat)
+const thunk = require('thunks')()
+const fs = require('fs')
+const size = thunk.thunkify(fs.stat)
 
 // sequential
 size('.gitignore')(function (error, res) {
@@ -118,7 +116,7 @@ bower install thunks
 ## API
 
 ```js
-var thunks = require('thunks')
+const thunks = require('thunks')
 ```
 
 ### thunks([options])
@@ -128,19 +126,19 @@ var thunks = require('thunks')
 1. 生成基本形式的 `thunk`，任何异常会输入到下一个子 thunk 函数：
 
   ```js
-  var thunk = thunks()
+  const thunk = thunks()
   ```
 
 2. 生成有 `onerror` 监听的 `thunk`，该 `thunk` 作用域内的任何异常都可被 `onerror` 捕捉，而不会进入下一个 子 thunk 函数，除非 `onerror` 返回 `true`：
 
   ```js
-  var thunk = thunks(function (error) { console.error(error) })
+  const thunk = thunks(function (error) { console.error(error) })
   ```
 
 3. 生成有 `onerror` 监听，`onstop` 监听和 `debug` 监听的 `thunk`，`onerror` 同上，该 `thunk` 作用域内的所有运行结果都会先进入 `debug` 函数，然后再进入下一个子 thunk 函数：
 
   ```js
-  var thunk = thunks({
+  const thunk = thunks({
     onstop: function (sig) { console.log(sig) },
     onerror: function (error) { console.error(error) },
     debug: function () { console.log.apply(console, arguments) }
@@ -158,8 +156,8 @@ var thunks = require('thunks')
 1. 子 thunk 函数，执行该函数，结果进入新的子 thunk 函数
 
   ```js
-  var thunk1 = thunk(1)
-  var thunk2 = thunk(thunk1) // thunk2 等效于 thunk1
+  let thunk1 = thunk(1)
+  let thunk2 = thunk(thunk1) // thunk2 等效于 thunk1
   ```
 
 2. function (callback) {}，执行该函数，callback收集结果进入新的子 thunk 函数
@@ -175,7 +173,7 @@ var thunks = require('thunks')
 3. promise，promise的结果进入新的子 thunk 函数
 
   ```js
-  var promise = Promise.resolve(1)
+  let promise = Promise.resolve(1)
 
   thunk(promise)(function (error, value) {
     console.log(error, value) // null 1
@@ -185,7 +183,7 @@ var thunks = require('thunks')
 4. 自带 `toThunk` 方法的对象
 
   ```js
-  var then = Thenjs(1) // then.toThunk() 能转换成 thunk 形式的函数，也能用于 `co`
+  let then = Thenjs(1) // then.toThunk() 能转换成 thunk 形式的函数，也能用于 `co`
 
   thunk(then)(function (error, value) {
     console.log(error, value) // null 1
@@ -195,14 +193,14 @@ var thunks = require('thunks')
 5. Generator 或 Generator Function, 与 `co` 类似，但更进一步，可以 `yield` 任何值，可以形成链式调用
 
   ```js
-  thunk(function *() {
+  thunk(function * () {
     var x = yield 10
     return 2 * x
-  })(function *(error, res) {
+  })(function * (error, res) {
     console.log(error, res) // null, 20
 
     return yield [1, 2, thunk(3)]
-  })(function *(error, res) {
+  })(function * (error, res) {
     console.log(error, res) // null, [1, 2, 3]
     return yield {
       name: 'test',
@@ -368,9 +366,9 @@ thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
 将带 callback 参数的 nodejs 风格的函数 `fn` 转换成一个新的函数，新函数不再接收 `callback`，其输出为子 thunk 函数。
 
 ```js
-var thunk = require('thunks')()
-var fs = require('fs')
-var fsStat = thunk.thunkify(fs.stat)
+const thunk = require('thunks')()
+const fs = require('fs')
+const fsStat = thunk.thunkify(fs.stat)
 
 fsStat('thunks.js')(function (error, result) {
   console.log('thunks.js: ', result)
@@ -383,13 +381,13 @@ fsStat('.gitignore')(function (error, result) {
 还可以这样运行(this)：
 
 ```js
-var obj = {a: 8}
+let obj = {a: 8}
 function run (x, callback) {
   //...
   callback(null, this.a * x)
 }
 
-var run = thunk.thunkify.call(obj, run)
+let run = thunk.thunkify.call(obj, run)
 
 run(1)(function (error, result) {
   console.log('run 1: ', result)
@@ -404,16 +402,16 @@ run(2)(function (error, result) {
 `lift` 概念来自于 Haskell，它将一个同步函数转化成一个异步函数。该异步函数接受 `thunkable` 参数，等所有参数求得真实值后，再按照原函数逻辑运行。该异步函数返回子 thunk 函数。
 
 ```js
-var thunk = require('thunks')()
+const thunk = require('thunks')()
 
 function calculator (a, b, c) {
   return (a + b + c) * 10
 }
 
-var calculatorT = thunk.lift(calculator)
+const calculatorT = thunk.lift(calculator)
 
-var value1 = thunk(2)
-var value2 = Promise.resolve(3)
+let value1 = thunk(2)
+let value2 = Promise.resolve(3)
 
 calculatorT(value1, value2, 5)(function (error, result) {
   console.log(result) // 100
@@ -423,7 +421,7 @@ calculatorT(value1, value2, 5)(function (error, result) {
 You may also write code with `this`:
 
 ```js
-var calculatorT = thunk.lift.call(context, calculator)
+const calculatorT = thunk.lift.call(context, calculator)
 ```
 
 ### thunk.persist(thunkable)
@@ -431,9 +429,9 @@ var calculatorT = thunk.lift.call(context, calculator)
 将 `thunkable` 值转换成一个可以持久化的 thunk 函数，可以无限次运行该函数而取得其值。
 
 ```js
-var thunk = require('thunks')()
+const thunk = require('thunks')()
 
-var persistThunk = thunk.persist(thunk(x))
+let persistThunk = thunk.persist(thunk(x))
 
 persistThunk(function (error, result) {
   console.log(1, result) // x
@@ -449,7 +447,7 @@ persistThunk(function (error, result) {
 You may also write code with `this`:
 
 ```js
-var persistThunk = thunk.persist.call(context, thunkable)
+let persistThunk = thunk.persist.call(context, thunkable)
 ```
 
 ### thunk.delay(delay)
@@ -482,7 +480,7 @@ thunk.delay.call(this, 1000)(function () {
 终止信号拥有 `message`、特殊的 `code` 和 `status === 19`（POSIX signal SIGSTOP）。
 
 ```js
-var thunk = require('thunks')({
+const thunk = require('thunks')({
   debug: function (res) {
     if (res) console.log(res) // { [Error: Stop now!] code: {}, status: 19 }
   }

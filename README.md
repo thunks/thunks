@@ -14,7 +14,7 @@ A small and magical composer for all JavaScript asynchronous.
 
 ## Compatibility
 
-ES3+, support node.js and all browsers.
+ES5+, support node.js and browsers.
 
 ## Summary
 - [Implementations](#implementations)
@@ -75,20 +75,18 @@ or it will be sent to another new **`thunk`** function as the value of the compu
 ## Demo
 
 ```js
-var thunk = require('thunks')()
-var fs = require('fs')
-
-var size = thunk.thunkify(fs.stat)
+const thunk = require('thunks')()
+const fs = require('fs')
+const size = thunk.thunkify(fs.stat)
 
 // generator
-thunk(function *() {
+thunk(function * () {
 
   // sequential
   console.log(yield size('.gitignore'))
   console.log(yield size('thunks.js'))
   console.log(yield size('package.json'))
-
-})(function *(error, res) {
+})(function * (error, res) {
   //parallel
   console.log(yield thunk.all([
     size('.gitignore'),
@@ -99,10 +97,9 @@ thunk(function *() {
 ```
 
 ```js
-var thunk = require('thunks')()
-var fs = require('fs')
-
-var size = thunk.thunkify(fs.stat)
+const thunk = require('thunks')()
+const fs = require('fs')
+const size = thunk.thunkify(fs.stat)
 
 // sequential
 size('.gitignore')(function (error, res) {
@@ -179,7 +176,7 @@ if there is a `error`, the arguments will be explicitly `error`, otherwise the `
 ## API
 
 ```js
-var thunks = require('thunks')
+const thunks = require('thunks')
 ```
 
 ### thunks([scope])
@@ -190,27 +187,27 @@ Matrix of `thunk`, it generates a `thunkFunction` factory (named `thunk`) with i
 1. Here's how you create a basic `thunk`, any exceptions would be passed the next child thunk function:
 
   ```js
-  var thunk = thunks()
+  const thunk = thunks()
   ```
 
 2. Here's the way to create a `thunk` listening to all exceptions in current scope with `onerror`,
 and it will make sure the exeptions not being passed to the followed child thunk function, unless `onerror` function return `true`.
 
   ```js
-  var thunk = thunks(function (error) { console.error(error) })
+  const thunk = thunks(function (error) { console.error(error) })
   ```
 
   **Equals:**
   ```js
-  var scope = new thunks.Scope(function (error) { console.error(error) })
-  var thunk = thunks(scope)
+  const scope = new thunks.Scope(function (error) { console.error(error) })
+  const thunk = thunks(scope)
   ```
 
 3. Create a `thunk` with `onerror`, `onstop` and `debug` listeners.
 Results of this `thunk` would be passed to `debug` function first before passing to the followed child thunk function.
 
   ```js
-  var thunk = thunks({
+  const thunk = thunks({
     onstop: function (sig) { console.log(sig) },
     onerror: function (error) { console.error(error) },
     debug: function () { console.log.apply(console, arguments) }
@@ -219,12 +216,12 @@ Results of this `thunk` would be passed to `debug` function first before passing
 
   **Equals:**
   ```js
-  var scope = new thunks.Scope({
+  const scope = new thunks.Scope({
     onstop: function (sig) { console.log(sig) },
     onerror: function (error) { console.error(error) },
     debug: function () { console.log.apply(console, arguments) }
   })
-  var thunk = thunks(scope)
+  const thunk = thunks(scope)
   ```
 The context of `onerror`, `onstop` and `debug` is a `scope`.
 Even multiple `thunk` main functions with different scope are composed,
@@ -243,12 +240,12 @@ Default to `null`, it is a global error handler.
 ### Class thunks.Scope
 
 ```js
-var scope = new thunks.Scope({
+const scope = new thunks.Scope({
   onstop: function (sig) { assert.strictEqual(this, scope) },
   onerror: function (error) { assert.strictEqual(this, scope) },
   debug: function () { assert.strictEqual(this, scope) }
 })
-var thunk = thunks(scope)
+const thunk = thunks(scope)
 ```
 
 ### thunk(thunkable)
@@ -260,8 +257,8 @@ The parameter `thunkable` value could be:
 1. a `thunkFunction` function, by calling this function a new `thunkFunction` function will be returned
 
   ```js
-  var thunk1 = thunk(1)
-  var thunk2 = thunk(thunk1) // thunk2 equals to thunk1
+  let thunk1 = thunk(1)
+  let thunk2 = thunk(thunk1) // thunk2 equals to thunk1
   ```
 
 2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunkFunction` function
@@ -277,7 +274,7 @@ The parameter `thunkable` value could be:
 3. a Promise object, results of Promise would be passed to a new `thunkFunction` function
 
   ```js
-  var promise = Promise.resolve(1)
+  let promise = Promise.resolve(1)
 
   thunk(promise)(function (error, value) {
     console.log(error, value) // null 1
@@ -287,7 +284,7 @@ The parameter `thunkable` value could be:
 4. objects which implements methods of `toThunk`
 
   ```js
-  var then = Thenjs(1) // then.toThunk() return a thunk function
+  let then = Thenjs(1) // then.toThunk() return a thunk function
 
   thunk(then)(function (error, value) {
     console.log(error, value) // null 1
@@ -297,7 +294,7 @@ The parameter `thunkable` value could be:
 5. objects which implements methods of `toPromise`
 
   ```js
-  var Rx = require('rxjs')
+  const Rx = require('rxjs')
   thunk(Rx.Observable.fromPromise(Promise.resolve(123)))(function (error, value) {
     console.log(error, value) // null 123
   })
@@ -306,14 +303,14 @@ The parameter `thunkable` value could be:
 6. Generator and Generator Function, like `co`, but `yield` anything
 
   ```js
-  thunk(function *() {
+  thunk(function * () {
     var x = yield 10
     return 2 * x
-  })(function *(error, res) {
+  })(function * (error, res) {
     console.log(error, res) // null, 20
 
     return yield thunk.all([1, 2, thunk(3)])
-  })(function *(error, res) {
+  })(function * (error, res) {
     console.log(error, res) // null, [1, 2, 3]
     return yield thunk.all({
       name: 'test',
@@ -375,7 +372,7 @@ Returns a child thunk function.
 ```js
 thunk.all([
   thunk(0),
-  function *() { return yield 1 },
+  function * () { return yield 1 },
   2,
   thunk(function (callback) { callback(null, [3]) })
 ])(function (error, value) {
@@ -420,7 +417,7 @@ thunk.seq([
   thunk(function (callback) {
     callback(null, 'c')
   }),
-  [thunk('d'), function *() { return yield 'e' }], // thunk in array will be excuted in parallel
+  [thunk('d'), function * () { return yield 'e' }], // thunk in array will be excuted in parallel
   function (callback) {
     should(flag).be.eql([true, true])
     flag[2] = true
@@ -477,9 +474,9 @@ Transform a `fn` function which is in Node.js style into a new function.
 This new function does not accept `callback` as arguments, but accepts child thunk functions.
 
 ```js
-var thunk = require('thunks')()
-var fs = require('fs')
-var fsStat = thunk.thunkify(fs.stat)
+const thunk = require('thunks')()
+const fs = require('fs')
+const fsStat = thunk.thunkify(fs.stat)
 
 fsStat('thunks.js')(function (error, result) {
   console.log('thunks.js: ', result)
@@ -492,13 +489,13 @@ fsStat('.gitignore')(function (error, result) {
 You may also write code with `this`:
 
 ```js
-var obj = {a: 8}
+let obj = {a: 8}
 function run (x, callback) {
   //...
   callback(null, this.a * x)
 }
 
-var run = thunk.thunkify.call(obj, run)
+let run = thunk.thunkify.call(obj, run)
 
 run(1)(function (error, result) {
   console.log('run 1: ', result)
@@ -514,16 +511,16 @@ run(2)(function (error, result) {
 This new function will accept `thunkable` arguments, evaluate them, then run as the original function `fn`. The new function return a child thunk function.
 
 ```js
-var thunk = require('thunks')()
+const thunk = require('thunks')()
 
 function calculator (a, b, c) {
   return (a + b + c) * 10
 }
 
-var calculatorT = thunk.lift(calculator)
+const calculatorT = thunk.lift(calculator)
 
-var value1 = thunk(2)
-var value2 = Promise.resolve(3)
+let value1 = thunk(2)
+let value2 = Promise.resolve(3)
 
 calculatorT(value1, value2, 5)(function (error, result) {
   console.log(result) // 100
@@ -533,7 +530,7 @@ calculatorT(value1, value2, 5)(function (error, result) {
 You may also write code with `this`:
 
 ```js
-var calculatorT = thunk.lift.call(context, calculator)
+const calculatorT = thunk.lift.call(context, calculator)
 ```
 
 ### thunk.persist(thunkable)
@@ -541,9 +538,9 @@ var calculatorT = thunk.lift.call(context, calculator)
 it transform `thunkable` value to a persist thunk function, which can be called more than once with the same result(like as promise). The new function return a child thunk function.
 
 ```js
-var thunk = require('thunks')()
+const thunk = require('thunks')()
 
-var persistThunk = thunk.persist(thunk(x))
+let persistThunk = thunk.persist(thunk(x))
 
 persistThunk(function (error, result) {
   console.log(1, result) // x
@@ -559,7 +556,7 @@ persistThunk(function (error, result) {
 You may also write code with `this`:
 
 ```js
-var persistThunk = thunk.persist.call(context, thunkable)
+const persistThunk = thunk.persist.call(context, thunkable)
 ```
 
 ### thunk.delay(delay)
@@ -591,7 +588,7 @@ This will stop control flow process with a message similar to Promise's cancelab
 Stop signal is a object with a message and `status === 19`(POSIX signal SIGSTOP) and a special code. Stop signal can be caught by `onstop`, and aslo can be caught by `try catch`, in this case it will not trigger `onstop`.
 
 ```js
-var thunk = require('thunks')({
+const thunk = require('thunks')({
   onstop: function (res) {
     if (res) console.log(res.code, res.status, res) // SIGSTOP 19 { message: 'Stop now!' }
   }

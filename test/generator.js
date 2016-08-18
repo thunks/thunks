@@ -2,6 +2,7 @@
 
 var tman = require('tman')
 var should = require('should')
+var Promise = global.Promise || require('promise')
 var thunks = require('..')
 
 tman.suite('thunk with generator', function () {

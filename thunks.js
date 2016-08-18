@@ -12,28 +12,11 @@
 }(typeof window === 'object' ? window : this, function () {
   'use strict'
 
-  var undef = void 0
   var maxTickDepth = 100
-  var toString = Object.prototype.toString
-  var hasOwnProperty = Object.prototype.hasOwnProperty
   /* istanbul ignore next */
-  var objectKeys = Object.keys || function (obj) {
-    var keys = []
-    for (var key in obj) {
-      if (hasOwnProperty.call(obj, key)) keys.push(key)
-    }
-    return keys
-  }
-  /* istanbul ignore next */
-  var isArray = Array.isArray || function (obj) {
-    return toString.call(obj) === '[object Array]'
-  }
-  /* istanbul ignore next */
-  var nextTick = (typeof process === 'object' && process.nextTick)
-    ? process.nextTick : typeof setImmediate === 'function'
-    ? setImmediate : function (fn) {
-      setTimeout(fn, 0)
-    }
+  var nextTick = typeof setImmediate === 'function'
+    ? setImmediate : typeof Promise === 'function'
+    ? function (fn) { Promise.resolve().then(fn) } : function (fn) { setTimeout(fn, 0) }
 
   function thunks (options) {
     var scope = options instanceof Scope ? options : new Scope(options)
@@ -221,13 +204,13 @@
   function runThunk (ctx, value, callback, thunkObj, noTryRun) {
     var err
     var thunk = toThunk(value, thunkObj)
-    if (!isFunction(thunk)) return thunk === undef ? callback(null) : callback(null, thunk)
+    if (!isFunction(thunk)) return thunk === undefined ? callback(null) : callback(null, thunk)
     if (isGeneratorFn(thunk)) thunk = generatorToThunk(thunk.call(ctx))
     else if (isAsyncFn(thunk)) thunk = promiseToThunk(thunk.call(ctx))
     else if (thunk.length !== 1) {
       /* istanbul ignore next */
       if (!thunks.strictMode) return callback(null, thunk)
-      err = new Error('Not thunk function: ' + thunk)
+      err = new Error('Not thunkable function: ' + thunk)
       err.fn = thunk
       return callback(err)
     }
@@ -252,7 +235,7 @@
     if (isFunction(obj.toThunk)) return obj.toThunk()
     if (isFunction(obj.then)) return promiseToThunk(obj)
     if (isFunction(obj.toPromise)) return promiseToThunk(obj.toPromise())
-    if (thunkObj && (isArray(obj) || isObject(obj))) return objectToThunk(obj, thunkObj)
+    if (thunkObj && (Array.isArray(obj) || isObject(obj))) return objectToThunk(obj, thunkObj)
     return obj
   }
 
@@ -292,12 +275,12 @@
       var ctx = this
       var finished = false
 
-      if (isArray(obj)) {
+      if (Array.isArray(obj)) {
         result = Array(obj.length)
         for (len = obj.length; i < len; i++) next(obj[i], i)
       } else if (isObject(obj)) {
         result = {}
-        var keys = objectKeys(obj)
+        var keys = Object.keys(obj)
         for (len = keys.length; i < len; i++) next(obj[keys[i]], keys[i])
       } else throw new Error('Not array or object')
       return --pending || callback(null, result)
@@ -407,7 +390,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.4.3'
+  thunks.VERSION = '4.5.0'
   thunks.strictMode = true
   thunks['default'] = thunks
   thunks.pruneErrorStack = true

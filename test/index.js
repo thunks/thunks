@@ -407,11 +407,11 @@ tman.suite('thunks', function () {
       var thunk = thunks()
       thunk(nonThunk1)(function (err) {
         should(err).be.instanceOf(Error)
-        should(err.message).containEql('Not thunk function')
+        should(err.message).containEql('Not thunkable function')
         should(err.message).containEql('nonThunk1')
         return thunk(nonThunk2)(function (err) {
           should(err).be.instanceOf(Error)
-          should(err.message).containEql('Not thunk function')
+          should(err.message).containEql('Not thunkable function')
           should(err.message).containEql('nonThunk2')
         })
       })(done)
@@ -471,22 +471,23 @@ tman.suite('thunks', function () {
 
     tman.it('thunk(toPromise)', function (done) {
       var thunk = thunks()
-      thunk(Promise.resolve(x))(function (error, value) {
+
+      function TestObj (err, res) {
+        this.err = err
+        this.res = res
+      }
+      TestObj.prototype.toPromise = function () {
+        return this.err ? Promise.reject(this.err) : Promise.resolve(this.res)
+      }
+
+      thunk(new TestObj(null, x))(function (error, value) {
         should(error).be.equal(null)
         should(value).be.equal(x)
-        return Promise.reject(new Error('some error!'))
+        return new TestObj(new Error('some error!'))
       })(function (error, value) {
         should(error).be.instanceOf(Error)
         should(error.message).be.equal('some error!')
         should(value).be.equal(undefined)
-        return new Promise(function (resolve, reject) {
-          setImmediate(function () {
-            resolve(x)
-          })
-        })
-      })(function (error, value) {
-        should(error).be.equal(null)
-        should(value).be.equal(x)
       })(done)
     })
 
@@ -1143,7 +1144,7 @@ tman.suite('thunks', function () {
 
   tman.suite('extremely control flow (100000)', function () {
     var extreme = 100000
-    this.timeout(10000)
+    this.timeout(15000)
 
     tman.it('extremely sync chain', function (done) {
       var thunk = thunks()
