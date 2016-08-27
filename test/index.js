@@ -1,5 +1,5 @@
 'use strict'
-/*global noneFn*/
+/* global noneFn */
 
 var tman = require('tman')
 var util = require('util')
@@ -267,10 +267,10 @@ tman.suite('thunks', function () {
       })
       should(function () {
         thunkFn()
-      }).throw('The thunk already filled')
+      }).throw('The thunkFunction already filled')
       should(function () {
         thunkFn(function () {})
-      }).throw('The thunk already filled')
+      }).throw('The thunkFunction already filled')
       done()
     })
 
@@ -864,7 +864,7 @@ tman.suite('thunks', function () {
     })
   })
 
-  tman.suite('thunk.digest()', function () {
+  tman.suite.skip('thunk.digest()', function () {
     tman.it('thunk.digest()', function (done) {
       var thunk = thunks()
       thunk.digest(1, 2)(function (error, value) {

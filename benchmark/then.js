@@ -1,7 +1,6 @@
 'use strict'
-/*global */
 
-var Thenjs = require('thenjs')
+const Thenjs = require('thenjs')
 
 module.exports = function (len, syncMode) {
   var task

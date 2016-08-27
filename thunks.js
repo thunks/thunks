@@ -1,8 +1,8 @@
 // **Github:** https://github.com/thunks/thunks
 //
 // **License:** MIT
-
 /* global module, define, setImmediate */
+
 ;(function (root, factory) {
   'use strict'
   /* istanbul ignore next */
@@ -45,15 +45,16 @@
       if (arguments.length > 1) array = slice(arguments)
       return thunk.call(this, function (done) {
         if (!Array.isArray(array)) throw new TypeError(String(array) + ' is not array')
-        if (!array.length) return thunk.call(this)(done)
         for (var i = 0, l = array.length; i < l; i++) thunk.call(this, array[i])(done)
+        if (!array.length) thunk.call(this)(done)
       })
     }
-    // DEPRECATED, we don't need it.
+
     thunk.digest = function () {
       var args = slice(arguments)
       return thunk.call(this, function (callback) {
-        return apply(null, callback, args)
+        console.warn('thunk.digest is deprecated.')
+        apply(null, callback, args)
       })
     }
 
@@ -63,7 +64,7 @@
         var args = slice(arguments)
         return thunk.call(ctx || this, function (callback) {
           args.push(callback)
-          return apply(this, fn, args)
+          apply(this, fn, args)
         })
       }
     }
@@ -81,14 +82,15 @@
 
     thunk.delay = function (delay) {
       return thunk.call(this, function (callback) {
-        return delay > 0 ? setTimeout(callback, delay) : nextTick(callback)
+        if (delay > 0) setTimeout(callback, delay)
+        else nextTick(callback)
       })
     }
 
     thunk.stop = function (message) {
       var signal = new SigStop(message)
       nextTick(function () {
-        return scope.onstop && scope.onstop(signal)
+        if (scope.onstop) scope.onstop(signal)
       })
       throw signal
     }
@@ -105,7 +107,7 @@
 
       return function (callback) {
         return thunk.call(ctx || this, function (done) {
-          if (result) return apply(null, done, result)
+          if (result) apply(null, done, result)
           else queue.push(done)
         })(callback)
       }
@@ -146,7 +148,7 @@
   }
 
   function child (parent, domain, callback) {
-    if (parent.callback) throw new Error('The thunk already filled')
+    if (parent.callback) throw new Error('The thunkFunction already filled')
     if (callback && !isFunction(callback)) {
       throw new TypeError(String(callback) + ' is not a function')
     }
@@ -159,7 +161,8 @@
     var scope = domain.scope
     var current = parent.next
     var result = parent.result
-    return result[0] != null ? callback(result[0]) : runThunk(domain.ctx, result[1], callback)
+    if (result[0] != null) callback(result[0])
+    else runThunk(domain.ctx, result[1], callback)
 
     function callback (err) {
       if (parent.result === null) return
@@ -186,9 +189,7 @@
       if (current.callback) {
         tickDepth = tickDepth || maxTickDepth
         if (--tickDepth) return continuation(current, domain, tickDepth)
-        return nextTick(function () {
-          continuation(current, domain, 0)
-        })
+        return nextTick(function () { continuation(current, domain, 0) })
       }
       if (current.result[0] != null) {
         nextTick(function () {
@@ -204,7 +205,9 @@
   function runThunk (ctx, value, callback, thunkObj, noTryRun) {
     var err
     var thunk = toThunk(value, thunkObj)
-    if (!isFunction(thunk)) return thunk === undefined ? callback(null) : callback(null, thunk)
+    if (!isFunction(thunk)) {
+      return thunk === undefined ? callback(null) : callback(null, thunk)
+    }
     if (isGeneratorFn(thunk)) thunk = generatorToThunk(thunk.call(ctx))
     else if (isAsyncFn(thunk)) thunk = promiseToThunk(thunk.call(ctx))
     else if (thunk.length !== 1) {
@@ -243,24 +246,24 @@
     return function (callback) {
       var ctx = this
       var tickDepth = maxTickDepth
-      return run()
+      run()
 
       function run (err, res) {
         if (err instanceof SigStop) return callback(err)
         var ret = err == null ? gen.next(res) : gen.throw(err)
         if (ret.done) return runThunk(ctx, ret.value, callback)
         if (--tickDepth) return runThunk(ctx, ret.value, next, true)
-        return nextTick(function () {
+        nextTick(function () {
           tickDepth = maxTickDepth
-          return runThunk(ctx, ret.value, next, true)
+          runThunk(ctx, ret.value, next, true)
         })
       }
 
       function next (err, res) {
         try {
-          return run(err, arguments.length > 2 ? slice(arguments, 1) : res)
+          run(err, arguments.length > 2 ? slice(arguments, 1) : res)
         } catch (error) {
-          return callback(error)
+          callback(error)
         }
       }
     }
@@ -390,7 +393,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.5.0'
+  thunks.VERSION = '4.5.1'
   thunks.strictMode = true
   thunks['default'] = thunks
   thunks.pruneErrorStack = true

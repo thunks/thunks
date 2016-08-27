@@ -1,5 +1,5 @@
 'use strict'
-/*global module, noneFn*/
+/* global noneFn */
 
 var thunk = require('../thunks.js')()
 

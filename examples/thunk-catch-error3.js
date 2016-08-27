@@ -1,5 +1,5 @@
 'use strict'
-/*global console, noneFn*/
+/* global noneFn */
 
 var thunk = require('../thunks.js')(function (error) {
   // any error will be catched by this function

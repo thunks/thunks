@@ -1,5 +1,4 @@
 'use strict'
-/*global console*/
 
 var thunks = require('../thunks.js')
 var fs = require('fs')

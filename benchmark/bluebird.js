@@ -1,7 +1,6 @@
 'use strict'
-/*global console*/
 
-var Bluebird = require('bluebird')
+const Bluebird = require('bluebird')
 
 module.exports = function (len, syncMode) {
   var task

@@ -1,5 +1,4 @@
 'use strict'
-/*global module, process*/
 
 var redis = require('thunk-redis')
 var db = redis.createClient()

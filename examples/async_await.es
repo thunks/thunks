@@ -1,5 +1,4 @@
 'use strict'
-/*global module, process, thunk */
 
 // Try it in Chrome 54.0.2813.0 canary (64-bit) with `enable-javascript-harmony`
 const thunk = thunks()

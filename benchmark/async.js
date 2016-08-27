@@ -1,7 +1,6 @@
 'use strict'
-/*global */
 
-var async = require('async')
+const async = require('async')
 
 module.exports = function (len, syncMode) {
   var task

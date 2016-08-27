@@ -1,5 +1,4 @@
 'use strict'
-/*global */
 
 var thunk = require('../thunks.js')({
   onstop: function (res) {

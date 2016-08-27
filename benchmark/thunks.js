@@ -1,7 +1,6 @@
 'use strict'
-/*global Promise */
 
-var thunk = require('../thunks.js')()
+const thunk = require('../thunks.js')()
 
 module.exports = function (len, syncMode) {
   var task

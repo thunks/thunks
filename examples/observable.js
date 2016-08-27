@@ -1,5 +1,4 @@
 'use strict'
-/*global module, process*/
 
 var fs = require('fs')
 var Rx = require('rxjs')

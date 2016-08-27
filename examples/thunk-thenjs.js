@@ -1,5 +1,4 @@
 'use strict'
-/*global console*/
 
 var thunk = require('../thunks.js')()
 var Then = require('thenjs')

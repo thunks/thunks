@@ -1,5 +1,4 @@
 'use strict'
-/*global Promise */
 
 module.exports = function (len, syncMode) {
   var task

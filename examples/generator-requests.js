@@ -1,5 +1,4 @@
 'use strict'
-/*global module, process*/
 
 var thunk = require('../thunks.js')()
 var request = require('request')
