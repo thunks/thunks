@@ -1144,7 +1144,7 @@ tman.suite('thunks', function () {
 
   tman.suite('extremely control flow (100000)', function () {
     var extreme = 100000
-    this.timeout(15000)
+    this.timeout(20000)
 
     tman.it('extremely sync chain', function (done) {
       var thunk = thunks()

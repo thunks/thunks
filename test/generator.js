@@ -232,7 +232,7 @@ tman.suite('thunk with generator', function () {
   })
 
   tman.it('extremely yield (100000)', function (done) {
-    this.timeout(10000) // run with istanbul will take long time.
+    this.timeout(20000) // run with istanbul will take long time.
 
     var thunk = thunks()
     thunk(function * () {
