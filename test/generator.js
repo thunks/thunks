@@ -231,6 +231,24 @@ tman.suite('thunk with generator', function () {
     })(done)
   })
 
+  tman.it('not thunkable generator function', function (done) {
+    function * nonThunkable (a) {}
+
+    var thunk = thunks()
+    thunk(nonThunkable)(function (err) {
+      should(err).be.instanceOf(Error)
+      should(err.message).containEql('Not thunkable function')
+      should(err.message).containEql('nonThunkable')
+      return thunk(function * () {
+        yield nonThunkable
+      })(function (err) {
+        should(err).be.instanceOf(Error)
+        should(err.message).containEql('Not thunkable function')
+        should(err.message).containEql('nonThunkable')
+      })
+    })(done)
+  })
+
   tman.it('extremely yield (100000)', function (done) {
     this.timeout(20000) // run with istanbul will take long time.
 

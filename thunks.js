@@ -208,14 +208,14 @@
     if (!isFunction(thunk)) {
       return thunk === undefined ? callback(null) : callback(null, thunk)
     }
-    if (isGeneratorFn(thunk)) thunk = generatorToThunk(thunk.call(ctx))
-    else if (isAsyncFn(thunk)) thunk = promiseToThunk(thunk.call(ctx))
-    else if (thunk.length !== 1) {
-      /* istanbul ignore next */
-      if (!thunks.strictMode) return callback(null, thunk)
-      err = new Error('Not thunkable function: ' + thunk)
-      err.fn = thunk
-      return callback(err)
+    if (isGeneratorFn(thunk)) {
+      if (thunk.length) return callback(new Error('Not thunkable function: ' + thunk.toString()))
+      thunk = generatorToThunk(thunk.call(ctx))
+    } else if (isAsyncFn(thunk)) {
+      if (thunk.length) return callback(new Error('Not thunkable function: ' + thunk.toString()))
+      thunk = promiseToThunk(thunk.call(ctx))
+    } else if (thunk.length !== 1) {
+      return callback(new Error('Not thunkable function: ' + thunk.toString()))
     }
     if (noTryRun) return thunk.call(ctx, callback)
     err = tryRun(ctx, thunk, [callback])[0]
@@ -393,8 +393,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.5.1'
-  thunks.strictMode = true
+  thunks.VERSION = '4.6.0'
   thunks['default'] = thunks
   thunks.pruneErrorStack = true
   thunks.Scope = Scope
