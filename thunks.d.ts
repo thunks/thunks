@@ -28,7 +28,8 @@ interface Ithunk extends IThunk {
   lift(thunkable: Ithunk): Ithunk,
   persist(thunkable: Ithunk): Ithunk,
   delay(Time: number): Ithunk,
-  stop(message?: string): void
+  stop(message?: string): void,
+  cancel(): void
 }
 
 interface IThunk {

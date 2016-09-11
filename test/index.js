@@ -1142,6 +1142,86 @@ tman.suite('thunks', function () {
     })
   })
 
+  tman.suite('thunk.cancel()', function () {
+    tman.it('cancel with thunk chain', function (done) {
+      var count = 0
+      var thunk = thunks()
+      thunk()(function () {
+        should(++count).be.equal(1)
+        return thunk.delay(100)
+      })(function () {
+        should(++count).be.equal(2)
+        return thunk.delay(100)
+      })(function () {
+        // should not run
+        should(true).be.equal(false)
+      })
+      thunk.delay(150)(function () {
+        thunk.cancel()
+        should(++count).be.equal(3)
+      })
+      setTimeout(function () {
+        should(++count).be.equal(4)
+        done()
+      }, 250)
+    })
+
+    tman.it('cancel with thunk.seq', function (done) {
+      var count = 0
+      var thunk = thunks()
+      thunk.seq([
+        function (cb) {
+          should(++count).be.equal(1)
+          setTimeout(cb, 100)
+        },
+        function (cb) {
+          should(++count).be.equal(2)
+          setTimeout(cb, 100)
+        },
+        function (cb) {
+          // should not run
+          should(true).be.equal(false)
+          setTimeout(cb, 100)
+        }
+      ])(function () {
+        // should not run
+        should(true).be.equal(false)
+      })
+
+      thunk.delay(150)(function () {
+        thunk.cancel()
+        should(++count).be.equal(3)
+      })
+      setTimeout(function () {
+        should(++count).be.equal(4)
+        done()
+      }, 250)
+    })
+
+    tman.it('cancel with thunk.persist', function (done) {
+      var count = 0
+      var thunk = thunks()
+      var persist = thunk.persist(1)
+
+      persist(function (_, res) {
+        should(res).be.equal(1)
+        count += res
+        thunk.cancel()
+        return persist(function (_, res) {
+          should(true).be.equal(false)
+        })
+      })(function () {
+        // should not run
+        should(true).be.equal(false)
+      })
+
+      setTimeout(function () {
+        should(++count).be.equal(2)
+        done()
+      }, 100)
+    })
+  })
+
   tman.suite('extremely control flow (100000)', function () {
     var extreme = 100000
     this.timeout(20000)

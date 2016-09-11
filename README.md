@@ -23,7 +23,6 @@ ES5+, support node.js and browsers.
 - [Installation](#installation)
 - [API](#api)
   - [thunks([scope])](#thunksscope)
-  - [thunks.strictMode](#thunksstrictmode)
   - [thunks.pruneErrorStack](#thunkspruneerrorstack)
   - [thunks.onerror\(error\)](#thunksonerrorerror)
   - [Class thunks.Scope](#class-thunksscope)
@@ -39,6 +38,7 @@ ES5+, support node.js and browsers.
   - [thunk.persist(thunkable)](#thunkpersistthunkable)
   - [thunk.delay(delay)](#thunkdelaydelay)
   - [thunk.stop([messagge])](#thunkstopmessagge)
+  - [thunk.cancel()](#thunkcancel)
 - [License MIT](#license)
 
 ## Implementations:
@@ -227,9 +227,6 @@ The context of `onerror`, `onstop` and `debug` is a `scope`.
 Even multiple `thunk` main functions with different scope are composed,
 each scope would be separated from each other,
 which means, `onerror`, `onstop` and `debug` would not run in other scopes.
-
-### thunks.strictMode
-Default to `true`, means it will validate thunkable function.
 
 ### thunks.pruneErrorStack
 Default to `true`, means it will prune error stack message.
@@ -613,6 +610,10 @@ thunk.delay(100)(function () {
   console.log('It will not run!')
 })
 ```
+
+### thunk.cancel()
+
+This will cancel all control flow process in the current thunk's scope.
 
 ## License
 thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.  

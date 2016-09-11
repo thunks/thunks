@@ -217,6 +217,40 @@ tman.suite('thunk with generator', function () {
     })
   })
 
+  tman.it('cancel with thunk generator', function (done) {
+    var count = 0
+    var thunk = thunks()
+    thunk(function * () {
+      yield function (cb) {
+        should(++count).be.equal(1)
+        setTimeout(cb, 100)
+      }
+
+      yield function (cb) {
+        should(++count).be.equal(2)
+        setTimeout(cb, 100)
+      }
+
+      yield function (cb) {
+        // should not run
+        should(true).be.equal(false)
+        setTimeout(cb, 100)
+      }
+    })(function () {
+      // should not run
+      should(true).be.equal(false)
+    })
+
+    thunk.delay(150)(function () {
+      thunk.cancel()
+      should(++count).be.equal(3)
+    })
+    setTimeout(function () {
+      should(++count).be.equal(4)
+      done()
+    }, 250)
+  })
+
   tman.it('generator in thunk.persist', function (done) {
     var x = {}
     var thunk = thunks()
