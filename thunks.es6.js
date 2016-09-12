@@ -110,9 +110,9 @@ function Scope (options) {
     if (isFunction(options.debug)) this.debug = options.debug
   }
 }
-Scope.prototype.onerror = null
-Scope.prototype.onstop = null
 Scope.prototype.debug = null
+Scope.prototype.onstop = null
+Scope.prototype.onerror = null
 
 function Link (result, callback) {
   this.next = null
@@ -174,15 +174,13 @@ function continuation (parent, domain, tickDepth) {
     current.result = tryRun(domain.ctx, parent.callback, args)
     if (current.callback) {
       tickDepth = tickDepth || maxTickDepth
-      if (--tickDepth) return continuation(current, domain, tickDepth)
-      return nextTick(() => continuation(current, domain, 0))
-    }
-    if (current.result[0] != null) {
+      if (--tickDepth) continuation(current, domain, tickDepth)
+      else nextTick(() => continuation(current, domain, 0))
+    } else if (current.result[0] != null) {
       nextTick(() => {
         if (!current.result) return
-        if (scope.onerror) return scope.onerror(current.result[0])
-        /* istanbul ignore next */
-        noOp(current.result[0])
+        if (scope.onerror) scope.onerror(current.result[0])
+        else noOp(current.result[0])
       })
     }
   }
@@ -204,7 +202,7 @@ function runThunk (scope, ctx, value, callback, thunkObj, noTryRun) {
   }
   if (noTryRun) return thunk.call(ctx, callback)
   let err = tryRun(ctx, thunk, [callback])[0]
-  return err && callback(err)
+  if (err) callback(err)
 }
 
 function tryRun (ctx, fn, args) {
@@ -231,9 +229,9 @@ function generatorToThunk (gen, scope) {
   return function (callback) {
     let ctx = this
     let tickDepth = maxTickDepth
-    run()
+    runGenerator()
 
-    function run (err, res) {
+    function runGenerator (err, res) {
       if (scope.canceled) return
       if (err instanceof SigStop) return callback(err)
       let ret = err == null ? gen.next(res) : gen.throw(err)
@@ -247,7 +245,7 @@ function generatorToThunk (gen, scope) {
 
     function next (err, res) {
       try {
-        run(err, arguments.length > 2 ? slice(arguments, 1) : res)
+        runGenerator(err, arguments.length > 2 ? slice(arguments, 1) : res)
       } catch (error) {
         callback(error)
       }
@@ -272,7 +270,7 @@ function objectToThunk (obj, scope, thunkObj) {
       let keys = Object.keys(obj)
       for (len = keys.length; i < len; i++) next(obj[keys[i]], keys[i])
     } else throw new Error('Not array or object')
-    return --pending || callback(null, result)
+    if (!--pending) callback(null, result)
 
     function next (fn, index) {
       if (finished) return
@@ -284,7 +282,7 @@ function objectToThunk (obj, scope, thunkObj) {
           return callback(err)
         }
         result[index] = arguments.length > 2 ? slice(arguments, 1) : res
-        return --pending || callback(null, result)
+        if (!--pending) callback(null, result)
       }, thunkObj, true)
     }
   }
@@ -316,7 +314,7 @@ function sequenceToThunk (array, scope) {
 
 function promiseToThunk (promise) {
   return function (callback) {
-    return promise.then(function (res) {
+    promise.then(function (res) {
       callback(null, res)
     }, function (err) {
       if (err == null) err = new Error('unknown error: ' + err)
@@ -379,7 +377,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.7.0'
+thunks.VERSION = '4.7.1'
 thunks.pruneErrorStack = true
 thunks.Scope = Scope
 thunks.isGeneratorFn = (fn) => isFunction(fn) && isGeneratorFn(fn)
