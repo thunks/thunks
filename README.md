@@ -39,7 +39,7 @@ ES5+, support node.js and browsers.
   - [thunk.delay(delay)](#thunkdelaydelay)
   - [thunk.stop([messagge])](#thunkstopmessagge)
   - [thunk.cancel()](#thunkcancel)
-- [TypesSript Typings](#typescript-typings)
+- [TypeSript Typings](#typescript-typings)
 - [What functions are thunkable?](#what-functions-are-thunkable)
 - [License MIT](#license)
 
@@ -624,7 +624,7 @@ thunk.delay(100)(function () {
 
 This will cancel all control flow process in the current thunk's scope.
 
-## TypesSript Typings
+## TypeSript Typings
 
 ```typescript
 import * as thunks from '../'
@@ -632,7 +632,7 @@ const thunk = thunks()
 
 thunk(function * () {
   while (true) {
-    yield <any>function (done) { setTimeout(done, 1000) }
+    yield function (done) { setTimeout(done, 1000) }
     console.log('Dang!')
   }
 })()
@@ -668,7 +668,7 @@ thunk()(function () {
   console.log(4, err) // 4 [Error: Not thunkable function: function () {}]
 })
 ```
-So pay attention to that **we can't return a non-thunkable function** in thunk. If we return a thunkable function, thunk will evaluate it to get a asynchronous value.
+So pay attention to that **we can't return a non-thunkable function** in thunk. If we return a thunkable function, thunk will evaluate it as a asynchronous task.
 
 ## License
 thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.  
