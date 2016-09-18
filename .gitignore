@@ -1,6 +1,7 @@
 node_modules/
 debug/
 coverage/
+typings/
 test.js
 
 npm-debug.log

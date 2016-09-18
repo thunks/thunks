@@ -8,7 +8,7 @@ A small and magical composer for all JavaScript asynchronous.
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Downloads][downloads-image]][downloads-url]
 
-[中文说明](https://github.com/thunks/thunks/blob/master/README_zh.md)
+[中文说明](https://github.com/thunks/thunks/blob/master/docs/api-zh.md)
 
 [thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
 
@@ -39,6 +39,8 @@ ES5+, support node.js and browsers.
   - [thunk.delay(delay)](#thunkdelaydelay)
   - [thunk.stop([messagge])](#thunkstopmessagge)
   - [thunk.cancel()](#thunkcancel)
+- [TypesSript Typings](#typescript-typings)
+- [What functions are thunkable?](#what-functions-are-thunkable)
 - [License MIT](#license)
 
 ## Implementations:
@@ -255,10 +257,12 @@ The parameter `thunkable` value could be:
 
   ```js
   let thunk1 = thunk(1)
-  let thunk2 = thunk(thunk1) // thunk2 equals to thunk1
+  thunk(thunk1)(function (error, value) {
+    console.log(error, value) // null 1
+  })
   ```
 
-2. `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunkFunction` function
+2. a thunkLike function `function (callback) {}`, by calling it, results woule be gathered and be passed to the next `thunkFunction` function
 
   ```js
   thunk(function (callback) {
@@ -278,20 +282,25 @@ The parameter `thunkable` value could be:
   })
   ```
 
-4. objects which implements methods of `toThunk`
+4. objects which implements the method `toThunk`
 
   ```js
-  let then = Thenjs(1) // then.toThunk() return a thunk function
-
-  thunk(then)(function (error, value) {
+  let obj = {
+    toThunk: function () {
+      return function (done) { done(null, 1) }
+    }
+  }
+  // `obj` has `toThunk` method that return a thunk function
+  thunk(obj)(function (error, value) {
     console.log(error, value) // null 1
   })
   ```
 
-5. objects which implements methods of `toPromise`
+5. objects which implements the method `toPromise`
 
   ```js
   const Rx = require('rxjs')
+  // Observable instance has `toPromise` method that return a promise
   thunk(Rx.Observable.fromPromise(Promise.resolve(123)))(function (error, value) {
     console.log(error, value) // null 123
   })
@@ -614,6 +623,52 @@ thunk.delay(100)(function () {
 ### thunk.cancel()
 
 This will cancel all control flow process in the current thunk's scope.
+
+## TypesSript Typings
+
+```typescript
+import * as thunks from '../'
+const thunk = thunks()
+
+thunk(function * () {
+  while (true) {
+    yield <any>function (done) { setTimeout(done, 1000) }
+    console.log('Dang!')
+  }
+})()
+```
+
+## What functions are thunkable?
+
+thunks supports so many [thunkable](#thunkthunkable) objects. There are three kind of functions:
+
+- thunk like function `function (callback) { callback(err, someValue) }`
+- generator function `function * () { yield something }`
+- async/await function `async function () { await somePromise }`
+
+thunks can't suports common function (not thunk like function). thunks uses `fn.length === 1` to recognize thunk like function.
+
+Use common function in this way will throw error:
+```js
+thunk(function () {})(function (err) {
+  console.log(1, err) // 1 [Error: Not thunkable function: function () {}]
+})
+
+thunk(function (a, b) {})(function (err) {
+  console.log(2, err) // 2 [Error: Not thunkable function: function (a, b) {}]
+})
+
+thunk(function () { let callback = arguments[0]; callback() })(function (err) {
+  console.log(3, err) // 3 [Error: Not thunkable function: function () { let callback = arguments[0]; callback() }]
+})
+
+thunk()(function () {
+  return function () {} // can't return a non-thunkable function.
+})(function (err) {
+  console.log(4, err) // 4 [Error: Not thunkable function: function () {}]
+})
+```
+So pay attention to that **we can't return a non-thunkable function** in thunk. If we return a thunkable function, thunk will evaluate it to get a asynchronous value.
 
 ## License
 thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.  
