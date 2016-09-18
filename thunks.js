@@ -399,7 +399,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.7.1'
+  thunks.VERSION = '4.7.2'
   thunks['default'] = thunks
   thunks.pruneErrorStack = true
   thunks.Scope = Scope

@@ -9,14 +9,6 @@ A small and magical composer for all JavaScript asynchronous.
 [![Downloads][downloads-image]][downloads-url]
 [![Talk topic][talk-image]][talk-url]
 
-## [Toa](https://github.com/toajs/toa): A powerful web framework rely on thunks.
-
-[thunks 的作用域和异常处理设计](https://github.com/thunks/thunks/blob/master/docs/scope-and-error-catch.md)
-
-## Compatibility
-
-ES5+, support node.js and browsers.
-
 ## `thunk` 是什么?
 
 0. [ALGOL thunks in 1961](http://archive.computerhistory.org/resources/text/algol/ACM_Algol_bulletin/1064045/frontmatter.pdf)
@@ -30,88 +22,6 @@ ES5+, support node.js and browsers.
 4. **`thunk`** 自身执行完毕后，结果进入 `callback` 运行；
 
 5. `callback` 的返回值如果是 **`thunk`** 函数，则等该 **`thunk`** 执行完毕将结果输入新 **`thunk`** 函数运行；如果是其它值，则当做正确结果进入新的 **`thunk`** 函数运行；
-
-## Demo
-
-```js
-const thunk = require('thunks')()
-const fs = require('fs')
-const size = thunk.thunkify(fs.stat)
-
-// generator
-thunk(function * () {
-
-  // sequential
-  console.log(yield size('.gitignore'))
-  console.log(yield size('thunks.js'))
-  console.log(yield size('package.json'))
-
-})(function * (error, res) {
-  //parallel
-  console.log(yield [
-    size('.gitignore'),
-    size('thunks.js'),
-    size('package.json')
-  ])
-})()
-```
-
-```js
-const thunk = require('thunks')()
-const fs = require('fs')
-const size = thunk.thunkify(fs.stat)
-
-// sequential
-size('.gitignore')(function (error, res) {
-  console.log(error, res)
-  return size('thunks.js')
-
-})(function (error, res) {
-  console.log(error, res)
-  return size('package.json')
-
-})(function (error, res) {
-  console.log(error, res)
-})
-
-// parallel
-thunk.all([
-  size('.gitignore'),
-  size('thunks.js'),
-  size('package.json')
-])(function (error, res) {
-  console.log(error, res)
-})
-
-// sequential
-thunk.seq([
-  size('.gitignore'),
-  size('thunks.js'),
-  size('package.json')
-])(function (error, res) {
-  console.log(error, res)
-})
-```
-
-## Install
-
-**Node.js:**
-
-```sh
-npm install thunks
-```
-
-**bower:**
-
-```sh
-bower install thunks
-```
-
-**Browser:**
-
-```html
-<script src="/pathTo/thunks.js"></script>
-```
 
 ## API
 
