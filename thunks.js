@@ -399,8 +399,10 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.7.2'
+  thunks.VERSION = '4.7.3'
   thunks['default'] = thunks
+  thunks.thunk = thunks()
+  thunks.thunks = thunks
   thunks.pruneErrorStack = true
   thunks.Scope = Scope
   thunks.isGeneratorFn = function (fn) { return isFunction(fn) && isGeneratorFn(fn) }

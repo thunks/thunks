@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.7.2",
+  "version": "4.7.3",
   "main": "thunks.js",
   "typings": "thunks.d.ts",
   "jsnext:main": "thunks.es6.js",

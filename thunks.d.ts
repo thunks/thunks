@@ -20,23 +20,6 @@ interface ThunkFunction {
   (fn?: Callback | GeneratorFunction | AsyncFunction): ThunkFunction;
 }
 
-interface thunk {
-  (thunkable?: primitives | thunkable): ThunkFunction;
-  all(...args: Array<thunkable>): ThunkFunction;
-  all(array: Array<thunkable>): ThunkFunction;
-  all(object: Object): ThunkFunction;
-  seq(...args: Array<thunkable>): ThunkFunction;
-  seq(array: Array<thunkable>): ThunkFunction;
-  race(...args: Array<thunkable>): ThunkFunction;
-  race(array: Array<thunkable>): ThunkFunction;
-  persist(thunkable: thunkable): ThunkFunction;
-  thunkify(FnWithCb: FunctionWithCallback): (...args: Array<primitives>) => ThunkFunction;
-  lift(fn: (...args: Array<primitives>) => primitives): (...args: Array<thunkable>) => ThunkFunction;
-  delay(Time?: number): ThunkFunction;
-  stop(message?: string): void;
-  cancel(): void;
-}
-
 // https://github.com/Microsoft/TypeScript/issues/1360
 interface NodeCallback {
   (err?: Error, ...args: Array<primitives>): void;
@@ -121,26 +104,45 @@ interface SigStop {
   code: string;
 }
 
-interface scopeOnerror {
+interface ScopeOnerror {
   (error: Error): Error | boolean | void;
 }
 
-interface scopeOptions {
-  onerror?: scopeOnerror;
+interface ScopeOptions {
+  onerror?: ScopeOnerror;
   onstop?: (sig: SigStop) => void;
   debug?: (value: any) => void;
 }
 
-declare function thunks (options?: scopeOnerror | scopeOptions): thunk;
+interface Thunk {
+  (thunkable?: primitives | thunkable): ThunkFunction;
+  all(...args: Array<thunkable>): ThunkFunction;
+  all(array: Array<thunkable>): ThunkFunction;
+  all(object: Object): ThunkFunction;
+  seq(...args: Array<thunkable>): ThunkFunction;
+  seq(array: Array<thunkable>): ThunkFunction;
+  race(...args: Array<thunkable>): ThunkFunction;
+  race(array: Array<thunkable>): ThunkFunction;
+  persist(thunkable: thunkable): ThunkFunction;
+  thunkify(FnWithCb: FunctionWithCallback): (...args: Array<primitives>) => ThunkFunction;
+  lift(fn: (...args: Array<primitives>) => primitives): (...args: Array<thunkable>) => ThunkFunction;
+  delay(Time?: number): ThunkFunction;
+  stop(message?: string): void;
+  cancel(): void;
+}
+
+declare function thunks (options?: ScopeOnerror | ScopeOptions): Thunk;
 declare module thunks {
   export const NAME: string;
   export const VERSION: string;
   export const pruneErrorStack: boolean;
+  export const thunk: Thunk;
+  export function thunks (options?: ScopeOnerror | ScopeOptions): Thunk;
   export function isGeneratorFn(fn: any): boolean;
   export function isAsyncFn(fn: any): boolean;
   export function isThunkableFn(fn: any): boolean;
   export class Scope {
-    constructor(options?: scopeOnerror | scopeOptions);
+    constructor(options?: ScopeOnerror | ScopeOptions);
   }
 }
 

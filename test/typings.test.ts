@@ -5,6 +5,7 @@
 /// <reference path='../typings/index.d.ts' />
 
 import * as thunks from '../'
+import {thunk, thunks as thunks1, isThunkableFn, Scope} from '../'
 import * as assert from 'assert'
 
 const tman = require('tman')
@@ -18,6 +19,14 @@ tman.suite('thunks typings', () => {
     assert.strictEqual(thunks.isThunkableFn(function * () {}), true)
     assert.strictEqual(thunks.isThunkableFn(function (done) { done() }), true)
     assert.strictEqual(thunks.isAsyncFn(function (done) { done() }), false)
+    assert.strictEqual(thunks, thunks1)
+    assert.strictEqual(thunks.Scope, Scope)
+    assert.strictEqual(thunks.isThunkableFn, isThunkableFn)
+
+    return thunk(1)(function (err, res) {
+      assert.strictEqual(err, null)
+      assert.strictEqual(res, 1)
+    })
   })
 
   tman.it('thunks(options)', function () {

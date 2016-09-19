@@ -377,7 +377,9 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.7.2'
+thunks.VERSION = '4.7.3'
+thunks.thunk = thunks()
+thunks.thunks = thunks
 thunks.pruneErrorStack = true
 thunks.Scope = Scope
 thunks.isGeneratorFn = (fn) => isFunction(fn) && isGeneratorFn(fn)
