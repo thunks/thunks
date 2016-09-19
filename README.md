@@ -39,7 +39,7 @@ ES5+, support node.js and browsers.
   - [thunk.delay(delay)](#thunkdelaydelay)
   - [thunk.stop([messagge])](#thunkstopmessagge)
   - [thunk.cancel()](#thunkcancel)
-- [TypeSript Typings](#typescript-typings)
+- [TypeScript Typings](#typescript-typings)
 - [What functions are thunkable?](#what-functions-are-thunkable)
 - [License MIT](#license)
 
@@ -624,7 +624,7 @@ thunk.delay(100)(function () {
 
 This will cancel all control flow process in the current thunk's scope.
 
-## TypeSript Typings
+## TypeScript Typings
 
 ```typescript
 import * as assert from 'assert'
