@@ -4,14 +4,13 @@
 
 /// <reference path='../typings/index.d.ts' />
 
-import * as thunks from '../'
-import {thunk, thunks as thunks1, isThunkableFn, Scope} from '../'
 import * as assert from 'assert'
+import { suite, it } from 'tman'
+import * as thunks from '../'
+import {thunk, thunks as thunksAlias, isThunkableFn, Scope} from '../'
 
-const tman = require('tman')
-
-tman.suite('thunks typings', () => {
-  tman.it('thunks exports', function () {
+suite('thunks typings', () => {
+  it('thunks exports', function () {
     assert.strictEqual(thunks.NAME, 'thunks')
     assert.ok(typeof thunks.VERSION, 'string')
     assert.strictEqual(thunks.pruneErrorStack, true)
@@ -19,7 +18,7 @@ tman.suite('thunks typings', () => {
     assert.strictEqual(thunks.isThunkableFn(function * () {}), true)
     assert.strictEqual(thunks.isThunkableFn(function (done) { done() }), true)
     assert.strictEqual(thunks.isAsyncFn(function (done) { done() }), false)
-    assert.strictEqual(thunks, thunks1)
+    assert.strictEqual(thunks, thunksAlias)
     assert.strictEqual(thunks.Scope, Scope)
     assert.strictEqual(thunks.isThunkableFn, isThunkableFn)
 
@@ -29,7 +28,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunks(options)', function () {
+  it('thunks(options)', function () {
     assert.ok(typeof thunks(), 'function')
     assert.ok(typeof thunks(function (err) {}), 'function')
     assert.ok(typeof thunks({onerror: function (err) {}}), 'function')
@@ -37,9 +36,13 @@ tman.suite('thunks typings', () => {
     assert.ok(typeof thunks(new thunks.Scope()), 'function')
     assert.ok(typeof thunks(new thunks.Scope(function (err) {})), 'function')
     assert.ok(typeof thunks(new thunks.Scope({onerror: function (err) {}})), 'function')
+
+    assert.ok(typeof thunksAlias(new Scope()), 'function')
+    assert.ok(typeof thunksAlias(new Scope(function (err) {})), 'function')
+    assert.ok(typeof thunksAlias(new Scope({onerror: function (err) {}})), 'function')
   })
 
-  tman.it('thunk(void)', function () {
+  it('thunk(void)', function () {
     let thunk = thunks()
     return thunk()(function (err, res) {
       assert.strictEqual(err, null)
@@ -49,7 +52,7 @@ tman.suite('thunks typings', () => {
     })(function () {})()() // alway return ThunkFunction
   })
 
-  tman.it('thunk(boolean)', function () {
+  it('thunk(boolean)', function () {
     let thunk = thunks()
     return thunk(false)(function (err, res) {
       assert.strictEqual(err, null)
@@ -57,7 +60,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(number)', function () {
+  it('thunk(number)', function () {
     let thunk = thunks()
     return thunk(1)(function (err, res) {
       assert.strictEqual(err, null)
@@ -65,7 +68,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(string)', function () {
+  it('thunk(string)', function () {
     let thunk = thunks()
     return thunk('hello')(function (err, res) {
       assert.strictEqual(err, null)
@@ -73,7 +76,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(Array)', function () {
+  it('thunk(Array)', function () {
     let thunk = thunks()
     return thunk([1, '2'])(function (err, res) {
       assert.strictEqual(err, null)
@@ -81,7 +84,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(Object)', function () {
+  it('thunk(Object)', function () {
     let thunk = thunks()
     let date = new Date()
     return thunk(date)(function (err, res: Date) {
@@ -90,17 +93,37 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(ThunkLikeFunction)', function () {
+  it('thunk(ThunkLikeFunction)', function * () {
     let thunk = thunks()
-    return thunk(function (done) {
+
+    yield thunk(function (done) {
       done(new Error('some error'))
     })(function (err, res) {
       assert.strictEqual(err.message, 'some error')
       assert.strictEqual(res, undefined)
     })
+
+    yield thunk(function (done: (err?: Error, res?: Object) => void) {
+      done(new Error('some error'))
+    })(function (err, res) {
+      assert.strictEqual(err.message, 'some error')
+      assert.strictEqual(res, undefined)
+    })
+
+    yield thunk(function (done: (err?: Error, res?: Object) => void) {
+      done()
+    })
+
+    yield thunk(function (done: (err?: Error, res?: Object) => void) {
+      done(null)
+    })
+
+    yield thunk(function (done: (err?: Error, res?: Object) => void) {
+      done(null, new Error('value'))
+    })
   })
 
-  tman.it('thunk(GeneratorFunction)', function () {
+  it('thunk(GeneratorFunction)', function () {
     let thunk = thunks()
     return thunk(function * () {
       yield function (done) { setTimeout(done, 10) }
@@ -117,7 +140,7 @@ tman.suite('thunks typings', () => {
 
   // TS will transform async function to generator function, but it is not good to recognize.
   // babel do it better than TS.
-  // tman.it('thunk(AsyncFunction)', function () {
+  // it('thunk(AsyncFunction)', function () {
   //   let thunk = thunks()
   //   return thunk(async function () {
   //     await Promise.resolve()
@@ -128,7 +151,7 @@ tman.suite('thunks typings', () => {
   //   })
   // })
 
-  tman.it('thunk(PromiseLike)', function () {
+  it('thunk(PromiseLike)', function () {
     let thunk = thunks()
     return thunk({then: function (resolve, reject) { resolve(1) }})(function (err, res) {
       assert.strictEqual(err, null)
@@ -140,7 +163,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(Promise)', function () {
+  it('thunk(Promise)', function () {
     let thunk = thunks()
     return thunk(Promise.resolve(1))(function (err, res) {
       assert.strictEqual(err, null)
@@ -152,7 +175,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(ToThunk)', function () {
+  it('thunk(ToThunk)', function () {
     let thunk = thunks()
     return thunk({toThunk: function () { return function (done) { done(null, 1) } }})(function (err, res) {
       assert.strictEqual(err, null)
@@ -164,7 +187,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(ToPromise)', function () {
+  it('thunk(ToPromise)', function () {
     let thunk = thunks()
     return thunk({toPromise: function () { return Promise.resolve(1) }})(function (err, res) {
       assert.strictEqual(err, null)
@@ -176,7 +199,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk(Generator)', function () {
+  it('thunk(Generator)', function () {
     let thunk = thunks()
     return thunk((function * () { return yield 1 })())(function (err, res) {
       assert.strictEqual(err, null)
@@ -188,77 +211,92 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.suite('thunk method', function () {
+  suite('thunk method', function () {
     let thunk = thunks()
 
-    tman.it('thunk.all(...args)', function () {
+    it('thunk.all(...args)', function () {
       return thunk.all(thunk(1), Promise.resolve(2))(function (err, res) {
         assert.strictEqual(err, null)
         assert.deepEqual(res, [1, 2])
       })
     })
 
-    tman.it('thunk.all(array)', function () {
+    it('thunk.all(array)', function () {
       return thunk.all([thunk(1), Promise.resolve(2)])(function (err, res) {
         assert.strictEqual(err, null)
         assert.deepEqual(res, [1, 2])
       })
     })
 
-    tman.it('thunk.all(object)', function () {
+    it('thunk.all(object)', function () {
       return thunk.all({a: thunk(1), b: Promise.resolve(2)})(function (err, res) {
         assert.strictEqual(err, null)
         assert.deepEqual(res, {a: 1, b: 2})
       })
     })
 
-    tman.it('thunk.seq(...args)', function () {
+    it('thunk.seq(...args)', function () {
       return thunk.seq(thunk(1), Promise.resolve(2))(function (err, res) {
         assert.strictEqual(err, null)
         assert.deepEqual(res, [1, 2])
       })
     })
 
-    tman.it('thunk.seq(array)', function () {
+    it('thunk.seq(array)', function () {
       return thunk.seq([thunk(1), Promise.resolve(2)])(function (err, res) {
         assert.strictEqual(err, null)
         assert.deepEqual(res, [1, 2])
       })
     })
 
-    tman.it('thunk.race(...args)', function () {
+    it('thunk.race(...args)', function () {
       return thunk.race(thunk(1), Promise.resolve(2))(function (err, res) {
         assert.strictEqual(err, null)
         assert.strictEqual(res, 1)
       })
     })
 
-    tman.it('thunk.race(array)', function () {
+    it('thunk.race(array)', function () {
       return thunk.race([thunk(1), Promise.resolve(2)])(function (err, res) {
         assert.strictEqual(err, null)
         assert.strictEqual(res, 1)
       })
     })
 
-    tman.it('thunk.persist(thunkable)', function () {
+    it('thunk.persist(thunkable)', function () {
       return thunk.persist(thunk(1))(function (err, res) {
         assert.strictEqual(err, null)
         assert.strictEqual(res, 1)
       })
     })
 
-    tman.it('thunk.thunkify(fn)', function () {
-      let test = function (val1: number, val2: string, done: (...args: any[]) => void) {
-        done(null, val1, val2)
+    it('thunk.thunkify(fn)', function * () {
+      let test0 = function (done: (err?: Error, ...args: Array<any>) => void) {
+        done(null, 1, 2, 3)
       }
-      let fn = thunk.thunkify(test)
-      return fn(1, '2')(function (err, res) {
-        assert.strictEqual(err, null)
-        assert.deepEqual(res, [1, '2'])
-      })
+      let fn0 = thunk.thunkify(test0)
+      assert.deepEqual(yield fn0(), [1, 2, 3])
+
+      let test1 = function (val: string, done: (err?: Error, ...args: Array<string>) => void) {
+        done(null, val)
+      }
+      let fn1 = thunk.thunkify(test1)
+      assert.strictEqual(yield fn1('test'), 'test')
+
+      let test2 = function (val1: any, val2: any, done) {
+        done()
+      }
+      let fn2 = thunk.thunkify(test2)
+      assert.strictEqual(yield fn2('test', 0), undefined)
+
+      let test3 = function (val1: any, val2: any, val3: number, done) {
+        done(null, val1, val2, val3)
+      }
+      let fn3 = thunk.thunkify(test3)
+      assert.deepEqual(yield fn3(null, false, 0), [null, false, 0])
     })
 
-    tman.it('thunk.lift(fn)', function () {
+    it('thunk.lift(fn)', function () {
       let test = function (a, b) { return a + b }
       let fn = thunk.lift(test)
       return fn(thunk(1), Promise.resolve(2))(function (err, res) {
@@ -267,7 +305,7 @@ tman.suite('thunks typings', () => {
       })
     })
 
-    tman.it('thunk.delay(number)', function () {
+    it('thunk.delay(number)', function () {
       return thunk.delay(100)(function (err, res) {
         assert.strictEqual(err, null)
         assert.strictEqual(res, undefined)
@@ -275,7 +313,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk.stop(message)', function (done) {
+  it('thunk.stop(message)', function (done) {
     let thunk = thunks({
       onstop: function (sig) {
         assert.strictEqual(sig.message, 'stop!')
@@ -294,7 +332,7 @@ tman.suite('thunks typings', () => {
     })
   })
 
-  tman.it('thunk.cancel()', function (done) {
+  it('thunk.cancel()', function (done) {
     let thunk = thunks()
     thunk.seq(thunk.delay(10), thunk.delay(10), thunk.delay(10))(function () {
       assert.strictEqual('should not run', false)

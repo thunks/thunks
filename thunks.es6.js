@@ -377,7 +377,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.7.3'
+thunks.VERSION = '4.7.4'
 thunks.thunk = thunks()
 thunks.thunks = thunks
 thunks.pruneErrorStack = true

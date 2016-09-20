@@ -2,6 +2,6 @@
   "name": "thunks",
   "dependencies": {},
   "globalDevDependencies": {
-    "node": "registry:dt/node#6.0.0+20160915134512"
+    "node": "registry:dt/node#6.0.0+20160919063032"
   }
 }
