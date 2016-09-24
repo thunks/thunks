@@ -4,10 +4,11 @@
 // **License:** MIT
 
 const maxTickDepth = 100
+const $setTimeout = setTimeout
 /* istanbul ignore next */
 const nextTick = typeof setImmediate === 'function'
   ? setImmediate : typeof Promise === 'function'
-  ? function (fn) { Promise.resolve().then(fn) } : function (fn) { setTimeout(fn, 0) }
+  ? function (fn) { Promise.resolve().then(fn) } : function (fn) { $setTimeout(fn, 0) }
 
 function thunks (options) {
   const scope = options instanceof Scope ? options : new Scope(options)
@@ -65,7 +66,7 @@ function thunks (options) {
 
   thunk.delay = function (delay) {
     return thunk.call(this, function (callback) {
-      if (delay > 0) setTimeout(callback, delay)
+      if (delay > 0) $setTimeout(callback, delay)
       else nextTick(callback)
     })
   }
@@ -377,11 +378,11 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.7.4'
+thunks.VERSION = '4.7.5'
+thunks.Scope = Scope
 thunks.thunk = thunks()
 thunks.thunks = thunks
 thunks.pruneErrorStack = true
-thunks.Scope = Scope
 thunks.isGeneratorFn = (fn) => isFunction(fn) && isGeneratorFn(fn)
 thunks.isAsyncFn = (fn) => isFunction(fn) && isAsyncFn(fn)
 thunks.isThunkableFn = (fn) => {

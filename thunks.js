@@ -13,10 +13,12 @@
   'use strict'
 
   var maxTickDepth = 100
+  // Save timer references to avoid other module (Sinon) interfering.
+  var $setTimeout = setTimeout
   /* istanbul ignore next */
   var nextTick = typeof setImmediate === 'function'
     ? setImmediate : typeof Promise === 'function'
-    ? function (fn) { Promise.resolve().then(fn) } : function (fn) { setTimeout(fn, 0) }
+    ? function (fn) { Promise.resolve().then(fn) } : function (fn) { $setTimeout(fn, 0) }
 
   function thunks (options) {
     var scope = options instanceof Scope ? options : new Scope(options)
@@ -82,7 +84,7 @@
 
     thunk.delay = function (delay) {
       return thunk.call(this, function (callback) {
-        if (delay > 0) setTimeout(callback, delay)
+        if (delay > 0) $setTimeout(callback, delay)
         else nextTick(callback)
       })
     }
@@ -399,12 +401,12 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.7.4'
+  thunks.VERSION = '4.7.5'
   thunks['default'] = thunks
+  thunks.Scope = Scope
   thunks.thunk = thunks()
   thunks.thunks = thunks
   thunks.pruneErrorStack = true
-  thunks.Scope = Scope
   thunks.isGeneratorFn = function (fn) { return isFunction(fn) && isGeneratorFn(fn) }
   thunks.isAsyncFn = function (fn) { return isFunction(fn) && isAsyncFn(fn) }
   thunks.isThunkableFn = function (fn) {
