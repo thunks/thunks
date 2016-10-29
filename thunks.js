@@ -401,7 +401,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.7.5'
+  thunks.VERSION = '4.7.6'
   thunks['default'] = thunks
   thunks.Scope = Scope
   thunks.thunk = thunks()
