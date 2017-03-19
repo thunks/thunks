@@ -30,19 +30,19 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "async": "^2.1.4",
-    "bluebird": "^3.4.7",
+    "async": "^2.1.5",
+    "bluebird": "^3.5.0",
     "co": "^4.6.0",
     "istanbul": "^0.4.5",
     "jsbench": "^1.1.0",
     "promise": "^7.1.1",
-    "regenerator": "^0.9.5",
-    "should": "^11.2.0",
-    "standard": "^8.6.0",
+    "regenerator": "^0.9.7",
+    "should": "^11.2.1",
+    "standard": "^9.0.2",
     "thenjs": "^2.0.5",
-    "tman": "^1.6.4",
-    "ts-node": "^2.0.0",
-    "typescript": "^2.1.5"
+    "tman": "^1.6.6",
+    "ts-node": "^2.1.0",
+    "typescript": "^2.2.1"
   },
   "scripts": {
     "test": "standard && tman test/index",

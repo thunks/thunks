@@ -435,11 +435,11 @@ tman.suite('thunks', function () {
       })(function (error, value) {
         should(error).be.equal(null)
         should(value).be.equal(x)
-        return Promise.reject(null)
+        return Promise.reject(null) // eslint-disable-line
       })(function (error, value) {
         should(error).be.instanceof(Error)
         should(value).be.equal(undefined)
-        return Promise.reject()
+        return Promise.reject() // eslint-disable-line
       })(function (error, value) {
         should(error).be.instanceof(Error)
         should(value).be.equal(undefined)
