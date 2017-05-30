@@ -346,7 +346,8 @@ tman.suite('thunks', function () {
         should(value).be.equal(x)
         return thunk(function (callback) {
           setImmediate(function () {
-            callback(false, true)
+            var err = false
+            callback(err, true)
           })
         })
       })(function (error, value) {

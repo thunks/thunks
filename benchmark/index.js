@@ -17,5 +17,5 @@ jsbench
   .add('thunks-generator', require('./thunks-gen.js')(len, syncMode))
   .add('async', require('./async.js')(len, syncMode))
   .add('thenjs', require('./then.js')(len, syncMode))
-  // on('cycle', function(e) {console.log(e.name, e.cycle, e.time + 'ms')}).
+  // on('cycle', function(e) { console.log(e.name, e.cycle, e.time + 'ms') }).
   .run(cycles)
