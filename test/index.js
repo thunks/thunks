@@ -865,41 +865,6 @@ tman.suite('thunks', function () {
     })
   })
 
-  tman.suite.skip('thunk.digest()', function () {
-    tman.it('thunk.digest()', function (done) {
-      var thunk = thunks()
-      thunk.digest(1, 2)(function (error, value) {
-        should(error).be.equal(1)
-        should(value).be.equal(undefined)
-        return thunk(x)
-      })(function (error, value) {
-        should(error).be.equal(null)
-        should(value).be.equal(x)
-        return thunk.digest(error, 1, 2, x)
-      })(function (error, value) {
-        should(error).be.equal(null)
-        should(value[0]).be.equal(1)
-        should(value[1]).be.equal(2)
-        should(value[2]).be.equal(x)
-        should(arguments.length).be.equal(2)
-      })(done)
-    })
-
-    tman.it('thunk.digest.call()', function (done) {
-      var thunk = thunks()
-      thunk.digest.call(x, 1, 2)(function (error, value) {
-        should(error).be.equal(1)
-        should(value).be.equal(undefined)
-        should(this).be.equal(x)
-        return thunk.digest.call(null, null, x)
-      })(function (error, value) {
-        should(error).be.equal(null)
-        should(value).be.equal(x)
-        should(this).be.equal(x)
-      })(done)
-    })
-  })
-
   tman.suite('thunk.thunkify()', function () {
     function test (a, b, c, callback) {
       callback(a, b, c, this)

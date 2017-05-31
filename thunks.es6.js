@@ -378,7 +378,7 @@ function pruneErrorStack (error) {
 }
 
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.7.7'
+thunks.VERSION = '4.8.0'
 thunks.Scope = Scope
 thunks.thunk = thunks()
 thunks.thunks = thunks

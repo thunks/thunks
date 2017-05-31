@@ -675,8 +675,8 @@ thunk()(function () {
 So pay attention to that. **We can't return a non-thunkable function** in thunk. If we return a thunkable function, thunk will evaluate it as an asynchronous task.
 
 ## License
-thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.  
-Copyright &copy; 2016 thunks.
+thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.
+Copyright &copy; 2015-2017 thunks.
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg

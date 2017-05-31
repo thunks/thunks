@@ -52,14 +52,6 @@
       })
     }
 
-    thunk.digest = function () {
-      var args = slice(arguments)
-      return thunk.call(this, function (callback) {
-        console.warn('thunk.digest is deprecated.')
-        apply(null, callback, args)
-      })
-    }
-
     thunk.thunkify = function (fn) {
       var ctx = this === thunk ? null : this
       return function () {
@@ -401,7 +393,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.7.7'
+  thunks.VERSION = '4.8.0'
   thunks['default'] = thunks
   thunks.Scope = Scope
   thunks.thunk = thunks()
