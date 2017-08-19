@@ -4,10 +4,10 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.8.0",
-  "main": "thunks.js",
+  "version": "4.8.1",
+  "main": "./index",
   "typings": "index.d.ts",
-  "jsnext:main": "thunks.es6.js",
+  "jsnext:main": "thunks.mjs",
   "repository": {
     "type": "git",
     "url": "git@github.com:thunks/thunks.git"
@@ -30,6 +30,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "@std/esm": "^0.5.1",
     "@types/node": "^8.0.24",
     "async": "^2.5.0",
     "bluebird": "^3.5.0",

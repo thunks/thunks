@@ -192,10 +192,10 @@ function runThunk (scope, ctx, value, callback, thunkObj, noTryRun) {
   if (!isFunction(thunk)) {
     return thunk === undefined ? callback(null) : callback(null, thunk)
   }
-  if (isGeneratorFn(thunk)) {
+  if (_isGeneratorFn(thunk)) {
     if (thunk.length) return callback(new Error('Not thunkable function: ' + thunk.toString()))
     thunk = generatorToThunk(thunk.call(ctx), scope)
-  } else if (isAsyncFn(thunk)) {
+  } else if (_isAsyncFn(thunk)) {
     if (thunk.length) return callback(new Error('Not thunkable function: ' + thunk.toString()))
     thunk = promiseToThunk(thunk.call(ctx))
   } else if (thunk.length !== 1) {
@@ -350,15 +350,27 @@ function isFunction (fn) {
 }
 
 function isGenerator (obj) {
-  return obj.constructor && isGeneratorFn(obj.constructor)
+  return obj.constructor && _isGeneratorFn(obj.constructor)
 }
 
-function isGeneratorFn (fn) {
+function _isGeneratorFn (fn) {
   return fn.constructor && fn.constructor.name === 'GeneratorFunction'
 }
 
-function isAsyncFn (fn) {
+function _isAsyncFn (fn) {
   return fn.constructor && fn.constructor.name === 'AsyncFunction'
+}
+
+function isGeneratorFn (fn) {
+  return isFunction(fn) && _isGeneratorFn(fn)
+}
+
+function isAsyncFn (fn) {
+  return isFunction(fn) && _isAsyncFn(fn)
+}
+
+function isThunkableFn (fn) {
+  return isFunction(fn) && (fn.length === 1 || _isAsyncFn(fn) || _isGeneratorFn(fn))
 }
 
 function noOp (error) {
@@ -377,16 +389,16 @@ function pruneErrorStack (error) {
   return error
 }
 
+var thunk = thunks()
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.8.0'
+thunks.VERSION = '4.8.1'
 thunks.Scope = Scope
-thunks.thunk = thunks()
+thunks.thunk = thunk
 thunks.thunks = thunks
 thunks.pruneErrorStack = true
-thunks.isGeneratorFn = (fn) => isFunction(fn) && isGeneratorFn(fn)
-thunks.isAsyncFn = (fn) => isFunction(fn) && isAsyncFn(fn)
-thunks.isThunkableFn = (fn) => {
-  return isFunction(fn) && (fn.length === 1 || isAsyncFn(fn) || isGeneratorFn(fn))
-}
+thunks.isAsyncFn = isAsyncFn
+thunks.isGeneratorFn = isGeneratorFn
+thunks.isThunkableFn = isThunkableFn
+thunks.slice = slice
 
-export default thunks
+export { thunks, thunk, slice, Scope, isAsyncFn, isGeneratorFn, isThunkableFn, thunks as default }

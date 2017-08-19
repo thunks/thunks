@@ -1,5 +1,5 @@
-thunks
-====
+# thunks
+
 A small and magical composer for all JavaScript asynchronous.
 
 [![NPM version][npm-image]][npm-url]
@@ -17,6 +17,7 @@ A small and magical composer for all JavaScript asynchronous.
 ES5+, support node.js and browsers.
 
 ## Summary
+
 - [Implementations](#implementations)
 - [What is a thunk?](#what-is-a-thunk)
 - [Demo](#demo)
@@ -43,7 +44,7 @@ ES5+, support node.js and browsers.
 - [What functions are thunkable?](#what-functions-are-thunkable)
 - [License MIT](#license)
 
-## Implementations:
+## Implementations
 
 - [Toa](https://github.com/toajs/toa) A powerful web framework rely on thunks.
 - [T-man](https://github.com/thunks/tman) Super test manager for JavaScript.
@@ -59,22 +60,52 @@ ES5+, support node.js and browsers.
 
 And a mountain of applications in server-side or client-side.
 
-## What is a thunk?
+## What is a thunk
 
-0. [ALGOL thunks in 1961](http://archive.computerhistory.org/resources/text/algol/ACM_Algol_bulletin/1064045/frontmatter.pdf)
+1. [ALGOL thunks in 1961](http://archive.computerhistory.org/resources/text/algol/ACM_Algol_bulletin/1064045/frontmatter.pdf)
 
 1. **`thunk`** is a function that encapsulates synchronous or asynchronous code inside.
 
-2. **`thunk`** accepts only one `callback` function as an arguments, which is a CPS function.
+1. **`thunk`** accepts only one `callback` function as an arguments, which is a CPS function.
 
-3. **`thunk`** returns another **`thunk`** function after being called, for chaining operations.
+1. **`thunk`** returns another **`thunk`** function after being called, for chaining operations.
 
-4. **`thunk`** passes the results into a `callback` function after being excuted.
+1. **`thunk`** passes the results into a `callback` function after being excuted.
 
-5. If the return value of `callback` is a **`thunk`** function, then it will be executed first and its result will be sent to another **`thunk`** for excution,
-or it will be sent to another new **`thunk`** function as the value of the computation.
+1. If the return value of `callback` is a **`thunk`** function, then it will be executed first and its result will be sent to another **`thunk`** for excution, or it will be sent to another new **`thunk`** function as the value of the computation.
 
 ## Demo
+
+### with thunk function
+
+```js
+const thunk = require('thunks')()
+const fs = require('fs')
+
+thunk(function (done) {
+  fs.stat('package.json', done)
+})(function (error, res) {
+  console.log(error, res)
+})
+```
+
+### with async function
+
+```js
+thunk(async function () {
+  console.log(await Promise.resolve('await promise in an async function'))
+
+  try {
+    await new Promise((resolve, reject) => {
+      setTimeout(() => reject('catch promise error in async function'), 1000)
+    })
+  } catch (err) {
+    console.log(err)
+  }
+})()
+```
+
+### with generator function
 
 ```js
 const thunk = require('thunks')()
@@ -83,20 +114,25 @@ const size = thunk.thunkify(fs.stat)
 
 // generator
 thunk(function * () {
-
-  // sequential
-  console.log(yield size('.gitignore'))
+  // yield thunk function
   console.log(yield size('thunks.js'))
   console.log(yield size('package.json'))
-})(function * (error, res) {
-  //parallel
+
+  // yield async function
+  console.log(yield async () => 'yield an async function in generator function')
+
+  // yield generator function
+  console.log(yield function * () { return 'yield an async function in generator function' })
+
+    // parallel run
   console.log(yield thunk.all([
-    size('.gitignore'),
     size('thunks.js'),
     size('package.json')
   ]))
 })()
 ```
+
+### chain, sequential, parallel
 
 ```js
 const thunk = require('thunks')()
@@ -116,15 +152,6 @@ size('.gitignore')(function (error, res) {
   console.log(error, res)
 })
 
-// parallel
-thunk.all([
-  size('.gitignore'),
-  size('thunks.js'),
-  size('package.json')
-])(function (error, res) {
-  console.log(error, res)
-})
-
 // sequential
 thunk.seq([
   size('.gitignore'),
@@ -133,31 +160,16 @@ thunk.seq([
 ])(function (error, res) {
   console.log(error, res)
 })
-```
 
-### There is a breaking change in V4.x relative to V3.x, two or more results will become an array of results.
-
-**v3.x:**
-```js
-thunk(function (done) {
-  done(null, 1, 2, 3)
-})(function (error, res) {
-  console.log.apply(console, arguments)
-  // output: `null, 1, 2, 3`
+// parallel
+thunk.all([
+  size('.gitignore'),
+  size('thunks.js'),
+  size('package.json')
+])(function (error, res) {
+  console.log(error, res)
 })
 ```
-
-**v4.x:**
-```js
-thunk(function (done) {
-  done(null, 1, 2, 3)
-})(function (error, res) {
-  console.log.apply(console, arguments)
-  // output: `null, [1, 2, 3]`
-})
-```
-
-if there is an `error`, the arguments will be explicitly `error`, otherwise the `error` will always be `null`(In all versions).
 
 ## Installation
 
@@ -181,6 +193,10 @@ if there is an `error`, the arguments will be explicitly `error`, otherwise the 
 const thunks = require('thunks')
 ```
 
+```js
+const { thunks, thunk, slice, Scope, isAsyncFn, isGeneratorFn, isThunkableFn } = from 'thunks'
+```
+
 ### thunks([scope])
 
 Matrix of `thunk`, it generates a `thunkFunction` factory (named `thunk`) with it's scope.
@@ -192,8 +208,7 @@ Matrix of `thunk`, it generates a `thunkFunction` factory (named `thunk`) with i
   const thunk = thunks()
   ```
 
-2. Here's the way to create a `thunk` listening to all exceptions in current scope with `onerror`,
-and it will make sure the exceptions are not being passed to the followed child thunk function, unless `onerror` function returns `true`.
+1. Here's the way to create a `thunk` listening to all exceptions in current scope with `onerror`, and it will make sure the exceptions are not being passed to the followed child thunk function, unless `onerror` function returns `true`.
 
   ```js
   const thunk = thunks(function (error) { console.error(error) })
@@ -205,8 +220,7 @@ and it will make sure the exceptions are not being passed to the followed child 
   const thunk = thunks(scope)
   ```
 
-3. Create a `thunk` with `onerror`, `onstop` and `debug` listeners.
-Results of this `thunk` would be passed to `debug` function first before passing to the followed child thunk function.
+1. Create a `thunk` with `onerror`, `onstop` and `debug` listeners. Results of this `thunk` would be passed to `debug` function first before passing to the followed child thunk function.
 
   ```js
   const thunk = thunks({
@@ -231,9 +245,11 @@ each scope would be separate from each other,
 which means, `onerror`, `onstop` and `debug` would not run in other scopes.
 
 ### thunks.pruneErrorStack
+
 Default to `true`, means it will prune error stack message.
 
 ### thunks.onerror(error)
+
 Default to `null`, it is a global error handler.
 
 ### Class thunks.Scope
@@ -262,7 +278,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-2. a thunkLike function `function (callback) {}`, when called, passes its results to the next `thunkFunction` function
+1. a thunkLike function `function (callback) {}`, when called, passes its results to the next `thunkFunction` function
 
   ```js
   thunk(function (callback) {
@@ -272,7 +288,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-3. a Promise object, results of Promise would be passed to a new `thunkFunction` function
+1. a Promise object, results of Promise would be passed to a new `thunkFunction` function
 
   ```js
   let promise = Promise.resolve(1)
@@ -282,7 +298,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-4. objects which implements the method `toThunk`
+1. objects which implements the method `toThunk`
 
   ```js
   let obj = {
@@ -296,7 +312,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-5. objects which implement the method `toPromise`
+1. objects which implement the method `toPromise`
 
   ```js
   const Rx = require('rxjs')
@@ -306,7 +322,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-6. Generator and Generator Function, like `co`, but `yield` anything
+1. Generator and Generator Function, like `co`, but `yield` anything
 
   ```js
   thunk(function * () {
@@ -327,7 +343,7 @@ The parameter `thunkable` value could be:
   })
   ```
 
-7. async/await function
+1. async/await function
 
   ```js
   thunk(async function () {
@@ -345,7 +361,7 @@ The parameter `thunkable` value could be:
   })()
   ```
 
-8. values in other types that would be valid results to pass to a new child thunk function
+1. values in other types that would be valid results to pass to a new child thunk function
 
   ```js
   thunk(1)(function (error, value) {
@@ -369,6 +385,7 @@ You can also run with `this`:
   ```
 
 ### thunk.all(obj)
+
 ### thunk.all(thunkable1, ..., thunkableN)
 
 Returns a child thunk function.
@@ -407,6 +424,7 @@ thunk.all.call({x: [1, 2, 3]}, [4, 5, 6])(function (error, value) {
 ```
 
 ### thunk.seq([thunkable1, ..., thunkableN])
+
 ### thunk.seq(thunkable1, ..., thunkableN)
 
 Returns a child thunk function.
@@ -433,6 +451,7 @@ thunk.seq([
   console.log(error, value) // null [['a', 'b'], 'c', ['d', 'e'], 'f']
 })
 ```
+
 or
 
 ```js
@@ -468,6 +487,7 @@ thunk.seq.call({x: [1, 2, 3]}, 4, 5, 6)(function (error, value) {
 ```
 
 ### thunk.race([thunkable1, ..., thunkableN])
+
 ### thunk.race(thunkable1, ..., thunkableN)
 
 Returns a child thunk function with the value or error from one first completed.
@@ -642,7 +662,7 @@ thunk(function * () {
 })()
 ```
 
-## What functions are thunkable?
+## What functions are thunkable
 
 thunks supports so many [thunkable](#thunkthunkable) objects. There are three kind of functions:
 
@@ -653,6 +673,7 @@ thunks supports so many [thunkable](#thunkthunkable) objects. There are three ki
 thunks can't support common functions (non-thunk-like functions). thunks uses `fn.length === 1` to recognize thunk-like functions.
 
 Using a common function in this way will throw an error:
+
 ```js
 thunk(function () {})(function (err) {
   console.log(1, err) // 1 [Error: Not thunkable function: function () {}]
@@ -672,9 +693,11 @@ thunk()(function () {
   console.log(4, err) // 4 [Error: Not thunkable function: function () {}]
 })
 ```
+
 So pay attention to that. **We can't return a non-thunkable function** in thunk. If we return a thunkable function, thunk will evaluate it as an asynchronous task.
 
 ## License
+
 thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.
 Copyright &copy; 2014-2017 thunks.
 

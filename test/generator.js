@@ -3,308 +3,309 @@
 var tman = require('tman')
 var should = require('should')
 var Promise = global.Promise || require('promise')
-var thunks = require('..')
 
-tman.suite('thunk with generator', function () {
-  tman.it('yield any value', function (done) {
-    var thunk = thunks()
+module.exports = function (thunks) {
+  tman.suite('thunk with generator', function () {
+    tman.it('yield any value', function (done) {
+      var thunk = thunks()
 
-    thunk(function * () {
-      should(yield 1).be.equal(1)
-      should(yield null).be.equal(null)
-      should(yield thunk(1)).be.equal(1)
-      should(yield Promise.resolve(1)).be.equal(1)
-      should(yield [1, 2, 3]).be.eql([1, 2, 3])
-      should(yield [1, 2, thunk(3)]).be.eql([1, 2, 3])
-      should(yield {}).be.eql({})
-      should(yield {
-        name: 'thunks',
-        version: thunk('v2')
-      }).be.eql({
-        name: 'thunks',
-        version: 'v2'
-      })
-      should(yield [{},
-        [],
-        [{}]
-      ]).be.eql([{},
-        [],
-        [{}]
-      ])
-
-      should(yield function (callback) {
-        callback(null, 1, 2, 3)
-      }).be.eql([1, 2, 3])
-
-      return yield [
-        1,
-        function (cb) {
-          setTimeout(function () {
-            cb(null, 2)
-          })
-        },
-        thunk(3),
-        Promise.resolve(4),
-        thunk(function * () {
-          return yield 5
+      thunk(function * () {
+        should(yield 1).be.equal(1)
+        should(yield null).be.equal(null)
+        should(yield thunk(1)).be.equal(1)
+        should(yield Promise.resolve(1)).be.equal(1)
+        should(yield [1, 2, 3]).be.eql([1, 2, 3])
+        should(yield [1, 2, thunk(3)]).be.eql([1, 2, 3])
+        should(yield {}).be.eql({})
+        should(yield {
+          name: 'thunks',
+          version: thunk('v2')
+        }).be.eql({
+          name: 'thunks',
+          version: 'v2'
         })
-      ]
-    })(function (err, res) {
-      should(err).be.equal(null)
-      should(res).be.eql([1, 2, 3, 4, 5])
-    })(done)
-  })
+        should(yield [{},
+          [],
+          [{}]
+        ]).be.eql([{},
+          [],
+          [{}]
+        ])
 
-  tman.it('catch error', function (done) {
-    var thunk = thunks()
-    var error = null
-    thunk(function * () {
-      try {
-        yield function (cb) {
-          throw new Error('catch error 1')
+        should(yield function (callback) {
+          callback(null, 1, 2, 3)
+        }).be.eql([1, 2, 3])
+
+        return yield [
+          1,
+          function (cb) {
+            setTimeout(function () {
+              cb(null, 2)
+            })
+          },
+          thunk(3),
+          Promise.resolve(4),
+          thunk(function * () {
+            return yield 5
+          })
+        ]
+      })(function (err, res) {
+        should(err).be.equal(null)
+        should(res).be.eql([1, 2, 3, 4, 5])
+      })(done)
+    })
+
+    tman.it('catch error', function (done) {
+      var thunk = thunks()
+      var error = null
+      thunk(function * () {
+        try {
+          yield function (cb) {
+            throw new Error('catch error 1')
+          }
+        } catch (err) {
+          error = err
         }
-      } catch (err) {
-        error = err
-      }
-      should(error).be.instanceOf(Error)
-      should(error.message).be.equal('catch error 1')
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('catch error 1')
 
-      try {
-        yield function * () {
-          throw new Error('catch error 2')
+        try {
+          yield function * () {
+            throw new Error('catch error 2')
+          }
+        } catch (err) {
+          error = err
         }
-      } catch (err) {
-        error = err
-      }
-      should(error).be.instanceOf(Error)
-      should(error.message).be.equal('catch error 2')
+        should(error).be.instanceOf(Error)
+        should(error.message).be.equal('catch error 2')
 
-      yield [1, Promise.reject(new Error('reject error')), 3]
-    })(function (err, res) {
-      should(err).be.instanceOf(Error)
-      should(err.message).be.equal('reject error')
-      should(res).be.equal(undefined)
-    })(done)
-  })
+        yield [1, Promise.reject(new Error('reject error')), 3]
+      })(function (err, res) {
+        should(err).be.instanceOf(Error)
+        should(err.message).be.equal('reject error')
+        should(res).be.equal(undefined)
+      })(done)
+    })
 
-  tman.it('call with context', function (done) {
-    var thunk = thunks()
-    var x = {}
+    tman.it('call with context', function (done) {
+      var thunk = thunks()
+      var x = {}
 
-    thunk.call(x, function * () {
-      should(this).be.equal(x)
-      return yield [
-        function (callback) {
-          should(this).be.equal(x)
-          callback(null, 1)
-        }, [
+      thunk.call(x, function * () {
+        should(this).be.equal(x)
+        return yield [
           function (callback) {
             should(this).be.equal(x)
             callback(null, 1)
+          }, [
+            function (callback) {
+              should(this).be.equal(x)
+              callback(null, 1)
+            }
+          ]
+        ]
+      })(function (err, res) {
+        should(err).be.equal(null)
+        should(res).be.eql([1, [1]])
+      })(done)
+    })
+
+    tman.it('nested yield and chained generator', function (done) {
+      var thunk = thunks()
+
+      thunk(function * () {
+        should(yield function * () {
+          return yield 1
+        }).be.equal(1)
+
+        return function * () {
+          return yield [1, 2, 3, 4, 5]
+        }
+      })(function * (err, res) {
+        should(err).be.equal(null)
+        should(res).be.eql([1, 2, 3, 4, 5])
+        should(yield res).be.eql([1, 2, 3, 4, 5])
+
+        return (function * () {
+          return yield [1, 2, 3, 4, 5]
+        })()
+      })(function * (err, res) {
+        should(err).be.equal(null)
+        should(res).be.eql([1, 2, 3, 4, 5])
+      })(done)
+    })
+
+    tman.it('nested yield 2', function (done) {
+      var thunk = thunks()
+      thunk(function * () {
+        return yield [
+          thunk.all([
+            function * () {
+              return yield 1
+            }, (function * () {
+              return yield 2
+            }())
+          ]),
+          thunk.seq([
+            function * () {
+              return yield 3
+            },
+            (function * () {
+              return yield 4
+            }())
+          ]),
+          {
+            a: thunk(5),
+            b: yield 6
           }
         ]
-      ]
-    })(function (err, res) {
-      should(err).be.equal(null)
-      should(res).be.eql([1, [1]])
-    })(done)
-  })
-
-  tman.it('nested yield and chained generator', function (done) {
-    var thunk = thunks()
-
-    thunk(function * () {
-      should(yield function * () {
-        return yield 1
-      }).be.equal(1)
-
-      return function * () {
-        return yield [1, 2, 3, 4, 5]
-      }
-    })(function * (err, res) {
-      should(err).be.equal(null)
-      should(res).be.eql([1, 2, 3, 4, 5])
-      should(yield res).be.eql([1, 2, 3, 4, 5])
-
-      return (function * () {
-        return yield [1, 2, 3, 4, 5]
-      })()
-    })(function * (err, res) {
-      should(err).be.equal(null)
-      should(res).be.eql([1, 2, 3, 4, 5])
-    })(done)
-  })
-
-  tman.it('nested yield 2', function (done) {
-    var thunk = thunks()
-    thunk(function * () {
-      return yield [
-        thunk.all([
-          function * () {
-            return yield 1
-          }, (function * () {
-            return yield 2
-          }())
-        ]),
-        thunk.seq([
-          function * () {
-            return yield 3
-          },
-          (function * () {
-            return yield 4
-          }())
-        ]),
-        {
-          a: thunk(5),
-          b: yield 6
-        }
-      ]
-    })(function (error, res) {
-      should(error).be.equal(null)
-      should(res).be.eql([
-        [1, 2],
-        [3, 4],
-        {a: 5, b: 6}
-      ])
-    })(done)
-  })
-
-  tman.it('stop thunk', function (done) {
-    var thunk = thunks()
-
-    thunk(function * () {
-      thunk.stop()
-      should('It will not run!').be.equal('')
-    })(function () {
-      should('It will not run!').be.equal('')
+      })(function (error, res) {
+        should(error).be.equal(null)
+        should(res).be.eql([
+          [1, 2],
+          [3, 4],
+          {a: 5, b: 6}
+        ])
+      })(done)
     })
 
-    thunk(function * () {
-      try {
-        yield function * () {
-          thunk.stop()
+    tman.it('stop thunk', function (done) {
+      var thunk = thunks()
+
+      thunk(function * () {
+        thunk.stop()
+        should('It will not run!').be.equal('')
+      })(function () {
+        should('It will not run!').be.equal('')
+      })
+
+      thunk(function * () {
+        try {
+          yield function * () {
+            thunk.stop()
+            should('It will not run!').be.equal('')
+          }
+        } catch (e) {
           should('It will not run!').be.equal('')
         }
-      } catch (e) {
+      })(function () {
         should('It will not run!').be.equal('')
-      }
-    })(function () {
-      should('It will not run!').be.equal('')
+      })
+      done()
     })
-    done()
-  })
 
-  tman.it('stop thunk with onstop', function (done) {
-    var thunk = thunks({
-      onstop: function (sig) {
-        should(sig.message).be.equal('generator')
-        done()
-      }
-    })
-    var thunk2 = thunks()
+    tman.it('stop thunk with onstop', function (done) {
+      var thunk = thunks({
+        onstop: function (sig) {
+          should(sig.message).be.equal('generator')
+          done()
+        }
+      })
+      var thunk2 = thunks()
 
-    thunk2.delay(100)(function * () {
-      try {
-        yield function * () {
-          thunk.stop('generator')
+      thunk2.delay(100)(function * () {
+        try {
+          yield function * () {
+            thunk.stop('generator')
+            should('It will not run!').be.equal('')
+          }
+        } catch (e) {
           should('It will not run!').be.equal('')
         }
-      } catch (e) {
+      })(function () {
         should('It will not run!').be.equal('')
-      }
-    })(function () {
-      should('It will not run!').be.equal('')
+      })
     })
-  })
 
-  tman.it('cancel with thunk generator', function (done) {
-    var count = 0
-    var thunk = thunks()
-    thunk(function * () {
-      yield function (cb) {
-        should(++count).be.equal(1)
-        setTimeout(cb, 100)
-      }
+    tman.it('cancel with thunk generator', function (done) {
+      var count = 0
+      var thunk = thunks()
+      thunk(function * () {
+        yield function (cb) {
+          should(++count).be.equal(1)
+          setTimeout(cb, 100)
+        }
 
-      yield function (cb) {
-        should(++count).be.equal(2)
-        setTimeout(cb, 100)
-      }
+        yield function (cb) {
+          should(++count).be.equal(2)
+          setTimeout(cb, 100)
+        }
 
-      yield function (cb) {
+        yield function (cb) {
+          // should not run
+          should(true).be.equal(false)
+          setTimeout(cb, 100)
+        }
+      })(function () {
         // should not run
         should(true).be.equal(false)
-        setTimeout(cb, 100)
-      }
-    })(function () {
-      // should not run
-      should(true).be.equal(false)
+      })
+
+      thunk.delay(150)(function () {
+        thunk.cancel()
+        should(++count).be.equal(3)
+      })
+      setTimeout(function () {
+        should(++count).be.equal(4)
+        done()
+      }, 250)
     })
 
-    thunk.delay(150)(function () {
-      thunk.cancel()
-      should(++count).be.equal(3)
+    tman.it('generator in thunk.persist', function (done) {
+      var x = {}
+      var thunk = thunks()
+      var test = thunk.persist(thunk(x))
+      test(function * (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+        return yield test
+      })(function (error, value) {
+        should(error).be.equal(null)
+        should(value).be.equal(x)
+      })(done)
     })
-    setTimeout(function () {
-      should(++count).be.equal(4)
-      done()
-    }, 250)
-  })
 
-  tman.it('generator in thunk.persist', function (done) {
-    var x = {}
-    var thunk = thunks()
-    var test = thunk.persist(thunk(x))
-    test(function * (error, value) {
-      should(error).be.equal(null)
-      should(value).be.equal(x)
-      return yield test
-    })(function (error, value) {
-      should(error).be.equal(null)
-      should(value).be.equal(x)
-    })(done)
-  })
+    tman.it('not thunkable generator function', function (done) {
+      function * nonThunkable (a) {}
 
-  tman.it('not thunkable generator function', function (done) {
-    function * nonThunkable (a) {}
-
-    var thunk = thunks()
-    thunk(nonThunkable)(function (err) {
-      should(err).be.instanceOf(Error)
-      should(err.message).containEql('Not thunkable function')
-      should(err.message).containEql('nonThunkable')
-      return thunk(function * () {
-        yield nonThunkable
-      })(function (err) {
+      var thunk = thunks()
+      thunk(nonThunkable)(function (err) {
         should(err).be.instanceOf(Error)
         should(err.message).containEql('Not thunkable function')
         should(err.message).containEql('nonThunkable')
-      })
-    })(done)
+        return thunk(function * () {
+          yield nonThunkable
+        })(function (err) {
+          should(err).be.instanceOf(Error)
+          should(err.message).containEql('Not thunkable function')
+          should(err.message).containEql('nonThunkable')
+        })
+      })(done)
+    })
+
+    tman.it('extremely yield (100000)', function (done) {
+      this.timeout(20000) // run with istanbul will take long time.
+
+      var thunk = thunks()
+      thunk(function * () {
+        var result = 100000
+        var i = result
+
+        while (i--) result -= yield thunk(1)
+        should(result).be.equal(0)
+      })(done)
+    })
+
+    tman.it('thunks.isGeneratorFn', function () {
+      should(thunks.isGeneratorFn(function * () {})).be.true()
+    })
+
+    tman.it('thunks.isAsyncFn', function () {
+      should(thunks.isAsyncFn(function * () {})).be.false()
+    })
+
+    tman.it('thunks.isThunkableFn', function () {
+      should(thunks.isThunkableFn(function * () {})).be.true()
+    })
   })
-
-  tman.it('extremely yield (100000)', function (done) {
-    this.timeout(20000) // run with istanbul will take long time.
-
-    var thunk = thunks()
-    thunk(function * () {
-      var result = 100000
-      var i = result
-
-      while (i--) result -= yield thunk(1)
-      should(result).be.equal(0)
-    })(done)
-  })
-
-  tman.it('thunks.isGeneratorFn', function () {
-    should(thunks.isGeneratorFn(function * () {})).be.true()
-  })
-
-  tman.it('thunks.isAsyncFn', function () {
-    should(thunks.isAsyncFn(function * () {})).be.false()
-  })
-
-  tman.it('thunks.isThunkableFn', function () {
-    should(thunks.isThunkableFn(function * () {})).be.true()
-  })
-})
+}
