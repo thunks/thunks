@@ -7,7 +7,7 @@
   "version": "4.8.1",
   "main": "./index",
   "typings": "index.d.ts",
-  "jsnext:main": "thunks.mjs",
+  "jsnext:main": "index.mjs",
   "repository": {
     "type": "git",
     "url": "git@github.com:thunks/thunks.git"
@@ -54,8 +54,9 @@
   },
   "files": [
     "README.md",
+    "index.js",
+    "index.mjs",
     "index.d.ts",
-    "thunks.js",
-    "thunks.es6.js"
+    "thunks.js"
   ]
 }
