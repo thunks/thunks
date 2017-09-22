@@ -1,7 +1,7 @@
 'use strict'
 
 // Try it in Chrome 54.0.2813.0 canary (64-bit) with `enable-javascript-harmony`
-const thunk = thunks()
+const thunk = require('..').thunk
 
 thunk.call({test: 'Test a async function in thunks'}, async function () {
   console.log(111, `${this.test}, start:`)

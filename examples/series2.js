@@ -1,6 +1,6 @@
 'use strict'
 
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 
 console.time('Thunk_series')
 thunk.seq([1, 2, 3, 4, 5].map(function (index) {

@@ -6,9 +6,7 @@
 const maxTickDepth = 100
 const $setTimeout = setTimeout
 /* istanbul ignore next */
-const nextTick = typeof setImmediate === 'function'
-  ? setImmediate : typeof Promise === 'function'
-  ? function (fn) { Promise.resolve().then(fn) } : function (fn) { $setTimeout(fn, 0) }
+const nextTick = typeof setImmediate === 'function' ? setImmediate : function (fn) { Promise.resolve().then(fn) }
 
 function thunks (options) {
   const scope = options instanceof Scope ? options : new Scope(options)
@@ -53,6 +51,16 @@ function thunks (options) {
     }
   }
 
+  thunk.promise = promise
+  function promise (thunkable) {
+    return new Promise((resolve, reject) => {
+      thunk.call(this, thunkable)((err, res) => {
+        if (err == null) resolve(res)
+        else reject(err)
+      })
+    })
+  }
+
   thunk.lift = function (fn) {
     let ctx = this === thunk ? null : this
     return function () {
@@ -82,20 +90,11 @@ function thunks (options) {
   }
 
   thunk.persist = function (thunkable) {
-    let result
-    let queue = []
     let ctx = this === thunk ? null : this
-
-    thunk.call(ctx, thunkable)(function () {
-      result = slice(arguments)
-      while (queue.length) apply(null, queue.shift(), result)
-    })
+    let result = promise.call(ctx, thunkable)
 
     return function (callback) {
-      return thunk.call(ctx || this, function (done) {
-        if (result) apply(null, done, result)
-        else queue.push(done)
-      })(callback)
+      return thunk.call(ctx, result)(callback)
     }
   }
 
@@ -389,11 +388,13 @@ function pruneErrorStack (error) {
   return error
 }
 
-var thunk = thunks()
+const thunk = thunks()
+const promise = thunk.promise
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.8.1'
+thunks.VERSION = '4.9.0'
 thunks.Scope = Scope
 thunks.thunk = thunk
+thunks.promise = promise
 thunks.thunks = thunks
 thunks.pruneErrorStack = true
 thunks.isAsyncFn = isAsyncFn
@@ -401,4 +402,4 @@ thunks.isGeneratorFn = isGeneratorFn
 thunks.isThunkableFn = isThunkableFn
 thunks.slice = slice
 
-export { thunks, thunk, slice, Scope, isAsyncFn, isGeneratorFn, isThunkableFn, thunks as default }
+export { thunks, thunk, promise, slice, Scope, isAsyncFn, isGeneratorFn, isThunkableFn, thunks as default }

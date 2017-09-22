@@ -1,6 +1,6 @@
 'use strict'
 
-var thunk = require('../thunks.js')({
+var thunk = require('..')({
   onstop: function (res) {
     if (res) console.log(res.code, res.status, res) // SIGSTOP 19 { message: 'Stop now!' }
   }

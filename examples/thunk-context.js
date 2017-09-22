@@ -1,6 +1,6 @@
 'use strict'
 
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 
 thunk.call({x: 123}, 456)(function (error, value) {
   console.log(error, this.x, value) // null 123 456

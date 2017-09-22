@@ -3,7 +3,7 @@
 // `ts-node examples/simple.ts`
 
 import * as assert from 'assert'
-import { thunk, thunks, isGeneratorFn } from '../'
+import { thunk, thunks, isGeneratorFn } from '..'
 // or: import * as thunks from 'thunks'
 
 thunk(function * () {

@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.8.1",
+  "version": "4.9.0",
   "main": "./index",
   "typings": "index.d.ts",
   "jsnext:main": "index.mjs",
@@ -30,21 +30,21 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@std/esm": "^0.5.1",
-    "@types/node": "^8.0.24",
+    "@std/esm": "^0.10.2",
+    "@types/node": "^8.0.29",
     "async": "^2.5.0",
     "bluebird": "^3.5.0",
     "co": "^4.6.0",
     "istanbul": "^0.4.5",
     "jsbench": "^1.1.1",
     "promise": "^8.0.1",
-    "regenerator": "^0.10.0",
-    "should": "^11.2.1",
+    "regenerator": "^0.11.0",
+    "should": "^13.1.0",
     "standard": "^10.0.3",
     "thenjs": "^2.0.6",
-    "tman": "^1.7.1",
+    "tman": "^1.7.2",
     "ts-node": "^3.3.0",
-    "typescript": "^2.4.2"
+    "typescript": "^2.5.2"
   },
   "scripts": {
     "test": "standard && tman test/index",
@@ -56,7 +56,6 @@
     "README.md",
     "index.js",
     "index.mjs",
-    "index.d.ts",
-    "thunks.js"
+    "index.d.ts"
   ]
 }

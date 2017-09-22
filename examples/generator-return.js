@@ -1,6 +1,6 @@
 'use strict'
 
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 var fs = require('fs')
 
 var read = thunk.thunkify(fs.readFile)

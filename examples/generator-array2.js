@@ -1,6 +1,6 @@
 'use strict'
 
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 var request = require('request')
 var get = thunk.thunkify.call(request, request.get)
 

@@ -2,7 +2,7 @@
 
 var fs = require('fs')
 var Rx = require('rxjs')
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 
 thunk(function * () {
   console.log('1. yield Rx.Observable', yield Rx.Observable.fromPromise(Promise.resolve(123)))

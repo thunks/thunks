@@ -36,6 +36,7 @@ ES5+, support node.js and browsers.
   - [thunk.race(thunkable1, ..., thunkableN)](#thunkracethunkable1--thunkablen-1)
   - [thunk.thunkify(fn)](#thunkthunkifyfn)
   - [thunk.lift(fn)](#thunkliftfn)
+  - [thunk.promise(thunkable)](#thunkpromisethunkable)
   - [thunk.persist(thunkable)](#thunkpersistthunkable)
   - [thunk.delay(delay)](#thunkdelaydelay)
   - [thunk.stop([messagge])](#thunkstopmessagge)
@@ -557,6 +558,20 @@ You may also write code with `this`:
 
 ```js
 const calculatorT = thunk.lift.call(context, calculator)
+```
+
+### thunk.promise(thunkable)
+
+it transforms `thunkable` value to a promise.
+
+```js
+const thunk = require('thunks').thunk
+
+thunk.promise(function * () {
+  return yield Promise.resolve('Hello')
+}).then(function (res) {
+  console.log(res)
+})
 ```
 
 ### thunk.persist(thunkable)

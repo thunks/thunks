@@ -1,6 +1,6 @@
 'use strict'
 
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 var co = require('co')
 
 var thunkFn = thunk(function (callback) {

@@ -2,9 +2,7 @@
 /* global */
 
 var thunks = require('..')
-
-require('@std/esm')
-var thunksM = require('../index.mjs').default
+var thunksM = require('@std/esm')(module)('../index.mjs').default
 
 require('./thunk.js')(thunks)
 require('./thunk.js')(thunksM)

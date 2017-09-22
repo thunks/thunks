@@ -1,7 +1,7 @@
 'use strict'
 /* global noneFn */
 
-var thunk = require('../thunks.js')(function (error) {
+var thunk = require('..')(function (error) {
   // any error will be catched by this function
   console.log('catched error: ', error)
   // catched error:  [ReferenceError: noneFn is not defined]

@@ -115,6 +115,7 @@ interface Thunk {
   race(...args: Array<thunkable>): ThunkFunction;
   race(array: Array<thunkable>): ThunkFunction;
   persist(thunkable: thunkable): ThunkFunction;
+  promise(thunkable: thunkable): PromiseLike;
   thunkify(FnWithCb: FunctionWithCallback): (...args: Array<primitives>) => ThunkFunction;
   lift(fn: (...args: Array<primitives>) => primitives): (...args: Array<thunkable>) => ThunkFunction;
   delay(Time?: number): ThunkFunction;

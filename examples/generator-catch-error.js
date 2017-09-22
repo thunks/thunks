@@ -1,7 +1,7 @@
 'use strict'
 /* global noneFn */
 
-var thunk = require('../thunks.js')()
+var thunk = require('..').thunk
 
 thunk(function * () {
   // catch error by yourself

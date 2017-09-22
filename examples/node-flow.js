@@ -1,6 +1,6 @@
 'use strict'
 
-var thunks = require('../thunks.js')
+var thunks = require('..').thunk
 var fs = require('fs')
 var thunk = thunks(function (error) { console.error('Thunk error:', error) })
 

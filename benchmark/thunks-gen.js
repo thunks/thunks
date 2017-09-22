@@ -1,6 +1,6 @@
 'use strict'
 
-const thunk = require('../thunks.js')()
+const thunk = require('..').thunk
 
 module.exports = function (len, syncMode) {
   var task
