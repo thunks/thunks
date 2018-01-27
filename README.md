@@ -713,8 +713,8 @@ So pay attention to that. **We can't return a non-thunkable function** in thunk.
 
 ## License
 
-thunks is licensed under the [MIT](https://github.com/thunks/tman/blob/master/LICENSE) license.
-Copyright &copy; 2014-2017 thunks.
+thunks is licensed under the [MIT](https://github.com/thunks/thunks/blob/master/LICENSE) license.
+Copyright &copy; 2014-2018 thunks.
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg

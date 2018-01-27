@@ -1,8 +1,7 @@
 'use strict'
 
-var tman = require('tman')
-var should = require('should')
-var Promise = global.Promise || require('promise')
+const tman = require('tman')
+const should = require('should')
 
 module.exports = function (thunks) {
   tman.suite('thunk with generator', function () {

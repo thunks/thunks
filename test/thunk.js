@@ -5,7 +5,6 @@ var tman = require('tman')
 var util = require('util')
 var should = require('should')
 var thenjs = require('thenjs')
-var Promise = global.Promise || require('promise')
 var x = {}
 
 module.exports = function (thunks) {
