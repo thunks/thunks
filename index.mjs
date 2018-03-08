@@ -391,7 +391,7 @@ function pruneErrorStack (error) {
 const thunk = thunks()
 const promise = thunk.promise
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.9.0'
+thunks.VERSION = '4.9.2'
 thunks.Scope = Scope
 thunks.thunk = thunk
 thunks.promise = promise

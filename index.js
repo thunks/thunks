@@ -28,8 +28,7 @@
     }
 
     function thunk (thunkable) {
-      return childThunk(new Link([null, thunkable], null),
-                        new Domain(this === thunk ? null : this))
+      return childThunk(new Link([null, thunkable], null), new Domain(this === thunk ? null : this))
     }
 
     thunk.all = function (obj) {
@@ -394,7 +393,7 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.9.0'
+  thunks.VERSION = '4.9.2'
   thunks['default'] = thunks
   thunks.Scope = Scope
   thunks.thunk = thunks()

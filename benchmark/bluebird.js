@@ -45,7 +45,7 @@ module.exports = function (len, syncMode) {
           return task(i)
         }))
       })
-      .then(function () {  // 串行 tasks 队列
+      .then(function () { // 串行 tasks 队列
         return tasks.reduce(function (promise, subTask, i) {
           return promise.then(function () {
             return subTask(i)
