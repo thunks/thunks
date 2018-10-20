@@ -31,7 +31,7 @@ if (supportGeneratorFn) {
   var regenerator = require('regenerator')
 
   var content = fs.readFileSync(fileName, 'utf8')
-  content = regenerator.compile(content, {includeRuntime: true}).code
+  content = regenerator.compile(content, { includeRuntime: true }).code
   var m = module._compile(content, fileName)
   m(thunks)
   if (thunksM) m(thunksM)

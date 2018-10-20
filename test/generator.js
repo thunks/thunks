@@ -163,7 +163,7 @@ module.exports = function (thunks) {
         should(res).be.eql([
           [1, 2],
           [3, 4],
-          {a: 5, b: 6}
+          { a: 5, b: 6 }
         ])
       })(done)
     })

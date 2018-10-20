@@ -390,11 +390,13 @@ function pruneErrorStack (error) {
 
 const thunk = thunks()
 const promise = thunk.promise
+const thunkify = thunk.thunkify
 thunks.NAME = 'thunks'
-thunks.VERSION = '4.9.2'
+thunks.VERSION = '4.9.3'
 thunks.Scope = Scope
 thunks.thunk = thunk
 thunks.promise = promise
+thunks.thunkify = thunkify
 thunks.thunks = thunks
 thunks.pruneErrorStack = true
 thunks.isAsyncFn = isAsyncFn
@@ -402,4 +404,4 @@ thunks.isGeneratorFn = isGeneratorFn
 thunks.isThunkableFn = isThunkableFn
 thunks.slice = slice
 
-export { thunks, thunk, promise, slice, Scope, isAsyncFn, isGeneratorFn, isThunkableFn, thunks as default }
+export { thunks, thunk, promise, thunkify, slice, Scope, isAsyncFn, isGeneratorFn, isThunkableFn, thunks as default }

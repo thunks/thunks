@@ -5,7 +5,7 @@
 import * as assert from 'assert'
 import { suite, it } from 'tman'
 import * as thunks from '../'
-import {thunk, thunks as thunksAlias, isThunkableFn, Scope} from '../'
+import { thunk, thunks as thunksAlias, isThunkableFn, Scope, promise, thunkify } from '../'
 
 suite('thunks typings', () => {
   it('thunks exports', function () {
@@ -268,6 +268,12 @@ suite('thunks typings', () => {
       })
     })
 
+    it('thunk.promise(thunkable)', function () {
+      return thunk.promise(thunk(1)).then(function (res) {
+        assert.strictEqual(res, 1)
+      })
+    })
+
     it('thunk.thunkify(fn)', function * () {
       let test0 = function (done: (err?: Error, ...args: Array<any>) => void) {
         done(null, 1, 2, 3)
@@ -338,5 +344,37 @@ suite('thunks typings', () => {
 
     setTimeout(thunk.cancel, 10)
     setTimeout(done, 100)
+  })
+
+  it('promise(thunkable)', function () {
+    return promise<number>(thunk(1)).then(function (res) {
+      assert.strictEqual(res, 1)
+    })
+  })
+
+  it('thunkify(fn)', function * () {
+    let test0 = function (done: (err?: Error, ...args: Array<any>) => void) {
+      done(null, 1, 2, 3)
+    }
+    let fn0 = thunkify(test0)
+    assert.deepEqual(yield fn0(), [1, 2, 3])
+
+    let test1 = function (val: string, done: (err?: Error, ...args: Array<string>) => void) {
+      done(null, val)
+    }
+    let fn1 = thunkify(test1)
+    assert.strictEqual(yield fn1('test'), 'test')
+
+    let test2 = function (val1: any, val2: any, done) {
+      done()
+    }
+    let fn2 = thunkify(test2)
+    assert.strictEqual(yield fn2('test', 0), undefined)
+
+    let test3 = function (val1: any, val2: any, val3: number, done) {
+      done(null, val1, val2, val3)
+    }
+    let fn3 = thunkify(test3)
+    assert.deepEqual(yield fn3(null, false, 0), [null, false, 0])
   })
 })

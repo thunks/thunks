@@ -839,7 +839,7 @@ module.exports = function (thunks) {
               should(this).be.equal(x)
               setTimeout(function () {
                 callback(null, 'a')
-              }, 20)
+              }, 100)
             },
             function (callback) {
               setTimeout(function () {
@@ -1002,7 +1002,7 @@ module.exports = function (thunks) {
 
       tman.it('thunk.persist.call()', function (done) {
         var thunk = thunks()
-        var obj = {x: x}
+        var obj = { x: x }
         var test = thunk.persist.call(obj, thunk(x))
         test(function (error, value) {
           should(error).be.equal(null)

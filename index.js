@@ -393,11 +393,12 @@
   }
 
   thunks.NAME = 'thunks'
-  thunks.VERSION = '4.9.2'
+  thunks.VERSION = '4.9.3'
   thunks['default'] = thunks
   thunks.Scope = Scope
   thunks.thunk = thunks()
   thunks.promise = thunks.thunk.promise
+  thunks.thunkify = thunks.thunk.thunkify
   thunks.thunks = thunks
   thunks.slice = slice
   thunks.pruneErrorStack = true

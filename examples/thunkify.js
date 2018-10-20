@@ -11,7 +11,7 @@ fsStat('.gitignore')(function (error, result) {
   console.log('.gitignore: ', result, error)
 })
 
-var obj = {a: 8}
+var obj = { a: 8 }
 
 var run = function (x, callback) {
   // ...

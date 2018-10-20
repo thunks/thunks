@@ -18,8 +18,8 @@ interface ThunkLikeFunction {
   (fn: Callback): void;
 }
 
-interface ThunkFunction {
-  (fn?: Callback | GeneratorFunction | AsyncFunction): ThunkFunction;
+interface ThunkFunction<T> {
+  (fn?: Callback | GeneratorFunction | AsyncFunction): ThunkFunction<T>;
 }
 
 interface NodeCallback {
@@ -76,7 +76,7 @@ interface Generator {
 }
 
 interface AsyncFunction extends Function {
-  (err?: Error, res?: primitives): PromiseLike;
+  (err?: Error, res?: primitives): Promise<any>;
 }
 
 interface AsyncFunctionConstructor {
@@ -106,19 +106,19 @@ interface ScopeOptions {
 }
 
 interface Thunk {
-  (thunkable?: primitives | thunkable): ThunkFunction;
-  all(...args: Array<thunkable>): ThunkFunction;
-  all(array: Array<thunkable>): ThunkFunction;
-  all(object: Object): ThunkFunction;
-  seq(...args: Array<thunkable>): ThunkFunction;
-  seq(array: Array<thunkable>): ThunkFunction;
-  race(...args: Array<thunkable>): ThunkFunction;
-  race(array: Array<thunkable>): ThunkFunction;
-  persist(thunkable: thunkable): ThunkFunction;
-  promise(thunkable: thunkable): PromiseLike;
-  thunkify(FnWithCb: FunctionWithCallback): (...args: Array<primitives>) => ThunkFunction;
-  lift(fn: (...args: Array<primitives>) => primitives): (...args: Array<thunkable>) => ThunkFunction;
-  delay(Time?: number): ThunkFunction;
+  <T>(thunkable?: primitives | thunkable): ThunkFunction<T>;
+  all<T>(...args: Array<thunkable>): ThunkFunction<T>;
+  all<T>(array: Array<thunkable>): ThunkFunction<T>;
+  all<T>(object: Object): ThunkFunction<T>;
+  seq<T>(...args: Array<thunkable>): ThunkFunction<T>;
+  seq<T>(array: Array<thunkable>): ThunkFunction<T>;
+  race<T>(...args: Array<thunkable>): ThunkFunction<T>;
+  race<T>(array: Array<thunkable>): ThunkFunction<T>;
+  persist<T>(thunkable: thunkable): ThunkFunction<T>;
+  promise<T>(thunkable: thunkable): Promise<T>;
+  thunkify<T>(FnWithCb: FunctionWithCallback): (...args: Array<primitives>) => ThunkFunction<T>;
+  lift<T>(fn: (...args: Array<primitives>) => primitives): (...args: Array<thunkable>) => ThunkFunction<T>;
+  delay(Time?: number): ThunkFunction<null>;
   stop(message?: string): void;
   cancel(): void;
 }
@@ -129,6 +129,8 @@ declare namespace thunks {
   export const VERSION: string;
   export const pruneErrorStack: boolean;
   export const thunk: Thunk;
+  export const promise: Thunk["promise"];
+  export const thunkify: Thunk["thunkify"];
   export function thunks (options?: ThunkOptions): Thunk;
   export function isGeneratorFn(fn: any): boolean;
   export function isAsyncFn(fn: any): boolean;
