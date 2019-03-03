@@ -18,32 +18,39 @@ ES5+, support node.js and browsers.
 
 ## Summary
 
-- [Implementations](#implementations)
-- [What is a thunk?](#what-is-a-thunk)
-- [Demo](#demo)
-- [Installation](#installation)
-- [API](#api)
-  - [thunks([scope])](#thunksscope)
-  - [thunks.pruneErrorStack](#thunkspruneerrorstack)
-  - [thunks.onerror\(error\)](#thunksonerrorerror)
-  - [Class thunks.Scope](#class-thunksscope)
-  - [thunk(thunkable)](#thunkthunkable)
-  - [thunk.all(obj)](#thunkallobj)
-  - [thunk.all(thunkable1, ..., thunkableN)](thunkallthunkable1--thunkablen)
-  - [thunk.seq([thunkable1, ..., thunkableN])](#thunkseqthunkable1--thunkablen)
-  - [thunk.seq(thunkable1, ..., thunkableN)](#thunkseqthunkable1--thunkablen-1)
-  - [thunk.race([thunkable1, ..., thunkableN])](#thunkracethunkable1--thunkablen)
-  - [thunk.race(thunkable1, ..., thunkableN)](#thunkracethunkable1--thunkablen-1)
-  - [thunk.thunkify(fn)](#thunkthunkifyfn)
-  - [thunk.lift(fn)](#thunkliftfn)
-  - [thunk.promise(thunkable)](#thunkpromisethunkable)
-  - [thunk.persist(thunkable)](#thunkpersistthunkable)
-  - [thunk.delay(delay)](#thunkdelaydelay)
-  - [thunk.stop([messagge])](#thunkstopmessagge)
-  - [thunk.cancel()](#thunkcancel)
-- [TypeScript Typings](#typescript-typings)
-- [What functions are thunkable?](#what-functions-are-thunkable)
-- [License MIT](#license)
+- [thunks](#thunks)
+  - [Compatibility](#compatibility)
+  - [Summary](#summary)
+  - [Implementations](#implementations)
+  - [What is a thunk](#what-is-a-thunk)
+  - [Demo](#demo)
+    - [with thunk function](#with-thunk-function)
+    - [with async function](#with-async-function)
+    - [with generator function](#with-generator-function)
+    - [chain, sequential, parallel](#chain-sequential-parallel)
+  - [Installation](#installation)
+  - [API](#api)
+    - [thunks([scope])](#thunksscope)
+    - [thunks.pruneErrorStack](#thunkspruneerrorstack)
+    - [thunks.onerror(error)](#thunksonerrorerror)
+    - [Class thunks.Scope](#class-thunksscope)
+    - [thunk(thunkable)](#thunkthunkable)
+    - [thunk.all(obj)](#thunkallobj)
+    - [thunk.all(thunkable1, ..., thunkableN)](#thunkallthunkable1--thunkablen)
+    - [thunk.seq([thunkable1, ..., thunkableN])](#thunkseqthunkable1--thunkablen)
+    - [thunk.seq(thunkable1, ..., thunkableN)](#thunkseqthunkable1--thunkablen)
+    - [thunk.race([thunkable1, ..., thunkableN])](#thunkracethunkable1--thunkablen)
+    - [thunk.race(thunkable1, ..., thunkableN)](#thunkracethunkable1--thunkablen)
+    - [thunk.thunkify(fn)](#thunkthunkifyfn)
+    - [thunk.lift(fn)](#thunkliftfn)
+    - [thunk.promise(thunkable)](#thunkpromisethunkable)
+    - [thunk.persist(thunkable)](#thunkpersistthunkable)
+    - [thunk.delay(delay)](#thunkdelaydelay)
+    - [thunk.stop([message])](#thunkstopmessage)
+    - [thunk.cancel()](#thunkcancel)
+  - [TypeScript Typings](#typescript-typings)
+  - [What functions are thunkable](#what-functions-are-thunkable)
+  - [License](#license)
 
 ## Implementations
 
@@ -714,7 +721,7 @@ So pay attention to that. **We can't return a non-thunkable function** in thunk.
 ## License
 
 thunks is licensed under the [MIT](https://github.com/thunks/thunks/blob/master/LICENSE) license.
-Copyright &copy; 2014-2018 thunks.
+Copyright &copy; 2014-2019 thunks.
 
 [npm-url]: https://npmjs.org/package/thunks
 [npm-image]: http://img.shields.io/npm/v/thunks.svg
