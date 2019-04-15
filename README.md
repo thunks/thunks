@@ -70,7 +70,7 @@ And a mountain of applications in server-side or client-side.
 
 ## What is a thunk
 
-1. [ALGOL thunks in 1961](http://archive.computerhistory.org/resources/text/algol/ACM_Algol_bulletin/1064045/frontmatter.pdf)
+1. [ALGOL thunks in 1961](https://web.archive.org/web/20190415165418/https://portalparts.acm.org/1070000/1064045/fm/frontmatter.pdf?ip=98.14.66.142)
 
 1. **`thunk`** is a function that encapsulates synchronous or asynchronous code inside.
 
