@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "4.9.4",
+  "version": "4.9.5",
   "main": "./index",
   "typings": "index.d.ts",
   "repository": {
@@ -27,19 +27,19 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^11.10.4",
-    "async": "^2.6.2",
-    "bluebird": "^3.5.3",
+    "@types/node": "^12.6.8",
+    "async": "^3.1.0",
+    "bluebird": "^3.5.5",
     "co": "^4.6.0",
     "istanbul": "^0.4.5",
     "jsbench": "^1.2.0",
-    "regenerator": "^0.13.3",
+    "regenerator": "^0.14.2",
     "should": "^13.2.3",
-    "standard": "^12.0.1",
+    "standard": "^13.1.0",
     "thenjs": "^2.1.0",
-    "tman": "^1.8.1",
-    "ts-node": "^8.0.2",
-    "typescript": "^3.3.3333"
+    "tman": "^1.9.0",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
   },
   "scripts": {
     "test": "standard && tman test/index",
